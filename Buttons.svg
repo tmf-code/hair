@@ -26,10 +26,10 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="7.9195959"
-     inkscape:cx="61.85938"
-     inkscape:cy="59.779797"
+     inkscape:cx="82.504441"
+     inkscape:cy="63.795359"
      inkscape:document-units="mm"
-     inkscape:current-layer="g6742"
+     inkscape:current-layer="g6788"
      showgrid="false"
      units="px"
      inkscape:snap-page="true"
@@ -127,7 +127,7 @@
        style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1.58749998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
   </g>
   <g
-     style="display:inline"
+     style="display:none"
      inkscape:label="Share"
      inkscape:groupmode="layer"
      id="g6742"
@@ -163,6 +163,19 @@
        id="path6776"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="sssss" />
+  </g>
+  <g
+     transform="translate(0,-263.13325)"
+     id="g6788"
+     inkscape:groupmode="layer"
+     inkscape:label="HairIcon"
+     style="display:inline">
+    <path
+       style="fill:#ffffff;fill-opacity:1;stroke:#000000;stroke-width:1.58749998;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       d="m 6.9523655,293.3304 c -1.8362166,2.3615 6.2914075,1.26659 9.7732455,1.32708 2.427848,0.0422 8.288003,1.17661 10.530815,-1.09458 1.006858,-1.01959 0.67946,-3.24452 -2.132984,-4.40245 -1.78327,-0.7342 -3.172263,-1.29803 -4.231046,-3.06125 -2.120394,-3.53116 -2.76518,-8.65889 -3.154806,-11.0885 -0.690621,-4.30653 -0.667626,-8.3325 -1.591822,-10.24952 -0.257924,-0.535 -1.548924,3.94167 -1.746978,5.76308 -0.459963,4.23005 0.09162,7.74982 1.311523,11.75262 0.812863,2.6672 -0.16331,6.81502 -1.270837,7.78567 -1.567806,1.37403 -6.8294471,2.42205 -7.4871105,3.26785 z"
+       id="path6792"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="sssssssssss" />
   </g>
   <g
      inkscape:label="PaintBucket"
