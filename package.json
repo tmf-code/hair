@@ -15,7 +15,8 @@
     "react-scripts": "3.4.1",
     "socket.io": "^2.3.0",
     "socket.io-client": "^2.3.0",
-    "typescript": "^3.8.3"
+    "typescript": "^3.8.3",
+    "uuid": "^7.0.3"
   },
   "scripts": {
     "server": "nodemon backend/server.js",
@@ -53,6 +54,7 @@
     "@types/react-dom": "^16.9.6",
     "@types/socket.io": "^2.1.4",
     "@types/socket.io-client": "^1.4.32",
+    "@types/uuid": "^7.0.2",
     "nodemon": "^2.0.3"
   }
 }
