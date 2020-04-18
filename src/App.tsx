@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import './App.css';
-import { Hair } from './components/hair';
 
 import { Mouse } from './drivers/Mouse';
 import { Socket } from './drivers/Socket';
+import { HairGrid } from './components/hair-grid';
 
 setInterval(() => Socket.emit('mouse', Mouse.Position()), 100);
 
@@ -16,11 +16,13 @@ const App: React.FC = () => {
   Socket.addListener('Mice Listener', setPositions);
 
   return (
-    <div className="App">
-      {positions.map((position, index) => {
-        return <Hair color={colors[index]} key={index} tipX={position[0]} tipY={position[1]} />;
-      })}
-    </div>
+    <>
+      <div className="App">
+        <HairGrid screenHeight={window.innerHeight} screenWidth={window.innerWidth} />
+        {/* {positions.map((position, index) => {
+      })} */}
+      </div>
+    </>
   );
 };
 
