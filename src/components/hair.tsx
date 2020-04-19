@@ -20,14 +20,12 @@ export const Hair = ({
   color,
 }: HairProps) => {
   return (
-    <div className="triangle-container">
-      <svg width="100%" height="100vh">
-        <polygon
-          points={`${tipX},${tipY} ${bottomLeftX},${bottomLeftY} ${bottomRightX},${bottomRightY}`}
-          className="triangle"
-          fill={color}
-        />
-      </svg>
-    </div>
+    <svg width="100%" height="100%">
+      <polygon
+        points={`${tipX},${tipY} ${bottomLeftX},${bottomLeftY} ${bottomRightX},${bottomRightY}`}
+        className="triangle"
+        fill={color}
+      />
+    </svg>
   );
 };
