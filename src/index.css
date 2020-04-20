@@ -17,12 +17,15 @@ code {
 
 .Cursor {
   position: absolute;
-  transform: translate(-50%, -50%);
+  transform: translate(-50%, -25%);
   width: 200px;
-  height: 50px;
+  height: 415px;
   z-index: 10;
-  pointer-events: none;
-  user-select: none;
+  background: url('./components/svgs/razor.svg');
+}
+
+.Cursor:active {
+  transform: scale(0.9, 0.9) translate(-55%, -25%);
 }
 
 .fall {

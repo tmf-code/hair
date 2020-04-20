@@ -1,5 +1,4 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import razor from './svgs/razor.svg';
 
 const Razor = () => {
   // State for storing mouse coordinates
@@ -18,11 +17,7 @@ const Razor = () => {
   // Add event listener using our hook
   useEventListener('mousemove', handler);
 
-  return (
-    <div className="Cursor" style={{ left: coords.x, top: coords.y }}>
-      <img src={razor} alt="razor" width={'100%'} />
-    </div>
-  );
+  return <div className="Cursor" style={{ left: coords.x, top: coords.y }}></div>;
 };
 
 // Hook
