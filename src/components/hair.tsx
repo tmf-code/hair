@@ -35,7 +35,7 @@ export const Hair = ({
   }, []); // Using an empty dependency array ensures this only runs on unmount
 
   if (fall) {
-    setTimeout(() => componentIsMounted.current && setTriggerFall(true), 100);
+    requestAnimationFrame(() => componentIsMounted.current && setTriggerFall(true));
   }
 
   return (
