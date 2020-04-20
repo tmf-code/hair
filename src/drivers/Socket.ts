@@ -13,7 +13,7 @@ export class Socket {
 
   public constructor() {
     this.grid = [];
-    const socket = io('http://192.168.178.41:3001');
+    const socket = io('http://localhost:3001');
 
     socket.on('updateClientGrid', (grid: Grid) => {
       this.grid = grid;

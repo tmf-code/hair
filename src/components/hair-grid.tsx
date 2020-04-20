@@ -1,4 +1,5 @@
 import React from 'react';
+import { hairThickness, hairColor } from './constants';
 
 type Vector2 = [number, number];
 type Rotations = number[];
@@ -9,22 +10,9 @@ export type HairGridProps = {
   lengths: Lengths;
   rotations: Rotations;
   grid: Grid;
-  screenWidth: number;
-  screenHeight: number;
 };
 
-export const HairGrid = ({
-  lengths,
-  rotations,
-  grid,
-  screenWidth,
-  screenHeight,
-}: HairGridProps) => {
-  const maxDimension = Math.max(screenWidth, screenHeight) * 2.5;
-  const thickness = 0.003 * maxDimension;
-
-  const color: string = 'rgba(0 0 0 200)';
-
+export const HairGrid = ({ lengths, rotations, grid }: HairGridProps) => {
   const gridOfHair = grid.map(([xPosition, yPosition], index) => {
     if (grid.length !== lengths.length || grid.length !== rotations.length) {
       return <></>;
@@ -32,9 +20,9 @@ export const HairGrid = ({
 
     const tipX = xPosition;
     const tipY = yPosition + Math.min(lengths[index], 70);
-    const bottomLeftX = xPosition - thickness / 2;
+    const bottomLeftX = xPosition - hairThickness / 2;
     const bottomLeftY = yPosition;
-    const bottomRightX = xPosition + thickness / 2;
+    const bottomRightX = xPosition + hairThickness / 2;
     const bottomRightY = yPosition;
     return (
       <polygon
@@ -43,7 +31,7 @@ export const HairGrid = ({
         })`}
         points={`${tipX},${tipY} ${bottomLeftX},${bottomLeftY} ${bottomRightX},${bottomRightY}`}
         className="triangle"
-        fill={color}
+        fill={hairColor}
       />
     );
   });

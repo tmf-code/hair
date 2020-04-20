@@ -18,10 +18,10 @@ code {
 .Cursor {
   position: absolute;
   transform: translate(-50%, -25%);
-  width: 200px;
-  height: 415px;
+  width: 205px;
+  height: 420px;
   z-index: 10;
-  background: url('./components/svgs/razor.svg');
+  background: url('./components/svgs/razor.svg') top center no-repeat;
 }
 
 .Cursor:active {

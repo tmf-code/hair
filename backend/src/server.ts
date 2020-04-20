@@ -27,7 +27,7 @@ io.on('connection', (socket) => {
   });
   // Grow
   setInterval(() => {
-    lengths = lengths.map((length) => Math.min(length + 0.00001, 1));
+    lengths = lengths.map((length) => Math.min(length + 0.0001, 1));
     if (lengths.some((length) => length !== 1)) {
       socket.emit('updateClientLengths', lengths);
     }

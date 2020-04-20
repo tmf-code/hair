@@ -10,6 +10,7 @@ import { Razor } from './components/razor';
 import type { HairLengths, Rotations, Grid, CutHair, Vector2 } from './types/types';
 import { Mouse } from './drivers/Mouse';
 import { HairDrop } from './components/hair-drop';
+import { hairThickness } from './components/constants';
 
 type AppProps = {};
 
@@ -104,9 +105,6 @@ class App extends React.PureComponent {
   }
 
   getNewCutHairComponents(newCutHairs: CutHair[], rotations: number[], grid: Grid) {
-    const maxDimension = Math.max(window.innerWidth, window.innerHeight) * 2.5;
-    const thickness = 0.003 * maxDimension;
-
     const newCutHairComponents: (React.ReactElement | undefined)[] = newCutHairs.map(
       ([cutHairIndex, timeStamp, hairLength]) => {
         if (!grid) {
@@ -119,9 +117,9 @@ class App extends React.PureComponent {
             rotation={rotations[cutHairIndex]}
             tipX={xPosition}
             tipY={yPosition + Math.min(hairLength, 70)}
-            bottomLeftX={xPosition - thickness / 2}
+            bottomLeftX={xPosition - hairThickness / 2}
             bottomLeftY={yPosition}
-            bottomRightX={xPosition + thickness / 2}
+            bottomRightX={xPosition + hairThickness / 2}
             bottomRightY={yPosition}
             color={'green'}
           />
@@ -151,8 +149,6 @@ class App extends React.PureComponent {
           lengths={this.state.absoluteLengths}
           rotations={this.state.rotations}
           grid={this.state.grid}
-          screenHeight={window.innerHeight}
-          screenWidth={window.innerWidth}
         />
         {cutHairComponents}
         <Razor />
