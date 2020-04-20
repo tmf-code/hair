@@ -1,6 +1,7 @@
 import * as http from 'http';
 import SocketIO from 'socket.io';
 import { createGrid } from './create-grid';
+import { growthSpeed } from './constants';
 import Express = require('express');
 
 const app = Express();
@@ -27,7 +28,7 @@ io.on('connection', (socket) => {
   });
   // Grow
   setInterval(() => {
-    lengths = lengths.map((length) => Math.min(length + 0.0001, 1));
+    lengths = lengths.map((length) => Math.min(length + growthSpeed, 1));
     if (lengths.some((length) => length !== 1)) {
       socket.emit('updateClientLengths', lengths);
     }

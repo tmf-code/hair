@@ -1,10 +1,5 @@
 import { Vector2 } from './types';
-
-const jitterRange = 0.05;
-const widthPoints = 20;
-const heightPoints = 20;
-const rotationStart = 130;
-const rotationEnd = 210;
+import { jitterRange, widthPoints, heightPoints, rotationStart, rotationEnd } from './constants';
 
 const randRange = (minimum: number, maximum: number) =>
   Math.random() * (maximum - minimum) + minimum;
