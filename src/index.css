@@ -17,6 +17,7 @@ code {
 
 .Cursor {
   position: absolute;
+  transition: transform 0.1s ease-in;
   transform: translate(-50%, -25%);
   width: 205px;
   height: 420px;
@@ -29,14 +30,33 @@ code {
 }
 
 .fall {
-  transform: translateY(100%);
+  /* transform: translateY(100%); */
+  animation-name: fallDown;
+  animation-duration: 1.6s;
+  animation-timing-function: ease-in;
+  animation-fill-mode: forwards;
 }
 
+@keyframes fallDown {
+  0% {
+    opacity: 1;
+    transform: translateY(0%);
+  }
+  50% {
+    transform: translateY(75%);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(75%);
+    opacity: 0;
+  }
+}
 .notransition {
   transition: none !important;
 }
 
 svg {
+  /* transform: translateY(0%); */
   transition: transform 0.8s ease-in;
   position: absolute;
 }

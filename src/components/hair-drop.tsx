@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React from 'react';
 
 export type HairProps = {
   rotation: number;
@@ -21,20 +21,8 @@ export const HairDrop = ({
   bottomRightY,
   color,
 }: HairProps) => {
-  const [triggerFall, setTriggerFall] = useState<boolean>(false);
-
-  // Here's how we'll keep track of our component's mounted state
-  const componentIsMounted = useRef(true);
-  useEffect(() => {
-    return () => {
-      componentIsMounted.current = false;
-    };
-  }, []); // Using an empty dependency array ensures this only runs on unmount
-
-  requestAnimationFrame(() => componentIsMounted.current && setTriggerFall(true));
-
   return (
-    <svg className={triggerFall ? 'fall' : ''} width="100%" height="100%">
+    <svg className={'fall'} width="100%" height="100%">
       <polygon
         transform={`rotate(${rotation} ${(bottomLeftX + bottomRightX) / 2} ${
           (bottomLeftY + bottomRightY) / 2

@@ -62,19 +62,25 @@ class App extends React.PureComponent {
       });
     }
 
+    const remainingCutHairs = this.getRemainingCutHairs(this.state.cutHairs);
+
     if (!Mouse.isClicked()) {
+      const cutsNeedTrimming = remainingCutHairs.length !== this.state.cutHairs.length;
+      if (cutsNeedTrimming) {
+        this.setState({
+          cutHairs: remainingCutHairs,
+        });
+      }
       requestAnimationFrame(this.update.bind(this));
       return;
     }
 
-    const remainingCutHairs = this.getRemainingCutHairs(this.state.cutHairs);
     const newCuts = this.getNewCuts(unfilteredCutHairs, remainingCutHairs);
     const cutHairs = [...remainingCutHairs, ...newCuts];
 
     const cutsNeedUpdating = cutHairs.length !== this.state.cutHairs.length;
 
     if (cutsNeedUpdating) {
-      console.log('new cuts');
       this.sendHairLengths(relativeLengths);
       this.setState({
         cutHairs,
@@ -106,7 +112,7 @@ class App extends React.PureComponent {
 
   getNewCutHairComponents(newCutHairs: CutHair[], rotations: number[], grid: Grid) {
     const newCutHairComponents: (React.ReactElement | undefined)[] = newCutHairs.map(
-      ([cutHairIndex, timeStamp, hairLength]) => {
+      ([cutHairIndex, , hairLength]) => {
         if (!grid) {
           return undefined;
         }
