@@ -10,7 +10,7 @@ import { Razor } from './components/razor';
 import type { HairLengths, Rotations, Grid, CutHair, Vector2 } from './types/types';
 import { Mouse } from './drivers/Mouse';
 import { HairDrop } from './components/hair-drop';
-import { hairThickness } from './components/constants';
+import { hairThickness, hairDropColor } from './components/constants';
 
 type AppProps = {};
 
@@ -121,7 +121,7 @@ class App extends React.PureComponent {
             bottomLeftY={yPosition}
             bottomRightX={xPosition + hairThickness / 2}
             bottomRightY={yPosition}
-            color={'green'}
+            color={hairDropColor}
           />
         );
       },
