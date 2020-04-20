@@ -3,6 +3,8 @@ import { Vector2 } from './types';
 const jitterRange = 0.05;
 const widthPoints = 20;
 const heightPoints = 20;
+const rotationStart = 0;
+const rotationEnd = 360;
 
 const randRange = (minimum: number, maximum: number) =>
   Math.random() * (maximum - minimum) + minimum;
@@ -21,6 +23,8 @@ const createGrid = () => {
     .map(jitter);
   const lengths = grid.map(() => 0);
 
-  return { grid, lengths };
+  const rotations: number[] = grid.map(() => randRange(rotationStart, rotationEnd));
+
+  return { grid, lengths, rotations };
 };
 export { createGrid };

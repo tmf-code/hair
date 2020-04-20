@@ -9,6 +9,7 @@ import { Mouse } from './drivers/Mouse';
 type Vector = [number, number];
 type Grid = Vector[];
 type Lengths = number[];
+type Rotations = number[];
 
 type AppProps = {};
 
@@ -20,8 +21,9 @@ class App extends React.Component {
 
   socket: Socket;
   state = {
-    grid: [[0, 0]] as Grid,
     lengths: [0] as Lengths,
+    rotations: [0] as Rotations,
+    grid: [[0, 0]] as Grid,
     mousePosition: [0, 0],
   };
 
@@ -30,7 +32,7 @@ class App extends React.Component {
   }
 
   update() {
-    const { grid: gridRelative, lengths: lengthsRelative } = this.socket;
+    const { grid: gridRelative, lengths: lengthsRelative, rotations } = this.socket;
 
     const grid = gridRelative.map(
       ([xPos, yPos]) => [xPos * window.innerWidth, yPos * window.innerHeight] as Vector,
@@ -68,6 +70,7 @@ class App extends React.Component {
 
     this.setState({
       ...this.state,
+      rotations,
       grid,
       lengths,
       mousePosition,
@@ -81,6 +84,7 @@ class App extends React.Component {
       <div className="App">
         <HairGrid
           lengths={this.state.lengths}
+          rotations={this.state.rotations}
           grid={this.state.grid}
           screenHeight={window.innerHeight}
           screenWidth={window.innerWidth}

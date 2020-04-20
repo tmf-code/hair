@@ -22,7 +22,8 @@
     "watch:server-js": "cd ./backend && nodemon ./dist/server.js",
     "watch:server-ts": "cd ./backend && tsc -w",
     "server": "concurrently \"npm:watch:server-js\" \"npm:watch:server-ts\"",
-    "start": "react-scripts start",
+    "start": "concurrently \"npm:server\" \"npm:frontend\"",
+    "frontend": "react-scripts start",
     "build": "react-scripts build",
     "eslint": "eslint \"./src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\""
