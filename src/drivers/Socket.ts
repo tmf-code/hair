@@ -1,9 +1,10 @@
 import io from 'socket.io-client';
+import type { Grid } from '../types/types';
 
 type Vector2 = [number, number];
 
 export class Socket {
-  public listeners: Map<string, Function> = new Map();
+  public listeners: Map<string, Function[]> = new Map();
   public socket: SocketIOClient.Socket;
 
   public lengths: number[] = [];
@@ -14,7 +15,7 @@ export class Socket {
     this.grid = [];
     const socket = io('http://192.168.178.41:3001');
 
-    socket.on('updateClientGrid', (grid: Vector2[]) => {
+    socket.on('updateClientGrid', (grid: Grid) => {
       this.grid = grid;
       this.emit('updateClientGrid', this.grid);
     });
@@ -37,16 +38,16 @@ export class Socket {
   emit(event: string, data: any[]) {
     switch (event) {
       case 'updateClientLengths':
-        this.listeners.get('updateClientLengths')?.(data);
+        this.listeners.get('updateClientLengths')?.forEach((listener) => listener(data));
         break;
       case 'updateClientRotations':
-        this.listeners.get('updateClientRotations')?.(data);
+        this.listeners.get('updateClientRotations')?.forEach((listener) => listener(data));
         break;
       case 'updateClientGrid':
-        this.listeners.get('updateClientGrid')?.(data);
+        this.listeners.get('updateClientGrid')?.forEach((listener) => listener(data));
         break;
       case 'updateServerLengths':
-        this.listeners.get('updateServerLengths')?.(data);
+        this.listeners.get('updateServerLengths')?.forEach((listener) => listener(data));
         break;
       default:
         break;
@@ -58,8 +59,11 @@ export class Socket {
   addListener(name: 'updateClientGrid', listener: (data: this['grid']) => void): void;
   addListener(name: string, listener: Function) {
     if (this.listeners.has(name)) {
+      console.log('grid');
+      const existingListeners = this.listeners.get(name)!;
+      this.listeners.set(name, [...existingListeners, listener]);
       return;
     }
-    this.listeners.set(name, listener);
+    this.listeners.set(name, [listener]);
   }
 }

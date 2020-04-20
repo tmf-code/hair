@@ -21,7 +21,9 @@ io.on('connection', (socket) => {
     if (updatedLengths.length !== lengths.length) {
       return;
     }
-    lengths = updatedLengths;
+    lengths = lengths.map((length, lengthIndex) =>
+      updatedLengths[lengthIndex] === 0 ? 0 : length,
+    );
   });
   // Grow
   setInterval(() => {

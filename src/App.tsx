@@ -8,10 +8,8 @@ import { Hair } from './components/hair';
 import { updateState } from './updateLoop';
 import { Razor } from './components/razor';
 
-type Vector = [number, number];
-type Grid = Vector[];
-type Lengths = number[];
-type Rotations = number[];
+import type { HairLengths, Rotations, Grid, CutHair, Vector2 } from './types/types';
+import { Mouse } from './drivers/Mouse';
 
 type AppProps = {};
 
@@ -23,48 +21,73 @@ class App extends React.Component {
 
   socket: Socket;
   state = {
-    relativelengths: [0] as Lengths,
-    absoluteLengths: [0] as Lengths,
-    rotations: [0] as Rotations,
-    cutHairs: [] as number[],
-    grid: [[0, 0]] as Grid,
-    cutHairComponents: [] as [number, number, React.ReactElement][],
+    absoluteLengths: [] as HairLengths,
+    rotations: [] as Rotations,
+    grid: [] as Grid,
+    cutHairs: [] as CutHair[],
   };
 
   componentDidMount() {
     this.update();
+
+    this.socket.addListener('updateClientGrid', (grid: Grid) => {
+      const scaleGrid = (gridRelative: Grid) => {
+        const grid = gridRelative.map(
+          ([xPos, yPos]) => [xPos * window.innerWidth, yPos * window.innerHeight] as Vector2,
+        );
+
+        return grid;
+      };
+
+      return this.setState({ grid: scaleGrid(grid) });
+    });
+    this.socket.addListener('updateClientRotations', (rotations: Rotations) => {
+      return this.setState({ rotations });
+    });
   }
 
   update() {
-    const { rotations, grid, relativelengths, absoluteLengths, cutHairs } = updateState(
+    const { relativeLengths, absoluteLengths, cutHairs: unfilteredCutHairs } = updateState(
       this.socket,
     );
 
-    const cutHairComponents = this.createCutHairComponents(
-      cutHairs,
-      rotations,
-      grid,
-      absoluteLengths,
+    const lengthsNeedUpdating = !absoluteLengths.every(
+      (length, lengthIndex) => length === this.state.absoluteLengths[lengthIndex],
     );
 
-    this.sendHairLengths(relativelengths);
-    this.setState({
-      rotations,
-      grid,
-      relativelengths,
-      absoluteLengths,
-      cutHairs: cutHairs,
-      cutHairComponents,
-    });
+    if (lengthsNeedUpdating) {
+      this.setState({
+        absoluteLengths,
+      });
+    }
+
+    if (!Mouse.isClicked()) {
+      requestAnimationFrame(this.update.bind(this));
+      return;
+    }
+
+    const remainingCutHairs = this.getRemainingCutHairs(this.state.cutHairs);
+    const newCuts = this.getNewCuts(unfilteredCutHairs, remainingCutHairs);
+    const cutHairs = [...remainingCutHairs, ...newCuts];
+
+    const cutsNeedUpdating = cutHairs.length !== this.state.cutHairs.length;
+
+    if (cutsNeedUpdating) {
+      console.log('new cuts');
+      this.sendHairLengths(relativeLengths);
+      this.setState({
+        cutHairs,
+      });
+    }
 
     requestAnimationFrame(this.update.bind(this));
   }
 
-  getRemainingCutHairs() {
-    const survivalTime = 3000;
+  getRemainingCutHairs(cutHairs: CutHair[]) {
+    const survivalTime = 30000;
     const currentTime = new Date().getTime();
-    const lastCutHairComponents = this.state.cutHairComponents.filter(
-      ([, startTime]: [number, number, React.ReactElement]) => {
+    const lastCutHairComponents = cutHairs.filter(
+      ([hairIndex, startTime, hairLength]: [number, number, number]) => {
         return currentTime - startTime < survivalTime;
       },
     );
@@ -72,48 +95,42 @@ class App extends React.Component {
     return lastCutHairComponents;
   }
 
-  createCutHairComponents(
-    cutHairs: number[],
-    rotations: number[],
-    grid: Grid,
-    absoluteLengths: Lengths,
-  ) {
+  getNewCuts(unfilteredCuts: CutHair[], remainingCutHairs: CutHair[]) {
+    const removedDuplicates = unfilteredCuts.filter(
+      (newCutHair) => !remainingCutHairs.some((oldCutHairs) => oldCutHairs[0] === newCutHair[0]),
+    );
+
+    return removedDuplicates;
+  }
+
+  getNewCutHairComponents(newCutHairs: CutHair[], rotations: number[], grid: Grid) {
     const maxDimension = Math.max(window.innerWidth, window.innerHeight) * 2.5;
     const thickness = 0.003 * maxDimension;
-    // Remove timeout lastCutHairComponents;
 
-    const lastCutHairComponents = this.getRemainingCutHairs();
-
-    const currentTime = new Date().getTime();
-    const newCutHairComponents: [number, number, React.ReactElement][] = cutHairs
-      .map((cutHairIndex) => {
+    const newCutHairComponents: (React.ReactElement | undefined)[] = newCutHairs.map(
+      ([cutHairIndex, timeStamp, hairLength]) => {
+        if (!grid) {
+          return undefined;
+        }
         const [xPosition, yPosition] = grid[cutHairIndex];
-        return [
-          cutHairIndex,
-          currentTime,
-
+        return (
           <Hair
             fall={true}
             key={cutHairIndex}
             rotation={rotations[cutHairIndex]}
             tipX={xPosition}
-            tipY={yPosition + Math.min(absoluteLengths[cutHairIndex], 70)}
+            tipY={yPosition + Math.min(hairLength, 70)}
             bottomLeftX={xPosition - thickness / 2}
             bottomLeftY={yPosition}
             bottomRightX={xPosition + thickness / 2}
             bottomRightY={yPosition}
-            color={'black'}
-          />,
-        ];
-      })
-      .filter(
-        (newCutHair) =>
-          !lastCutHairComponents.some((lastCutHair) => lastCutHair[0] === newCutHair[0]),
-      ) as [number, number, React.ReactElement][];
+            color={'green'}
+          />
+        );
+      },
+    );
 
-    const cutHairComponents = [...lastCutHairComponents, ...newCutHairComponents];
-
-    return cutHairComponents;
+    return newCutHairComponents;
   }
 
   sendHairLengths(relativeLengths: number[]) {
@@ -123,17 +140,23 @@ class App extends React.Component {
   }
 
   render() {
+    const cutHairComponents = this.getNewCutHairComponents(
+      this.state.cutHairs,
+      this.state.rotations,
+      this.state.grid,
+    );
+
     return (
       <div className="App">
         <HairGrid
-          cutHairs={this.state.cutHairs}
+          cutHairs={this.state.cutHairs.map((cutHair) => cutHair[0])}
           lengths={this.state.absoluteLengths}
           rotations={this.state.rotations}
           grid={this.state.grid}
           screenHeight={window.innerHeight}
           screenWidth={window.innerWidth}
         />
-        {this.state.cutHairComponents.map(([, , hair]) => hair)}
+        {cutHairComponents}
         <Razor />
       </div>
     );

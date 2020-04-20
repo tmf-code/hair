@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 export type HairProps = {
   grow?: boolean;
@@ -26,10 +26,16 @@ export const Hair = ({
 }: HairProps) => {
   const [triggerFall, setTriggerFall] = useState<boolean>(false);
 
+  // Here's how we'll keep track of our component's mounted state
+  const componentIsMounted = useRef(true);
+  useEffect(() => {
+    return () => {
+      componentIsMounted.current = false;
+    };
+  }, []); // Using an empty dependency array ensures this only runs on unmount
+
   if (fall) {
-    setTimeout(() => {
-      return setTriggerFall(true);
-    }, 100);
+    setTimeout(() => componentIsMounted.current && setTriggerFall(true), 100);
   }
 
   return (

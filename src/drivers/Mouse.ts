@@ -11,7 +11,6 @@ export class Mouse {
     this.position = [0, 0];
     document.addEventListener('mousemove', (event: MouseEvent) => {
       this.position = [event.clientX, event.clientY];
-      this.updateListeners(this.position);
     });
     document.addEventListener('mousedown', (event: MouseEvent) => {
       this.isClicked = true;
@@ -28,25 +27,14 @@ export class Mouse {
 
     document.addEventListener('touchmove', (event: TouchEvent) => {
       this.position = [event.touches[0].clientX, event.touches[0].clientY];
-      this.updateListeners(this.position);
     });
   }
 
-  private updateListeners(position: [number, number]) {
-    this.listeners.forEach((listener) => listener(position));
-  }
   static Position(): [number, number] {
     return this.instance.position;
   }
 
   static isClicked(): boolean {
     return this.instance.isClicked;
-  }
-
-  static addListener(name: string, listener: MouseListener) {
-    if (this.instance.listeners.has(name)) {
-      return;
-    }
-    this.instance.listeners.set(name, listener);
   }
 }
