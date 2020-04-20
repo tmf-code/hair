@@ -1,5 +1,6 @@
 import * as http from 'http';
 import SocketIO from 'socket.io';
+import { createGrid } from './create-grid';
 import Express = require('express');
 
 const app = Express();
@@ -8,28 +9,12 @@ const io = SocketIO(server);
 
 server.listen(3001);
 
-// Create grid
-const widthPoints = 20;
-const heightPoints = 20;
-
-type Position = [number, number];
-
-const randRange = (minimum: number, maximum: number) =>
-  Math.random() * (maximum - minimum) + minimum;
-
-let grid: Position[] = [...new Array(widthPoints * heightPoints)]
-  .fill(0)
-  .map((_, index) => [Math.floor(index / widthPoints), index % widthPoints])
-  .map(([xPosition, yPosition]) => [xPosition / widthPoints, yPosition / heightPoints])
-  .map(([xPosition, yPosition]) => {
-    let jitter = [randRange(-0.05, 0.05), randRange(-0.05, 0.05)];
-    return [xPosition + jitter[0], yPosition + jitter[1]];
-  });
-
-let lengths = grid.map(() => 0);
+let { grid, lengths } = createGrid();
 
 io.on('connection', (socket) => {
+  // Reset lengths to zero
   lengths = grid.map(() => 0);
+
   socket.emit('updateClientGrid', grid);
   socket.on('updateServerLengths', (updatedLengths: number[]) => {
     if (updatedLengths.length !== lengths.length) {
