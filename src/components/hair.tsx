@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 
 export type HairProps = {
+  grow?: boolean;
+  fall?: boolean;
   rotation: number;
   tipX: number;
   tipY: number;
@@ -12,6 +14,7 @@ export type HairProps = {
 };
 
 export const Hair = ({
+  fall = false,
   rotation,
   tipX,
   tipY,
@@ -21,8 +24,16 @@ export const Hair = ({
   bottomRightY,
   color,
 }: HairProps) => {
+  const [triggerFall, setTriggerFall] = useState<boolean>(false);
+
+  if (fall) {
+    setTimeout(() => {
+      return setTriggerFall(true);
+    }, 100);
+  }
+
   return (
-    <svg width="100%" height="100%">
+    <svg className={triggerFall ? 'fall' : ''} width="100%" height="100%">
       <polygon
         transform={`rotate(${rotation} ${(bottomLeftX + bottomRightX) / 2} ${
           (bottomLeftY + bottomRightY) / 2

@@ -24,6 +24,15 @@ code {
   z-index: 10;
 }
 
+.fall {
+  transform: translateY(100%);
+}
+
+.notransition {
+  transition: none !important;
+}
+
 svg {
+  transition: transform 0.8s ease-in;
   position: absolute;
 }

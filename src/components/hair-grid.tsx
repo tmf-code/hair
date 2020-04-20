@@ -7,6 +7,7 @@ type Grid = Vector2[];
 type Lengths = number[];
 
 export type HairGridProps = {
+  cutHairs: number[];
   lengths: Lengths;
   rotations: Rotations;
   grid: Grid;
@@ -15,6 +16,7 @@ export type HairGridProps = {
 };
 
 export const HairGrid = ({
+  cutHairs,
   lengths,
   rotations,
   grid,
@@ -26,7 +28,7 @@ export const HairGrid = ({
 
   const color: string = 'rgba(0 0 0 200)';
 
-  const gridComponent = grid.map(([xPosition, yPosition], index) => {
+  const gridOfHair = grid.map(([xPosition, yPosition], index) => {
     if (grid.length !== lengths.length || grid.length !== rotations.length) {
       return <></>;
     }
@@ -35,7 +37,7 @@ export const HairGrid = ({
         key={index}
         rotation={rotations[index]}
         tipX={xPosition}
-        tipY={yPosition + Math.min(lengths[index], 1000)}
+        tipY={yPosition + Math.min(lengths[index], 70)}
         bottomLeftX={xPosition - thickness / 2}
         bottomLeftY={yPosition}
         bottomRightX={xPosition + thickness / 2}
@@ -44,5 +46,6 @@ export const HairGrid = ({
       />
     );
   });
-  return <>{gridComponent}</>;
+
+  return <>{gridOfHair}</>;
 };

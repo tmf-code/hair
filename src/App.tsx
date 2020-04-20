@@ -4,7 +4,9 @@ import './App.css';
 import { HairGrid } from './components/hair-grid';
 
 import { Socket } from './drivers/Socket';
-import { Mouse } from './drivers/Mouse';
+import { Hair } from './components/hair';
+import { updateState } from './updateLoop';
+import { Razor } from './components/razor';
 
 type Vector = [number, number];
 type Grid = Vector[];
@@ -21,10 +23,12 @@ class App extends React.Component {
 
   socket: Socket;
   state = {
-    lengths: [0] as Lengths,
+    relativelengths: [0] as Lengths,
+    absoluteLengths: [0] as Lengths,
     rotations: [0] as Rotations,
+    cutHairs: [] as number[],
     grid: [[0, 0]] as Grid,
-    mousePosition: [0, 0],
+    cutHairComponents: [] as [number, number, React.ReactElement][],
   };
 
   componentDidMount() {
@@ -32,67 +36,105 @@ class App extends React.Component {
   }
 
   update() {
-    const { grid: gridRelative, lengths: lengthsRelative, rotations } = this.socket;
-
-    const grid = gridRelative.map(
-      ([xPos, yPos]) => [xPos * window.innerWidth, yPos * window.innerHeight] as Vector,
+    const { rotations, grid, relativelengths, absoluteLengths, cutHairs } = updateState(
+      this.socket,
     );
 
-    const lengthScalingFactor = Math.max(window.innerWidth, window.innerHeight);
-
-    const lengths = lengthsRelative.map((length) => length * lengthScalingFactor);
-    const mousePosition = Mouse.Position();
-    const [mouseX, mouseY] = mousePosition;
-
-    // Calcuate trims
-    const sqrRadius = 20 * 20;
-
-    const updatedLengths = lengths.map((length: number, lengthIndex: number) => {
-      // Mouse hitting
-      const [hairX, hairY] = grid[lengthIndex];
-      const distanceVector = [hairX - mouseX, hairY - mouseY];
-      const isInXRange = Math.abs(distanceVector[0]) < 125;
-      const isInYRange = Math.abs(distanceVector[1]) < 25;
-
-      // const sqrDistance =
-      //   distanceVector[0] * distanceVector[0] + distanceVector[1] * distanceVector[1];
-      // const isMouseOver = sqrDistance < sqrRadius;
-      const isMouseOver = isInXRange && isInYRange;
-
-      return isMouseOver ? 0 : length;
-    });
-
-    const updatedRelativeLengths = updatedLengths.map((length) => length / lengthScalingFactor);
-
-    if (updatedRelativeLengths.some((length) => length === 0)) {
-      this.socket.socket.emit('updateServerLengths', updatedRelativeLengths);
-    }
-
-    this.setState({
-      ...this.state,
+    const cutHairComponents = this.createCutHairComponents(
+      cutHairs,
       rotations,
       grid,
-      lengths,
-      mousePosition,
+      absoluteLengths,
+    );
+
+    this.sendHairLengths(relativelengths);
+    this.setState({
+      rotations,
+      grid,
+      relativelengths,
+      absoluteLengths,
+      cutHairs: cutHairs,
+      cutHairComponents,
     });
 
     requestAnimationFrame(this.update.bind(this));
+  }
+
+  getRemainingCutHairs() {
+    const survivalTime = 3000;
+    const currentTime = new Date().getTime();
+    const lastCutHairComponents = this.state.cutHairComponents.filter(
+      ([, startTime]: [number, number, React.ReactElement]) => {
+        return currentTime - startTime < survivalTime;
+      },
+    );
+
+    return lastCutHairComponents;
+  }
+
+  createCutHairComponents(
+    cutHairs: number[],
+    rotations: number[],
+    grid: Grid,
+    absoluteLengths: Lengths,
+  ) {
+    const maxDimension = Math.max(window.innerWidth, window.innerHeight) * 2.5;
+    const thickness = 0.003 * maxDimension;
+    // Remove timeout lastCutHairComponents;
+
+    const lastCutHairComponents = this.getRemainingCutHairs();
+
+    const currentTime = new Date().getTime();
+    const newCutHairComponents: [number, number, React.ReactElement][] = cutHairs
+      .map((cutHairIndex) => {
+        const [xPosition, yPosition] = grid[cutHairIndex];
+        return [
+          cutHairIndex,
+          currentTime,
+
+          <Hair
+            fall={true}
+            key={cutHairIndex}
+            rotation={rotations[cutHairIndex]}
+            tipX={xPosition}
+            tipY={yPosition + Math.min(absoluteLengths[cutHairIndex], 70)}
+            bottomLeftX={xPosition - thickness / 2}
+            bottomLeftY={yPosition}
+            bottomRightX={xPosition + thickness / 2}
+            bottomRightY={yPosition}
+            color={'black'}
+          />,
+        ];
+      })
+      .filter(
+        (newCutHair) =>
+          !lastCutHairComponents.some((lastCutHair) => lastCutHair[0] === newCutHair[0]),
+      ) as [number, number, React.ReactElement][];
+
+    const cutHairComponents = [...lastCutHairComponents, ...newCutHairComponents];
+
+    return cutHairComponents;
+  }
+
+  sendHairLengths(relativeLengths: number[]) {
+    if (relativeLengths.some((length) => length === 0)) {
+      this.socket.socket.emit('updateServerLengths', relativeLengths);
+    }
   }
 
   render() {
     return (
       <div className="App">
         <HairGrid
-          lengths={this.state.lengths}
+          cutHairs={this.state.cutHairs}
+          lengths={this.state.absoluteLengths}
           rotations={this.state.rotations}
           grid={this.state.grid}
           screenHeight={window.innerHeight}
           screenWidth={window.innerWidth}
         />
-        <div
-          className="Cursor"
-          style={{ left: this.state.mousePosition[0], top: this.state.mousePosition[1] }}
-        />
+        {this.state.cutHairComponents.map(([, , hair]) => hair)}
+        <Razor />
       </div>
     );
   }
