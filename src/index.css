@@ -18,7 +18,7 @@ code {
 .Cursor {
   position: absolute;
   transition: transform 0.1s ease-in;
-  transform: translate(-50%, -25%);
+  transform: translate(-50%, -15%);
   width: 205px;
   height: 420px;
   z-index: 10;

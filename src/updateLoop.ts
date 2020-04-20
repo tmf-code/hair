@@ -32,9 +32,9 @@ const getCutHairs = (
   const cutHairs = grid
     .map(([hairX, hairY]: Vector2, gridIndex: number) => {
       // Mouse hitting
-      const distanceVector = [hairX - mouseX, hairY - mouseY];
-      const isInXRange = Math.abs(distanceVector[0]) < 125;
-      const isInYRange = Math.abs(distanceVector[1]) < 25;
+      const distanceVector = [hairX - mouseX, hairY - (mouseY - 420 / 8)];
+      const isInXRange = Math.abs(distanceVector[0]) < (205 / 2.0) * 0.9;
+      const isInYRange = Math.abs(distanceVector[1]) < 22;
       return isInXRange && isInYRange && isClicked ? gridIndex : undefined;
     })
     .filter((hairIndex) => hairIndex !== undefined)
