@@ -4,16 +4,16 @@ import './App.css';
 import { HairGrid } from './components/hair-grid';
 
 import { Socket } from './drivers/Socket';
-import { Hair } from './components/hair';
 import { updateState } from './updateLoop';
 import { Razor } from './components/razor';
 
 import type { HairLengths, Rotations, Grid, CutHair, Vector2 } from './types/types';
 import { Mouse } from './drivers/Mouse';
+import { HairDrop } from './components/hair-drop';
 
 type AppProps = {};
 
-class App extends React.Component {
+class App extends React.PureComponent {
   constructor(props: AppProps) {
     super(props);
     this.socket = new Socket();
@@ -84,7 +84,7 @@ class App extends React.Component {
   }
 
   getRemainingCutHairs(cutHairs: CutHair[]) {
-    const survivalTime = 30000;
+    const survivalTime = 3000;
     const currentTime = new Date().getTime();
     const lastCutHairComponents = cutHairs.filter(
       ([hairIndex, startTime, hairLength]: [number, number, number]) => {
@@ -114,8 +114,7 @@ class App extends React.Component {
         }
         const [xPosition, yPosition] = grid[cutHairIndex];
         return (
-          <Hair
-            fall={true}
+          <HairDrop
             key={cutHairIndex}
             rotation={rotations[cutHairIndex]}
             tipX={xPosition}
@@ -149,7 +148,6 @@ class App extends React.Component {
     return (
       <div className="App">
         <HairGrid
-          cutHairs={this.state.cutHairs.map((cutHair) => cutHair[0])}
           lengths={this.state.absoluteLengths}
           rotations={this.state.rotations}
           grid={this.state.grid}

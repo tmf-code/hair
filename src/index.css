@@ -8,6 +8,7 @@ body {
   height: 100%;
   display: relative;
   background-color: brown;
+  overflow: hidden;
 }
 
 code {

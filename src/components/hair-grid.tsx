@@ -1,4 +1,3 @@
-import { Hair } from './hair';
 import React from 'react';
 
 type Vector2 = [number, number];
@@ -7,7 +6,6 @@ type Grid = Vector2[];
 type Lengths = number[];
 
 export type HairGridProps = {
-  cutHairs: number[];
   lengths: Lengths;
   rotations: Rotations;
   grid: Grid;
@@ -16,7 +14,6 @@ export type HairGridProps = {
 };
 
 export const HairGrid = ({
-  cutHairs,
   lengths,
   rotations,
   grid,
@@ -32,20 +29,28 @@ export const HairGrid = ({
     if (grid.length !== lengths.length || grid.length !== rotations.length) {
       return <></>;
     }
+
+    const tipX = xPosition;
+    const tipY = yPosition + Math.min(lengths[index], 70);
+    const bottomLeftX = xPosition - thickness / 2;
+    const bottomLeftY = yPosition;
+    const bottomRightX = xPosition + thickness / 2;
+    const bottomRightY = yPosition;
     return (
-      <Hair
-        key={index}
-        rotation={rotations[index]}
-        tipX={xPosition}
-        tipY={yPosition + Math.min(lengths[index], 70)}
-        bottomLeftX={xPosition - thickness / 2}
-        bottomLeftY={yPosition}
-        bottomRightX={xPosition + thickness / 2}
-        bottomRightY={yPosition}
-        color={color}
+      <polygon
+        transform={`rotate(${rotations[index]} ${(bottomLeftX + bottomRightX) / 2} ${
+          (bottomLeftY + bottomRightY) / 2
+        })`}
+        points={`${tipX},${tipY} ${bottomLeftX},${bottomLeftY} ${bottomRightX},${bottomRightY}`}
+        className="triangle"
+        fill={color}
       />
     );
   });
 
-  return <>{gridOfHair}</>;
+  return (
+    <svg width={'100%'} height={'100%'}>
+      {gridOfHair}
+    </svg>
+  );
 };
