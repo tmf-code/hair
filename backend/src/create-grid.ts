@@ -13,12 +13,12 @@ const jitter = ([xPosition, yPosition]: Vector2) =>
 const createGrid = () => {
   const grid = [...new Array(widthPoints * heightPoints)]
     .fill(0)
-    .map((_, index) => [Math.floor(index / widthPoints), index % widthPoints])
+    .map((_, index) => [index % widthPoints, Math.floor(index / widthPoints)])
     .map(([xPosition, yPosition]) => [xPosition / widthPoints, yPosition / heightPoints] as Vector2)
     .map(jitter);
   const lengths = grid.map(() => 0);
 
-  const rotations: number[] = grid.map(() => randRange(rotationStart, rotationEnd) + 180);
+  const rotations: number[] = grid.map(() => randRange(rotationStart, rotationEnd));
 
   return { grid, lengths, rotations };
 };

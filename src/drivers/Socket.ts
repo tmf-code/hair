@@ -1,5 +1,5 @@
 import io from 'socket.io-client';
-import type { Grid } from '../types/types';
+import type { Grid, HairLengths } from '../types/types';
 
 type Vector2 = [number, number];
 
@@ -11,24 +11,45 @@ export class Socket {
   public grid: Vector2[];
   public rotations: number[] = [];
 
+  private myCuts: boolean[] = [];
+
   public constructor() {
     this.grid = [];
-    const socket = io('http://localhost:3001');
+    const socket = io('http://192.168.178.41:3001');
 
     socket.on('updateClientGrid', (grid: Grid) => {
       this.grid = grid;
-      this.emit('updateClientGrid', this.grid);
-    });
-    socket.on('updateClientLengths', (lengths: number[]) => {
-      this.lengths = lengths;
-      this.emit('updateClientLengths', lengths);
-    });
-    socket.on('updateClientRotations', (rotations: number[]) => {
-      this.rotations = rotations;
-      this.emit('updateClientRotations', rotations);
     });
 
+    socket.on('updateClientGrowth', (growthSpeed: number) => {
+      this.lengths = this.lengths.map((length) => Math.min(length + growthSpeed, 1));
+    });
+
+    socket.on('updateClientLengths', (lengths: HairLengths) => {
+      this.lengths = lengths;
+    });
+
+    socket.on('updateClientRotations', (rotations: number[]) => {
+      this.rotations = rotations;
+    });
+
+    socket.on('updateClientCuts', (cuts: boolean[]) => {
+      this.lengths = this.lengths.map((length, lengthIndex) => (cuts[lengthIndex] ? 0 : length));
+    });
+
+    setInterval(() => {
+      if (this.myCuts.some(Boolean)) {
+        socket.emit('updateServerCuts', this.myCuts);
+        this.myCuts = this.myCuts.map(() => false);
+      }
+    }, 100);
+
     this.socket = socket;
+  }
+
+  updateCuts(cuts: boolean[]) {
+    this.lengths = this.lengths.map((length, lengthIndex) => (cuts[lengthIndex] ? 0 : length));
+    this.myCuts = cuts.map((currentCut, cutIndex) => currentCut || this.myCuts[cutIndex]);
   }
 
   emit(event: 'updateClientLengths', data: this['lengths']): void;

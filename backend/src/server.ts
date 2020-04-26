@@ -12,27 +12,33 @@ server.listen(3001);
 
 let { grid, lengths, rotations } = createGrid();
 
-io.on('connection', (socket) => {
-  // Reset lengths to zero
-  lengths = grid.map(() => 0);
+let cuts = grid.map(() => false);
 
+io.on('connection', (socket) => {
   socket.emit('updateClientGrid', grid);
   socket.emit('updateClientRotations', rotations);
-  socket.on('updateServerLengths', (updatedLengths: number[]) => {
-    if (updatedLengths.length !== lengths.length) {
+  socket.emit('updateClientLengths', lengths);
+  socket.on('updateServerCuts', (incomingCuts: boolean[]) => {
+    if (incomingCuts.length !== cuts.length) {
       return;
     }
-    lengths = lengths.map((length, lengthIndex) =>
-      updatedLengths[lengthIndex] === 0 ? 0 : length,
-    );
+    cuts = cuts.map((currentCut, cutIndex) => currentCut || incomingCuts[cutIndex]);
+    lengths = lengths.map((length, lengthIndex) => (incomingCuts[lengthIndex] ? 0 : length));
   });
-  // Grow
-  setInterval(() => {
-    lengths = lengths.map((length) => Math.min(length + growthSpeed, 1));
-    if (lengths.some((length) => length !== 1)) {
-      socket.emit('updateClientLengths', lengths);
-    }
-  }, 100);
 
   socket.on('disconnect', () => console.log('Client disconnected'));
 });
+
+// Cut
+setInterval(() => {
+  if (cuts.some(Boolean)) {
+    io.emit('updateClientCuts', cuts);
+    cuts = grid.map(() => false);
+  }
+}, 100);
+
+// Grow
+setInterval(() => {
+  lengths = lengths.map((length) => Math.min(length + growthSpeed, 1));
+  io.emit('updateClientGrowth', growthSpeed);
+}, 100);

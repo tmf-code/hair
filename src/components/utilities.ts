@@ -1,4 +1,4 @@
-import { Camera, Vector3 } from 'three';
+import { Camera, Vector3, Vector2 } from 'three';
 
 export const lerp = function (value1: number, value2: number, amount: number) {
   amount = amount < 0 ? 0 : amount;
@@ -26,6 +26,14 @@ export const getWorldLimits = (camera: Camera | undefined) => {
     leftTop: getWorldPos(0, 0),
     rightBottom: getWorldPos(window.innerWidth, window.innerHeight),
   };
+};
+
+export const mouseToWorld = (mouse: Vector2, camera: Camera) => {
+  const vec = new Vector3(mouse.x, mouse.y, 0);
+  vec.unproject(camera);
+  vec.sub(camera.position).normalize();
+  const distance = -camera.position.z / vec.z;
+  return new Vector3().copy(camera.position).add(vec.multiplyScalar(distance));
 };
 
 export type WorldLimits = ReturnType<typeof getWorldLimits>;
