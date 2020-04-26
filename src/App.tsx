@@ -1,166 +1,25 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { Canvas } from 'react-three-fiber';
+
 import './App.css';
+import { Grid, Rotations } from './types/types';
+import { socket } from './drivers/Socket';
+import { Triangles } from './components/Triangles';
 
-import { HairGrid } from './components/hair-grid';
+const App = () => {
+  const [grid, setGrid] = useState<Grid>([]);
+  const [rotations, setRotations] = useState<Rotations>([]);
 
-import { Socket } from './drivers/Socket';
-import { updateState } from './updateLoop';
-import { Razor } from './components/razor';
+  setInterval(() => {
+    setGrid(socket.grid);
+    setRotations(socket.rotations);
+  }, 1000);
 
-import type { HairLengths, Rotations, Grid, CutHair, Vector2 } from './types/types';
-import { Mouse } from './drivers/Mouse';
-import { HairDrop } from './components/hair-drop';
-import { hairThickness, hairDropColor } from './components/constants';
-
-type AppProps = {};
-
-class App extends React.PureComponent {
-  constructor(props: AppProps) {
-    super(props);
-    this.socket = new Socket();
-  }
-
-  socket: Socket;
-  state = {
-    absoluteLengths: [] as HairLengths,
-    rotations: [] as Rotations,
-    grid: [] as Grid,
-    cutHairs: [] as CutHair[],
-  };
-
-  componentDidMount() {
-    this.update();
-
-    this.socket.addListener('updateClientGrid', (grid: Grid) => {
-      const scaleGrid = (gridRelative: Grid) => {
-        const grid = gridRelative.map(
-          ([xPos, yPos]) => [xPos * window.innerWidth, yPos * window.innerHeight] as Vector2,
-        );
-
-        return grid;
-      };
-
-      return this.setState({ grid: scaleGrid(grid) });
-    });
-    this.socket.addListener('updateClientRotations', (rotations: Rotations) => {
-      return this.setState({ rotations });
-    });
-  }
-
-  update() {
-    const { relativeLengths, absoluteLengths, cutHairs: unfilteredCutHairs } = updateState(
-      this.socket,
-    );
-
-    const lengthsNeedUpdating = !absoluteLengths.every(
-      (length, lengthIndex) => length === this.state.absoluteLengths[lengthIndex],
-    );
-
-    if (lengthsNeedUpdating) {
-      this.setState({
-        absoluteLengths,
-      });
-    }
-
-    const remainingCutHairs = this.getRemainingCutHairs(this.state.cutHairs);
-
-    if (!Mouse.isClicked()) {
-      const cutsNeedTrimming = remainingCutHairs.length !== this.state.cutHairs.length;
-      if (cutsNeedTrimming) {
-        this.setState({
-          cutHairs: remainingCutHairs,
-        });
-      }
-      requestAnimationFrame(this.update.bind(this));
-      return;
-    }
-
-    const newCuts = this.getNewCuts(unfilteredCutHairs, remainingCutHairs);
-    const cutHairs = [...remainingCutHairs, ...newCuts];
-
-    const cutsNeedUpdating = cutHairs.length !== this.state.cutHairs.length;
-
-    if (cutsNeedUpdating) {
-      this.sendHairLengths(relativeLengths);
-      this.setState({
-        cutHairs,
-      });
-    }
-
-    requestAnimationFrame(this.update.bind(this));
-  }
-
-  getRemainingCutHairs(cutHairs: CutHair[]) {
-    const survivalTime = 3000;
-    const currentTime = new Date().getTime();
-    const lastCutHairComponents = cutHairs.filter(
-      ([hairIndex, startTime, hairLength]: [number, number, number]) => {
-        return currentTime - startTime < survivalTime;
-      },
-    );
-
-    return lastCutHairComponents;
-  }
-
-  getNewCuts(unfilteredCuts: CutHair[], remainingCutHairs: CutHair[]) {
-    const removedDuplicates = unfilteredCuts.filter(
-      (newCutHair) => !remainingCutHairs.some((oldCutHairs) => oldCutHairs[0] === newCutHair[0]),
-    );
-
-    return removedDuplicates;
-  }
-
-  getNewCutHairComponents(newCutHairs: CutHair[], rotations: number[], grid: Grid) {
-    const newCutHairComponents: (React.ReactElement | undefined)[] = newCutHairs.map(
-      ([cutHairIndex, , hairLength]) => {
-        if (!grid) {
-          return undefined;
-        }
-        const [xPosition, yPosition] = grid[cutHairIndex];
-        return (
-          <HairDrop
-            key={cutHairIndex}
-            rotation={rotations[cutHairIndex]}
-            tipX={xPosition}
-            tipY={yPosition + Math.min(hairLength, 70)}
-            bottomLeftX={xPosition - hairThickness / 2}
-            bottomLeftY={yPosition}
-            bottomRightX={xPosition + hairThickness / 2}
-            bottomRightY={yPosition}
-            color={hairDropColor}
-          />
-        );
-      },
-    );
-
-    return newCutHairComponents;
-  }
-
-  sendHairLengths(relativeLengths: number[]) {
-    if (relativeLengths.some((length) => length === 0)) {
-      this.socket.socket.emit('updateServerLengths', relativeLengths);
-    }
-  }
-
-  render() {
-    const cutHairComponents = this.getNewCutHairComponents(
-      this.state.cutHairs,
-      this.state.rotations,
-      this.state.grid,
-    );
-
-    return (
-      <div className="App">
-        <HairGrid
-          lengths={this.state.absoluteLengths}
-          rotations={this.state.rotations}
-          grid={this.state.grid}
-        />
-        {cutHairComponents}
-        <Razor />
-      </div>
-    );
-  }
-}
+  return (
+    <Canvas gl2={false} orthographic={false}>
+      <Triangles grid={grid} rotations={rotations} />
+    </Canvas>
+  );
+};
 
 export default App;

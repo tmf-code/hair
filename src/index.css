@@ -5,58 +5,18 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   width: 100%;
-  height: 100%;
+  height: 100vh;
   display: relative;
   background-color: brown;
   overflow: hidden;
 }
 
-code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
+.root {
+  width: 100%;
+  height: 100%;
 }
 
-.Cursor {
-  position: absolute;
-  transition: transform 0.1s ease-in;
-  transform: translate(-50%, -15%);
-  width: 205px;
-  height: 420px;
-  z-index: 10;
-  background: url('./components/svgs/razor.svg') top center no-repeat;
-}
-
-.Cursor:active {
-  transform: scale(0.9, 0.9) translate(-55%, -25%);
-}
-
-.fall {
-  /* transform: translateY(100%); */
-  animation-name: fallDown;
-  animation-duration: 1.6s;
-  animation-timing-function: ease-in;
-  animation-fill-mode: forwards;
-}
-
-@keyframes fallDown {
-  0% {
-    opacity: 1;
-    transform: translateY(0%);
-  }
-  50% {
-    transform: translateY(75%);
-    opacity: 1;
-  }
-  100% {
-    transform: translateY(75%);
-    opacity: 0;
-  }
-}
-.notransition {
-  transition: none !important;
-}
-
-svg {
-  /* transform: translateY(0%); */
-  transition: transform 0.8s ease-in;
-  position: absolute;
+canvas {
+  width: 100%;
+  height: 100vh;
 }

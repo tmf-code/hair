@@ -67,3 +67,5 @@ export class Socket {
     this.listeners.set(name, [listener]);
   }
 }
+
+export const socket = new Socket();

@@ -1,9 +1,8 @@
-type Vector2 = [number, number];
-type Grid = Vector2[];
-type HairLengths = number[];
+type Triangle2D = [number, number, number, number, number, number];
+type Position2D = [number, number];
+type Grid = Position2D[];
 type Rotations = number[];
-type Timestamp = number;
-type HairIndex = number;
-type HairLength = number;
-type CutHair = [HairIndex, Timestamp, HairLength];
-export type { Grid, Vector2, Timestamp, HairIndex, CutHair, HairLengths, Rotations };
+type Position3D = [number, number, number];
+type HairLengths = number[];
+
+export type { Grid, Triangle2D, Position2D, Position3D, Rotations, HairLengths };
