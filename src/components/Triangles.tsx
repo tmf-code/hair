@@ -1,12 +1,25 @@
 import { triangleGeometry } from './Triangle';
 import { Grid, Rotations, HairLengths } from '../types/types';
 import { useThree, useFrame } from 'react-three-fiber';
-import React, { useMemo, useRef } from 'react';
+import { useSpring, a } from 'react-spring/three';
+import React, { useMemo, useRef, useState, forwardRef } from 'react';
 import { socket } from '../drivers/Socket';
-import { Object3D, InstancedMesh, MeshBasicMaterial, Color, Vector2, Box2, Vector3 } from 'three';
+import {
+  Object3D,
+  InstancedMesh,
+  MeshBasicMaterial,
+  Color,
+  Vector2,
+  Box2,
+  Vector3,
+  TextureLoader,
+  Mesh,
+} from 'three';
 import { lerp, mouseToWorld } from './utilities';
 import { hairColor, razorWidth, razorHeight, swirlRadius } from './constants';
 import { Mouse } from '../drivers/Mouse';
+
+import razorPNG from './svgs/razor.svg';
 
 type TrianglesProps = {
   grid: Grid;
@@ -21,6 +34,50 @@ type ViewportDimensions = {
 const calculatePositions = function (grid: Grid, viewport: ViewportDimensions) {
   return grid.map(([xPos, yPos]) => relativeToWorld(new Vector2(xPos, yPos), viewport));
 };
+
+/** This component loads an image and projects it onto a plane */
+const Image = forwardRef(
+  (
+    {
+      url,
+      scale,
+    }: {
+      ref: any;
+      url: string;
+      opacity: number;
+      scale: typeof a.mesh['scale'];
+      props?: any;
+    },
+    ref,
+  ) => {
+    const texture = useMemo(() => new TextureLoader().load(url), [url]);
+    const [mouseUp, setMouseUp] = useState(true);
+
+    window.addEventListener('mousedown', () => {
+      setMouseUp(false);
+    });
+    window.addEventListener('touchstart', () => {
+      setMouseUp(false);
+    });
+    window.addEventListener('mouseup', () => {
+      setMouseUp(true);
+    });
+    window.addEventListener('touchend', () => {
+      setMouseUp(true);
+    });
+
+    const { factor } = useSpring({ factor: mouseUp ? 1.1 : 1 });
+
+    return (
+      <a.mesh ref={ref} scale={factor.interpolate((f: number) => [scale * f, scale * f, 1])}>
+        <planeBufferGeometry attach="geometry" args={[1, 2.1]} />
+        <meshBasicMaterial attach="material" transparent opacity={mouseUp ? 0 : 1}>
+          <primitive attach="map" object={texture} />
+        </meshBasicMaterial>
+      </a.mesh>
+    );
+  },
+);
 
 const relativeToWorld = function (
   { x, y }: Vector2,
@@ -45,6 +102,7 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
   const positions = useMemo(() => calculatePositions(grid, viewport), [grid, viewport]);
 
   const ref = useRef<InstancedMesh>();
+  const razorRef = useRef<Mesh>();
   useFrame(() => {
     lastLengths = socket.lengths;
 
@@ -58,6 +116,10 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
     mouseLeft.set(mousePos.x - razorWidth, mousePos.y - razorHeight);
     mouseRight.set(mousePos.x + razorWidth, mousePos.y + razorHeight);
     razorBox.set(mouseLeft, mouseRight);
+
+    if (razorRef.current) {
+      razorRef.current.position.set(mousePos.x, mousePos.y - (2.1 / 2) * 0.9, mousePos.z);
+    }
 
     // Update display
     lastLengths.forEach((length, lengthIndex) => {
@@ -100,10 +162,13 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
   });
 
   return (
-    <instancedMesh
-      ref={ref}
-      args={[hairGeo, new MeshBasicMaterial({ color: new Color(hairColor) }), grid.length]}
-    ></instancedMesh>
+    <>
+      <Image ref={razorRef} scale={1} opacity={1} url={razorPNG}></Image>
+      <instancedMesh
+        ref={ref}
+        args={[hairGeo, new MeshBasicMaterial({ color: new Color(hairColor) }), grid.length]}
+      ></instancedMesh>
+    </>
   );
 };
 
