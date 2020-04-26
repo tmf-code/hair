@@ -3,9 +3,9 @@ import { Grid, Rotations, HairLengths } from '../types/types';
 import { useThree, useFrame } from 'react-three-fiber';
 import React, { useMemo, useRef } from 'react';
 import { socket } from '../drivers/Socket';
-import { Object3D, InstancedMesh, MeshBasicMaterial, Color, Vector2, Box2 } from 'three';
-import { lerp, arrayEqual, mouseToWorld } from './utilities';
-import { hairColor, razorWidth, razorHeight } from './constants';
+import { Object3D, InstancedMesh, MeshBasicMaterial, Color, Vector2, Box2, Vector3 } from 'three';
+import { lerp, mouseToWorld } from './utilities';
+import { hairColor, razorWidth, razorHeight, swirlRadius } from './constants';
 import { Mouse } from '../drivers/Mouse';
 
 type TrianglesProps = {
@@ -36,6 +36,8 @@ const transformHolder = new Object3D();
 
 let lastLengths: HairLengths = [];
 
+let rotationOffsets: Rotations = [];
+
 const Triangles = ({ grid, rotations }: TrianglesProps) => {
   const { viewport, mouse, camera } = useThree();
 
@@ -44,13 +46,12 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
 
   const ref = useRef<InstancedMesh>();
   useFrame(() => {
-    if (arrayEqual(lastLengths, socket.lengths) && !Mouse.isClicked()) return;
     lastLengths = socket.lengths;
 
     if (!ref.current) return;
     if (socket.lengths.length === 0) return;
     if (grid.length === 0) return;
-
+    if (rotationOffsets.length === 0) rotationOffsets = grid.map(() => 0);
     ref.current.instanceMatrix.needsUpdate = true;
 
     const mousePos = mouseToWorld(mouse, camera);
@@ -61,7 +62,7 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
     // Update display
     lastLengths.forEach((length, lengthIndex) => {
       const [xPos, yPos] = positions[lengthIndex];
-      const rotation = rotations[lengthIndex];
+      const rotation = rotations[lengthIndex] + rotationOffsets[lengthIndex];
 
       transformHolder.position.set(xPos, yPos, 0);
       transformHolder.rotation.set(0, 0, rotation);
@@ -70,13 +71,32 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
       ref.current?.setMatrixAt(lengthIndex, transformHolder.matrix);
     });
 
-    const updatedCuts = lastLengths.map((length, lengthIndex) => {
+    const cutAffect = lastLengths.map((length, lengthIndex) => {
       const [xPos, yPos] = positions[lengthIndex];
-      const shouldChop = razorBox.containsPoint(new Vector2(xPos, yPos)) && Mouse.isClicked();
-      return shouldChop;
+      const hover = razorBox.containsPoint(new Vector2(xPos, yPos));
+      return hover && Mouse.isClicked();
     });
 
-    socket.updateCuts(updatedCuts);
+    const swirlAffect = lastLengths.map((length, lengthIndex) => {
+      const directionVector = Mouse.VelocityVector().normalize();
+      const [xPos, yPos] = positions[lengthIndex];
+      const distance = mousePos.distanceTo(new Vector3(xPos, yPos, 0));
+      const hover = distance < swirlRadius;
+      const shouldSwirl = hover && !Mouse.isClicked() && Mouse.VelocityVector().length() > 0.001;
+      return shouldSwirl
+        ? directionVector.multiplyScalar(1 - distance / swirlRadius)
+        : new Vector2(0, 0);
+    });
+
+    rotationOffsets = swirlAffect.map((swirlAmount, hairIndex) => {
+      const rotationDifference =
+        Math.atan2(swirlAmount.y, swirlAmount.x) - rotationOffsets[hairIndex];
+      const newRotation =
+        rotationOffsets[hairIndex] + (rotationDifference * swirlAmount.length()) / 10;
+      return newRotation;
+    });
+
+    socket.updateCuts(cutAffect);
   });
 
   return (

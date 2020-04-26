@@ -1,3 +1,4 @@
+import { Vector2 } from 'three';
 type MouseListener = (position: [number, number]) => void;
 
 export class Mouse {
@@ -6,17 +7,24 @@ export class Mouse {
   public listeners: Map<string, MouseListener> = new Map();
   public position: [number, number];
   public isClicked: boolean = false;
-  relativePosition: number[];
+  private velocityVector: Vector2;
+  private positionVector: Vector2;
+  private timeout: NodeJS.Timeout | undefined;
 
   private constructor() {
     this.position = [0, 0];
-    this.relativePosition = [0, 0];
+    this.velocityVector = new Vector2().set(this.position[0], this.position[1]);
+    this.positionVector = new Vector2().set(this.position[0], this.position[1]);
+
     document.addEventListener('mousemove', (event: MouseEvent) => {
+      const prevPosition = this.positionVector.clone();
       this.position = [event.clientX, event.clientY];
-      this.relativePosition = [
-        event.clientX / window.innerWidth,
-        event.clientY / window.innerHeight,
-      ];
+
+      this.positionVector = new Vector2().set(this.position[0], this.position[1]);
+
+      this.velocityVector = this.positionVector.clone().sub(prevPosition);
+      this.timeout && clearTimeout(this.timeout);
+      this.timeout = setTimeout(() => (this.velocityVector = new Vector2().set(0, 0)), 20);
     });
     document.addEventListener('mousedown', (event: MouseEvent) => {
       this.isClicked = true;
@@ -32,16 +40,14 @@ export class Mouse {
     });
 
     document.addEventListener('touchmove', (event: TouchEvent) => {
-      this.position = [event.touches[0].clientX, event.touches[0].clientY];
-      this.relativePosition = [
-        event.touches[0].clientX / window.innerWidth,
-        event.touches[0].clientY / window.innerHeight,
-      ];
-    });
-  }
+      const prevPosition = this.positionVector.clone();
 
-  static RelativePosition() {
-    return this.instance.relativePosition;
+      this.position = [event.touches[0].clientX, event.touches[0].clientY];
+
+      this.velocityVector = this.positionVector.clone().sub(prevPosition);
+      this.timeout && clearTimeout(this.timeout);
+      this.timeout = setTimeout(() => (this.velocityVector = new Vector2().set(0, 0)), 20);
+    });
   }
 
   static Position(): [number, number] {
@@ -50,5 +56,13 @@ export class Mouse {
 
   static isClicked(): boolean {
     return this.instance.isClicked;
+  }
+
+  static PositionVector(): Vector2 {
+    return this.instance.positionVector.clone();
+  }
+
+  static VelocityVector(): Vector2 {
+    return this.instance.velocityVector.clone().divideScalar(window.innerWidth);
   }
 }

@@ -4,4 +4,4 @@ export const heightPoints = 80;
 export const rotationStart = (45 * Math.PI) / 180;
 export const rotationEnd = (-10 * Math.PI) / 180;
 
-export const growthSpeed = 0.001;
+export const growthSpeed = 0.01;
