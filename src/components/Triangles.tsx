@@ -42,17 +42,18 @@ const readyToRender = (ref: React.MutableRefObject<InstancedMesh | undefined>, g
   return readyToRender;
 };
 
-const updateRazorBox = (mousePos: Vector3) => {
-  mouseLeft.set(mousePos.x - razorWidth, mousePos.y - razorHeight);
-  mouseRight.set(mousePos.x + razorWidth, mousePos.y + razorHeight);
+const updateRazorBox = (mousePos: Vector3, aspect: number) => {
+  mouseLeft.set(mousePos.x - razorWidth * aspect, mousePos.y - razorHeight);
+  mouseRight.set(mousePos.x + razorWidth * aspect, mousePos.y + razorHeight);
   razorBox.set(mouseLeft, mouseRight);
 };
 const updateRazorPosition = (
   razorRef: React.MutableRefObject<Mesh | undefined>,
   mousePos: Vector3,
+  aspect: number,
 ) => {
   if (razorRef.current) {
-    razorRef.current.position.set(mousePos.x, mousePos.y - (2.1 / 2) * 0.9, mousePos.z);
+    razorRef.current.position.set(mousePos.x, mousePos.y - (2.1 / 2) * 0.9 * aspect, mousePos.z);
   }
 };
 
@@ -106,8 +107,7 @@ const calculateSwirls = (positions: number[][], mousePos: Vector3) => {
 };
 
 const Triangles = ({ grid, rotations }: TrianglesProps) => {
-  const { viewport, mouse, camera } = useThree();
-
+  const { viewport, mouse, camera, aspect } = useThree();
   const hairGeo = useMemo(() => triangleGeometry(viewport.width), [viewport.width]);
   const positions = useMemo(() => calculatePositions(grid, viewport), [grid, viewport]);
 
@@ -122,8 +122,8 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
     ref!.current!.instanceMatrix.needsUpdate = true;
 
     const mousePos = mouseToWorld(mouse, camera);
-    updateRazorBox(mousePos);
-    updateRazorPosition(razorRef, mousePos);
+    updateRazorBox(mousePos, aspect);
+    updateRazorPosition(razorRef, mousePos, aspect);
     updateDisplay(ref, positions, rotations);
 
     const cutAffect = calculateCuts(positions);
@@ -134,7 +134,7 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
 
   return (
     <>
-      <Razor ref={razorRef} scale={1} opacity={1} />
+      <Razor ref={razorRef} scale={aspect} opacity={1} />
       <instancedMesh
         ref={ref}
         args={[hairGeo, new MeshBasicMaterial({ color: new Color(hairColor) }), grid.length]}
