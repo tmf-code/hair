@@ -1,10 +1,9 @@
-import { forwardRef, useState } from 'react';
+import { forwardRef, useState, useEffect, useMemo } from 'react';
 import { TextureLoader } from 'three';
 import React from 'react';
 import { useSpring, a } from 'react-spring/three';
 import razorSVG from './svgs/razor.svg';
 
-/** This component loads an image and projects it onto a plane */
 const Razor = forwardRef(
   (
     {
@@ -17,21 +16,22 @@ const Razor = forwardRef(
     },
     ref,
   ) => {
-    const texture = new TextureLoader().load(razorSVG);
+    const texture = useMemo(() => new TextureLoader().load(razorSVG), []);
     const [mouseUp, setMouseUp] = useState(true);
-
-    window.addEventListener('mousedown', () => {
-      setMouseUp(false);
-    });
-    window.addEventListener('touchstart', () => {
-      setMouseUp(false);
-    });
-    window.addEventListener('mouseup', () => {
-      setMouseUp(true);
-    });
-    window.addEventListener('touchend', () => {
-      setMouseUp(true);
-    });
+    useEffect(() => {
+      document.addEventListener('mousedown', () => {
+        setMouseUp(false);
+      });
+      document.addEventListener('touchstart', () => {
+        setMouseUp(false);
+      });
+      document.addEventListener('mouseup', () => {
+        setMouseUp(true);
+      });
+      document.addEventListener('touchend', () => {
+        setMouseUp(true);
+      });
+    }, []);
 
     const { factor } = useSpring({ factor: mouseUp ? 1.1 : 1 });
 
