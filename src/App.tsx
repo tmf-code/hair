@@ -16,7 +16,7 @@ const App = () => {
   }, 1000);
 
   return (
-    <Canvas gl2={false} orthographic={false}>
+    <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
       <Triangles grid={grid} rotations={rotations} />
     </Canvas>
   );
