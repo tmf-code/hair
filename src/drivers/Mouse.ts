@@ -43,6 +43,7 @@ export class Mouse {
       const prevPosition = this.positionVector.clone();
 
       this.position = [event.touches[0].clientX, event.touches[0].clientY];
+      this.positionVector = new Vector2().set(this.position[0], this.position[1]);
 
       this.velocityVector = this.positionVector.clone().sub(prevPosition);
       this.timeout && clearTimeout(this.timeout);
