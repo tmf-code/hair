@@ -18,6 +18,9 @@ import { hairColor, razorWidth, razorHeight, swirlRadius } from './constants';
 import { Mouse } from '../drivers/Mouse';
 
 import { Razor } from './Razor';
+import { FIFO } from './FIFO';
+import { EasingFunctions } from './easing-functions';
+import { Buckets } from './buckets';
 
 // State holders outside of react
 const mouseLeft = new Vector2();
@@ -26,6 +29,7 @@ const razorBox = new Box2();
 const transformHolder = new Object3D();
 let lastLengths: HairLengths = [];
 let rotationOffsets: Rotations = [];
+const maxFallingHair = 1500;
 
 type TrianglesProps = {
   grid: Grid;
@@ -62,11 +66,12 @@ const createRotationsOnFirstRender = (grid: Grid) => {
 };
 
 const updateDisplay = (
+  lengths: HairLengths,
   ref: React.MutableRefObject<InstancedMesh | undefined>,
   positions: number[][],
   rotations: number[],
 ) => {
-  lastLengths.forEach((length, lengthIndex) => {
+  lengths.forEach((length, lengthIndex) => {
     const [xPos, yPos] = positions[lengthIndex];
     const rotation = rotations[lengthIndex] + rotationOffsets[lengthIndex];
 
@@ -106,6 +111,28 @@ const calculateSwirls = (positions: number[][], mousePos: Vector3) => {
   });
 };
 
+type TriangleTransform = {
+  type: 'empty' | 'useful';
+  xPos: number;
+  yPos: number;
+  rotation: number;
+  length: number;
+  hairIndex: number;
+  timeStamp: number;
+};
+
+const emptyCutHair: TriangleTransform = {
+  type: 'empty',
+  xPos: 0,
+  yPos: 0,
+  rotation: 0,
+  length: 0,
+  hairIndex: -1,
+  timeStamp: 0,
+};
+
+const cutHairFIFO = new FIFO<TriangleTransform>(maxFallingHair, emptyCutHair, 'hairIndex');
+
 const Triangles = ({ grid, rotations }: TrianglesProps) => {
   const { viewport, mouse, camera, aspect } = useThree();
   const hairGeo = useMemo(() => triangleGeometry(viewport.width), [viewport.width]);
@@ -124,20 +151,71 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
     const mousePos = mouseToWorld(mouse, camera);
     updateRazorBox(mousePos, aspect);
     updateRazorPosition(razorRef, mousePos, aspect);
-    updateDisplay(ref, positions, rotations);
+    updateDisplay(lastLengths, ref, positions, rotations);
 
     const cutAffect = calculateCuts(positions);
     rotationOffsets = calculateSwirls(positions, mousePos);
 
+    const createFallingHair = (positions: number[][], lengths: HairLengths, cutAffect: boolean[]) =>
+      cutAffect
+        .map((cut, index) => [cut, index] as [boolean, number])
+        .filter(([isCut]) => isCut)
+        .map(([, index]) => index)
+        .map(
+          (hairIndex): TriangleTransform => {
+            const length = lengths[hairIndex];
+            const [xPos, yPos] = positions[hairIndex];
+            const rotation = rotations[hairIndex] + rotationOffsets[hairIndex];
+            return {
+              xPos,
+              yPos,
+              rotation,
+              length,
+              type: 'useful',
+              hairIndex,
+              timeStamp: Date.now(),
+            };
+          },
+        );
+
+    const cuts = createFallingHair(positions, lastLengths, cutAffect);
+    cuts.forEach((cut) => cutHairFIFO.addIfUnique(cut));
+
+    const frameTime = Date.now();
+    const animationDuration = 800;
+
+    const heightBuckets = new Buckets(10, -viewport.width / 2.0, viewport.width / 2.0);
+
+    cutHairFIFO.stack.forEach((transform, index) => {
+      const { xPos, yPos, rotation, length, timeStamp, type } = transform;
+
+      if (type === 'empty') return;
+      const bucketHeight =
+        (heightBuckets.add(xPos) * viewport.height) / maxFallingHair / heightBuckets.numBuckets;
+      const animationProgression = Math.min((frameTime - timeStamp) / animationDuration, 1.0);
+
+      const destination = -viewport.height / 2.0 + Math.abs(yPos / 8.0) + bucketHeight;
+      const distance = (yPos - destination) * EasingFunctions.easeInQuad(animationProgression);
+
+      transformHolder.position.set(xPos, yPos - distance, 0);
+      transformHolder.rotation.set(0, 0, rotation);
+      transformHolder.scale.set(1, length, 1);
+      transformHolder.updateMatrix();
+      ref.current?.setMatrixAt(grid.length + index, transformHolder.matrix);
+    });
+
     socket.updateCuts(cutAffect);
   });
-
   return (
     <>
       <Razor ref={razorRef} scale={aspect} opacity={1} />
       <instancedMesh
         ref={ref}
-        args={[hairGeo, new MeshBasicMaterial({ color: new Color(hairColor) }), grid.length]}
+        args={[
+          hairGeo,
+          new MeshBasicMaterial({ color: new Color(hairColor) }),
+          grid.length + maxFallingHair,
+        ]}
       ></instancedMesh>
     </>
   );
