@@ -41,9 +41,7 @@ const readyToRender = (ref: React.MutableRefObject<InstancedMesh | undefined>, g
   const hairsRetrievedFromServer = socket.lengths.length !== 0;
   const gridConstructed = grid.length !== 0;
 
-  const readyToRender = isMeshMade && hairsRetrievedFromServer && gridConstructed;
-
-  return readyToRender;
+  return isMeshMade && hairsRetrievedFromServer && gridConstructed;
 };
 
 const updateRazorBox = (mousePos: Vector3, aspect: number) => {
@@ -156,29 +154,9 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
     const cutAffect = calculateCuts(positions);
     rotationOffsets = calculateSwirls(positions, mousePos);
 
-    const createFallingHair = (positions: number[][], lengths: HairLengths, cutAffect: boolean[]) =>
-      cutAffect
-        .map((cut, index) => [cut, index] as [boolean, number])
-        .filter(([isCut]) => isCut)
-        .map(([, index]) => index)
-        .map(
-          (hairIndex): TriangleTransform => {
-            const length = lengths[hairIndex];
-            const [xPos, yPos] = positions[hairIndex];
-            const rotation = rotations[hairIndex] + rotationOffsets[hairIndex];
-            return {
-              xPos,
-              yPos,
-              rotation,
-              length,
-              type: 'useful',
-              hairIndex,
-              timeStamp: Date.now(),
-            };
-          },
-        );
+    const fallingHair = createFallingHair(rotations);
 
-    const cuts = createFallingHair(positions, lastLengths, cutAffect);
+    const cuts = fallingHair(positions, lastLengths, cutAffect);
     cuts.forEach((cut) => cutHairFIFO.addIfUnique(cut));
 
     const frameTime = Date.now();
@@ -222,3 +200,26 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
 };
 
 export { Triangles };
+function createFallingHair(rotations: Rotations) {
+  return (positions: number[][], lengths: HairLengths, cutAffect: boolean[]) =>
+    cutAffect
+      .map((cut, index) => [cut, index] as [boolean, number])
+      .filter(([isCut]) => isCut)
+      .map(([, index]) => index)
+      .map(
+        (hairIndex): TriangleTransform => {
+          const length = lengths[hairIndex];
+          const [xPos, yPos] = positions[hairIndex];
+          const rotation = rotations[hairIndex] + rotationOffsets[hairIndex];
+          return {
+            xPos,
+            yPos,
+            rotation,
+            length,
+            type: 'useful',
+            hairIndex,
+            timeStamp: Date.now(),
+          };
+        },
+      );
+}
