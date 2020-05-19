@@ -1,10 +1,10 @@
 class HairRotations {
   private rotations: number[] = [];
   setRotations(rotations: number[]) {
-    this.rotations = [...rotations];
+    this.rotations = rotations;
   }
   getRotations() {
-    return [...this.rotations];
+    return this.rotations;
   }
 }
 

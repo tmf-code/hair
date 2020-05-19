@@ -3,21 +3,22 @@ import { Canvas } from 'react-three-fiber';
 
 import './App.css';
 import { Rotations } from './types/types';
-import { socket } from './drivers/Socket';
 import { Triangles } from './components/Triangles';
+import { hairPositions } from './drivers/HairPositions';
+import { hairRotations } from './drivers/HairRotations';
 
 const App = () => {
-  const [hairPositions, setHairPositions] = useState<[number, number][]>([]);
+  const [hairGrid, setHairPositions] = useState<[number, number][]>([]);
   const [rotations, setRotations] = useState<Rotations>([]);
 
   setInterval(() => {
-    setHairPositions(socket.getHairPositions());
-    setRotations(socket.getRotations());
+    setHairPositions(hairPositions.getPositions());
+    setRotations(hairRotations.getRotations());
   }, 1000);
 
   return (
     <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
-      <Triangles grid={hairPositions} rotations={rotations} />
+      <Triangles grid={hairGrid} rotations={rotations} />
     </Canvas>
   );
 };

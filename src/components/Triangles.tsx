@@ -21,6 +21,7 @@ import { Razor } from './Razor';
 import { FIFO } from '../utilities/fifo';
 import { EasingFunctions } from '../utilities/easing-functions';
 import { Buckets } from '../utilities/buckets';
+import { hairLengths } from '../drivers/HairLengths';
 
 // State holders outside of react
 const mouseLeft = new Vector2();
@@ -38,7 +39,7 @@ type TrianglesProps = {
 
 const readyToRender = (ref: React.MutableRefObject<InstancedMesh | undefined>, grid: Grid) => {
   const isMeshMade = !!ref.current;
-  const hairsRetrievedFromServer = socket.getHairLengths().length !== 0;
+  const hairsRetrievedFromServer = hairLengths.getLengths().length !== 0;
   const gridConstructed = grid.length !== 0;
 
   return isMeshMade && hairsRetrievedFromServer && gridConstructed;
@@ -140,7 +141,7 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
   const razorRef = useRef<Mesh>();
 
   useFrame(() => {
-    lastLengths = socket.getHairLengths();
+    lastLengths = hairLengths.getLengths();
 
     if (!readyToRender(ref, grid)) return;
     createRotationsOnFirstRender(grid);

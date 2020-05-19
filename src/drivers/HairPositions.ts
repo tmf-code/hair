@@ -1,10 +1,10 @@
 class HairPositions {
   private positions: [number, number][] = [];
   setPositions(positions: [number, number][]) {
-    this.positions = [...positions];
+    this.positions = positions;
   }
   getPositions() {
-    return [...this.positions];
+    return this.positions;
   }
 }
 

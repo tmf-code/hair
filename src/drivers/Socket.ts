@@ -6,15 +6,15 @@ import { hairRotations } from './HairRotations';
 export class Socket {
   private static readonly EMIT_INTERVAL = 100;
 
-  public getHairLengths(): number[] {
+  private getHairLengths(): number[] {
     return hairLengths.getLengths();
   }
 
-  public getHairPositions(): [number, number][] {
+  private getHairPositions(): [number, number][] {
     return hairPositions.getPositions();
   }
 
-  public getRotations(): number[] {
+  private getRotations(): number[] {
     return hairRotations.getRotations();
   }
 
