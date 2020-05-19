@@ -1,4 +1,4 @@
-import { triangleGeometry } from './Triangle';
+import { triangleGeometry } from './triangle-geometry';
 import { Grid, Rotations, HairLengths } from '../types/types';
 import { useThree, useFrame } from 'react-three-fiber';
 import React, { useMemo, useRef } from 'react';
