@@ -2,7 +2,7 @@ import { forwardRef, useState, useEffect, useMemo } from 'react';
 import { TextureLoader } from 'three';
 import React from 'react';
 import { useSpring, a } from 'react-spring/three';
-import razorSVG from './svgs/razor.svg';
+import razorSVG from '../svgs/razor.svg';
 
 type RazorProps = {
   ref: any;

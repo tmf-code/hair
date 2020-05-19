@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Canvas } from 'react-three-fiber';
 
-import './App.css';
+import './styles/App.css';
 import { Rotations } from './types/types';
 import { Triangles } from './components/Triangles';
 import { hairPositions } from './drivers/HairPositions';

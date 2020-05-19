@@ -13,7 +13,7 @@ import {
   Mesh,
 } from 'three';
 import { mouseToWorld, calculatePositions } from '../utilities/utilities';
-import { hairColor, razorWidth, razorHeight, swirlRadius } from '../constants';
+import { hairColor, razorWidth, razorHeight, swirlRadius } from '../utilities/constants';
 import { Mouse } from '../drivers/Mouse';
 
 import { Razor } from './Razor';

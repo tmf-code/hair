@@ -1,7 +1,7 @@
 import { Position3D } from '../types/types';
 import { Shape, ShapeGeometry } from 'three';
 import { lerp } from '../utilities/utilities';
-import { maxLengthAsPercentWidth, maxWidthAsPercentWidth } from '../constants';
+import { maxLengthAsPercentWidth, maxWidthAsPercentWidth } from '../utilities/constants';
 
 const triangleGeometry = function (screenWidth: number) {
   const maxLength = lerp(0, screenWidth, maxLengthAsPercentWidth);
