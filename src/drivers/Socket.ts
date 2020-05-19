@@ -2,12 +2,13 @@ import io from 'socket.io-client';
 import type { Grid } from '../types/types';
 import { HairLengths } from './HairLengths';
 import { HairPositions } from './HairPositions';
+import { HairRotations } from './HairRotations';
 
 export class Socket {
   private static readonly EMIT_INTERVAL = 100;
   private lengths = new HairLengths();
   private hairPositions = new HairPositions();
-  private rotations: number[] = [];
+  private hairRotations = new HairRotations();
 
   public getLengths(): number[] {
     return this.lengths.getLengths();
@@ -18,7 +19,7 @@ export class Socket {
   }
 
   public getRotations(): number[] {
-    return this.rotations;
+    return this.hairRotations.getRotations();
   }
 
   private myCuts: boolean[] = [];
@@ -44,8 +45,8 @@ export class Socket {
       updateClientLengths: (lengths: number[]) => {
         this.lengths.updateLengths(lengths);
       },
-      updateClientRotations: (rotations: number[]) => {
-        this.rotations = rotations;
+      updateClientRotations: (hairRotations: number[]) => {
+        this.hairRotations.setRotations(hairRotations);
       },
       updateClientCuts: (cuts: boolean[]) => {
         this.lengths.cutHairs(cuts);
