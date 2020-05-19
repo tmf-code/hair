@@ -5,31 +5,22 @@ type Vector2 = [number, number];
 
 export class Socket {
   private static readonly EMIT_INTERVAL = 100;
-  private socket: SocketIOClient.Socket;
-  private _lengths: number[] = [];
-  private _grid: Vector2[] = [];
-  private _rotations: number[] = [];
+  private lengths: number[] = [];
+  private grid: Vector2[] = [];
+  private rotations: number[] = [];
 
-  public get lengths(): number[] {
-    return this._lengths;
-  }
-  public set lengths(value: number[]) {
-    this._lengths = value;
+  public getLengths(): number[] {
+    return this.lengths;
   }
 
-  public get grid(): Vector2[] {
-    return this._grid;
-  }
-  public set grid(value: Vector2[]) {
-    this._grid = value;
+  public getGrid(): Vector2[] {
+    return this.grid;
   }
 
-  public get rotations(): number[] {
-    return this._rotations;
+  public getRotations(): number[] {
+    return this.rotations;
   }
-  public set rotations(value: number[]) {
-    this._rotations = value;
-  }
+
   private myCuts: boolean[] = [];
 
   private socketEventHandlers = {
@@ -85,8 +76,6 @@ export class Socket {
     const socket = this.createSocket();
     this.attachSocketHandlers(socket);
     this.createSocketEmitters(socket);
-
-    this.socket = socket;
   }
 
   private cutLengths(cuts: boolean[]) {

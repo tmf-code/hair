@@ -11,8 +11,8 @@ const App = () => {
   const [rotations, setRotations] = useState<Rotations>([]);
 
   setInterval(() => {
-    setGrid(socket.grid);
-    setRotations(socket.rotations);
+    setGrid(socket.getGrid());
+    setRotations(socket.getRotations());
   }, 1000);
 
   return (
