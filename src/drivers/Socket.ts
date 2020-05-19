@@ -2,69 +2,57 @@ import io from 'socket.io-client';
 import { hairLengths } from './HairLengths';
 import { hairPositions } from './HairPositions';
 import { hairRotations } from './HairRotations';
+import { hairCuts } from './HairCuts';
 
 export class Socket {
   private static readonly EMIT_INTERVAL = 100;
-  private clientCutsToSend: boolean[] = [];
+  private socket: SocketIOClient.Socket;
 
   public constructor() {
-    const socket = this.createSocket();
-    this.attachSocketHandlers(socket);
-    this.createSocketEmitters(socket);
+    this.socket = this.connectSocket();
+    this.attachSocketHandlers();
+    this.createSocketEmitters();
   }
 
-  private createSocket() {
+  private connectSocket() {
     return process.env.NODE_ENV === 'production' ? io() : io('http://192.168.178.41:3001');
   }
 
-  private attachSocketHandlers(socket: SocketIOClient.Socket) {
+  private attachSocketHandlers() {
     const socketEventHandlers = {
-      updateClientGrid: (serverHairPositions: [number, number][]) => {
-        hairPositions.setPositions(serverHairPositions);
-      },
-      updateClientGrowth: (growthSpeed: number) => {
-        hairLengths.grow(growthSpeed);
-      },
-      updateClientLengths: (serverHairLengths: number[]) => {
-        hairLengths.updateLengths(serverHairLengths);
-      },
-      updateClientRotations: (serverHairRotations: number[]) => {
-        hairRotations.setRotations(serverHairRotations);
-      },
-      updateClientCuts: (cuts: boolean[]) => {
-        hairLengths.cutHairs(cuts);
-      },
+      updateClientGrid: (serverHairPositions: [number, number][]) =>
+        hairPositions.setPositions(serverHairPositions),
+
+      updateClientGrowth: (growthSpeed: number) => hairLengths.grow(growthSpeed),
+
+      updateClientLengths: (serverHairLengths: number[]) =>
+        hairLengths.updateLengths(serverHairLengths),
+
+      updateClientRotations: (serverHairRotations: number[]) =>
+        hairRotations.setRotations(serverHairRotations),
+
+      updateClientCuts: (cuts: boolean[]) => hairCuts.addFromServer(cuts),
     };
+
     Object.entries(socketEventHandlers).forEach(([name, handler]) => {
-      socket.on(name, handler);
+      this.socket.on(name, handler);
     });
   }
 
-  private createSocketEmitters(socket: SocketIOClient.Socket) {
+  private createSocketEmitters() {
     setInterval(() => {
-      if (this.clientHasCut()) {
-        this.updateServerCuts(socket);
-        this.resetClientCuts();
+      if (hairCuts.hasClientCuts()) {
+        this.updateServerCuts();
       }
     }, Socket.EMIT_INTERVAL);
   }
 
-  private clientHasCut() {
-    return this.clientCutsToSend.some(Boolean);
-  }
-
-  private updateServerCuts(socket: SocketIOClient.Socket) {
-    socket.emit('updateServerCuts', this.clientCutsToSend);
-  }
-
-  private resetClientCuts() {
-    this.clientCutsToSend = this.clientCutsToSend.map(() => false);
+  private updateServerCuts() {
+    this.socket.emit('updateServerCuts', hairCuts.getBufferAndClear());
   }
 
   public addNewCuts(cuts: boolean[]) {
-    this.clientCutsToSend = cuts.map(
-      (currentCut, cutIndex) => currentCut || this.clientCutsToSend[cutIndex],
-    );
+    hairCuts.addFromClient(cuts);
   }
 }
 
