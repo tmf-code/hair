@@ -1,21 +1,20 @@
 import io from 'socket.io-client';
 import type { Grid } from '../types/types';
 import { HairLengths } from './HairLengths';
-
-type Vector2 = [number, number];
+import { HairPositions } from './HairPositions';
 
 export class Socket {
   private static readonly EMIT_INTERVAL = 100;
   private lengths = new HairLengths();
-  private grid: Vector2[] = [];
+  private hairPositions = new HairPositions();
   private rotations: number[] = [];
 
   public getLengths(): number[] {
     return this.lengths.getLengths();
   }
 
-  public getGrid(): Vector2[] {
-    return this.grid;
+  public getHairPositions(): [number, number][] {
+    return this.hairPositions.getPositions();
   }
 
   public getRotations(): number[] {
@@ -37,7 +36,7 @@ export class Socket {
   private attachSocketHandlers(socket: SocketIOClient.Socket) {
     const socketEventHandlers = {
       updateClientGrid: (grid: Grid) => {
-        this.grid = grid;
+        this.hairPositions.setPositions(grid);
       },
       updateClientGrowth: (growthSpeed: number) => {
         this.lengths.grow(growthSpeed);

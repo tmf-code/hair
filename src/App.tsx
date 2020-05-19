@@ -2,22 +2,22 @@ import React, { useState } from 'react';
 import { Canvas } from 'react-three-fiber';
 
 import './App.css';
-import { Grid, Rotations } from './types/types';
+import { Rotations } from './types/types';
 import { socket } from './drivers/Socket';
 import { Triangles } from './components/Triangles';
 
 const App = () => {
-  const [grid, setGrid] = useState<Grid>([]);
+  const [hairPositions, setHairPositions] = useState<[number, number][]>([]);
   const [rotations, setRotations] = useState<Rotations>([]);
 
   setInterval(() => {
-    setGrid(socket.getGrid());
+    setHairPositions(socket.getHairPositions());
     setRotations(socket.getRotations());
   }, 1000);
 
   return (
     <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
-      <Triangles grid={grid} rotations={rotations} />
+      <Triangles grid={hairPositions} rotations={rotations} />
     </Canvas>
   );
 };
