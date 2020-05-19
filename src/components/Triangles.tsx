@@ -160,28 +160,7 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
     const cuts = fallingHair(positions, lastLengths, cutAffect);
     cuts.forEach((cut) => cutHairFIFO.addIfUnique(cut));
 
-    const frameTime = Date.now();
-    const animationDuration = 800;
-
-    const heightBuckets = new Buckets(10, -viewport.width / 2.0, viewport.width / 2.0);
-
-    cutHairFIFO.stack.forEach((transform, index) => {
-      const { xPos, yPos, rotation, length, timeStamp, type } = transform;
-
-      if (type === 'empty') return;
-      const bucketHeight =
-        (heightBuckets.add(xPos) * viewport.height) / maxFallingHair / heightBuckets.numBuckets;
-      const animationProgression = Math.min((frameTime - timeStamp) / animationDuration, 1.0);
-
-      const destination = -viewport.height / 2.0 + Math.abs(yPos / 8.0) + bucketHeight;
-      const distance = (yPos - destination) * EasingFunctions.easeInQuad(animationProgression);
-
-      transformHolder.position.set(xPos, yPos - distance, 0);
-      transformHolder.rotation.set(0, 0, rotation);
-      transformHolder.scale.set(1, length, 1);
-      transformHolder.updateMatrix();
-      ref.current?.setMatrixAt(grid.length + index, transformHolder.matrix);
-    });
+    makeHairFall(viewport, grid, ref);
 
     hairCuts.addFromClient(cutAffect);
   });
@@ -223,4 +202,35 @@ function createFallingHair(rotations: Rotations) {
           };
         },
       );
+}
+
+function makeHairFall(
+  viewport: {
+    width: number;
+    height: number;
+    factor: number;
+  },
+  grid: [number, number][],
+  ref: React.MutableRefObject<InstancedMesh | undefined>,
+) {
+  const frameTime = Date.now();
+  const animationDuration = 800;
+  const heightBuckets = new Buckets(10, -viewport.width / 2.0, viewport.width / 2.0);
+  cutHairFIFO.stack.forEach((transform, index) => {
+    const { xPos, yPos, rotation, length, timeStamp, type } = transform;
+
+    if (type === 'empty') return;
+    const bucketHeight =
+      (heightBuckets.add(xPos) * viewport.height) / maxFallingHair / heightBuckets.numBuckets;
+    const animationProgression = Math.min((frameTime - timeStamp) / animationDuration, 1.0);
+
+    const destination = -viewport.height / 2.0 + Math.abs(yPos / 8.0) + bucketHeight;
+    const distance = (yPos - destination) * EasingFunctions.easeInQuad(animationProgression);
+
+    transformHolder.position.set(xPos, yPos - distance, 0);
+    transformHolder.rotation.set(0, 0, rotation);
+    transformHolder.scale.set(1, length, 1);
+    transformHolder.updateMatrix();
+    ref.current?.setMatrixAt(grid.length + index, transformHolder.matrix);
+  });
 }
