@@ -5,19 +5,6 @@ import { hairRotations } from './HairRotations';
 
 export class Socket {
   private static readonly EMIT_INTERVAL = 100;
-
-  private getHairLengths(): number[] {
-    return hairLengths.getLengths();
-  }
-
-  private getHairPositions(): [number, number][] {
-    return hairPositions.getPositions();
-  }
-
-  private getRotations(): number[] {
-    return hairRotations.getRotations();
-  }
-
   private clientCutsToSend: boolean[] = [];
 
   public constructor() {
@@ -74,16 +61,7 @@ export class Socket {
     this.clientCutsToSend = this.clientCutsToSend.map(() => false);
   }
 
-  updateCuts(cuts: boolean[]) {
-    this.cutLengths(cuts);
-    this.addNewCuts(cuts);
-  }
-
-  private cutLengths(cuts: boolean[]) {
-    hairLengths.cutHairs(cuts);
-  }
-
-  private addNewCuts(cuts: boolean[]) {
+  public addNewCuts(cuts: boolean[]) {
     this.clientCutsToSend = cuts.map(
       (currentCut, cutIndex) => currentCut || this.clientCutsToSend[cutIndex],
     );

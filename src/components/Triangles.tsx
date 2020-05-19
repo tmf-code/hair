@@ -183,7 +183,8 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
       ref.current?.setMatrixAt(grid.length + index, transformHolder.matrix);
     });
 
-    socket.updateCuts(cutAffect);
+    hairLengths.cutHairs(cutAffect);
+    socket.addNewCuts(cutAffect);
   });
   return (
     <>
