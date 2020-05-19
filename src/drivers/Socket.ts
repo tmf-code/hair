@@ -4,13 +4,32 @@ import type { Grid, HairLengths } from '../types/types';
 type Vector2 = [number, number];
 
 export class Socket {
-  static readonly EMIT_INTERVAL = 100;
-  public listeners: Map<string, Function[]> = new Map();
-  public socket: SocketIOClient.Socket;
+  private static readonly EMIT_INTERVAL = 100;
+  private socket: SocketIOClient.Socket;
+  private _lengths: number[] = [];
+  private _grid: Vector2[] = [];
+  private _rotations: number[] = [];
 
-  public lengths: number[] = [];
-  public grid: Vector2[] = [];
-  public rotations: number[] = [];
+  public get lengths(): number[] {
+    return this._lengths;
+  }
+  public set lengths(value: number[]) {
+    this._lengths = value;
+  }
+
+  public get grid(): Vector2[] {
+    return this._grid;
+  }
+  public set grid(value: Vector2[]) {
+    this._grid = value;
+  }
+
+  public get rotations(): number[] {
+    return this._rotations;
+  }
+  public set rotations(value: number[]) {
+    this._rotations = value;
+  }
   private myCuts: boolean[] = [];
 
   private socketEventHandlers = {
@@ -39,7 +58,7 @@ export class Socket {
 
   private createSocketEmitters(socket: SocketIOClient.Socket) {
     setInterval(() => {
-      if (this.clienthasCut()) {
+      if (this.clientHasCut()) {
         this.updateServerCuts(socket);
         this.resetClientCuts();
       }
@@ -54,7 +73,7 @@ export class Socket {
     this.myCuts = this.myCuts.map(() => false);
   }
 
-  private clienthasCut() {
+  private clientHasCut() {
     return this.myCuts.some(Boolean);
   }
 
@@ -70,9 +89,17 @@ export class Socket {
     this.socket = socket;
   }
 
-  updateCuts(cuts: boolean[]) {
+  private cutLengths(cuts: boolean[]) {
     this.lengths = this.lengths.map((length, lengthIndex) => (cuts[lengthIndex] ? 0 : length));
+  }
+
+  private addNewCuts(cuts: boolean[]) {
     this.myCuts = cuts.map((currentCut, cutIndex) => currentCut || this.myCuts[cutIndex]);
+  }
+
+  updateCuts(cuts: boolean[]) {
+    this.cutLengths(cuts);
+    this.addNewCuts(cuts);
   }
 }
 
