@@ -38,16 +38,6 @@ export class FIFO<T extends IEmpty> {
     return last;
   }
 
-  // replaceOnPredicate<B extends keyof T>(predicate: (value: T) => boolean, value: T): T | false {
-  //   const tryGetIndex = this.stack.findIndex(
-  //     (stackedValue) => stackedValue[this.identifier] === value[this.identifier],
-  //   );
-
-  //   if (tryGetIndex === -1) return false;
-  //   if(predicate())
-  //   if()
-  // }
-
   addReplace(value: T): T {
     const tryGetIndex = this.stack.findIndex(
       (stackedValue) => stackedValue[this.identifier] === value[this.identifier],
