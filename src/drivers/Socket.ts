@@ -1,16 +1,17 @@
 import io from 'socket.io-client';
-import type { Grid, HairLengths } from '../types/types';
+import type { Grid } from '../types/types';
+import { HairLengths } from './HairLengths';
 
 type Vector2 = [number, number];
 
 export class Socket {
   private static readonly EMIT_INTERVAL = 100;
-  private lengths: number[] = [];
+  private lengths = new HairLengths();
   private grid: Vector2[] = [];
   private rotations: number[] = [];
 
   public getLengths(): number[] {
-    return this.lengths;
+    return this.lengths.getLengths();
   }
 
   public getGrid(): Vector2[] {
@@ -39,16 +40,16 @@ export class Socket {
         this.grid = grid;
       },
       updateClientGrowth: (growthSpeed: number) => {
-        this.lengths = this.lengths.map((length) => Math.min(length + growthSpeed, 1));
+        this.lengths.grow(growthSpeed);
       },
-      updateClientLengths: (lengths: HairLengths) => {
-        this.lengths = lengths;
+      updateClientLengths: (lengths: number[]) => {
+        this.lengths.updateLengths(lengths);
       },
       updateClientRotations: (rotations: number[]) => {
         this.rotations = rotations;
       },
       updateClientCuts: (cuts: boolean[]) => {
-        this.lengths = this.lengths.map((length, lengthIndex) => (cuts[lengthIndex] ? 0 : length));
+        this.lengths.cutHairs(cuts);
       },
     };
     Object.entries(socketEventHandlers).forEach(([name, handler]) => {
@@ -83,7 +84,7 @@ export class Socket {
   }
 
   private cutLengths(cuts: boolean[]) {
-    this.lengths = this.lengths.map((length, lengthIndex) => (cuts[lengthIndex] ? 0 : length));
+    this.lengths.cutHairs(cuts);
   }
 
   private addNewCuts(cuts: boolean[]) {
