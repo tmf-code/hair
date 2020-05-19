@@ -13,14 +13,14 @@ import {
   Vector3,
   Mesh,
 } from 'three';
-import { mouseToWorld, calculatePositions } from './utilities';
-import { hairColor, razorWidth, razorHeight, swirlRadius } from './constants';
+import { mouseToWorld, calculatePositions } from '../utilities/utilities';
+import { hairColor, razorWidth, razorHeight, swirlRadius } from '../constants';
 import { Mouse } from '../drivers/Mouse';
 
 import { Razor } from './Razor';
-import { FIFO } from './FIFO';
-import { EasingFunctions } from './easing-functions';
-import { Buckets } from './buckets';
+import { FIFO } from '../utilities/fifo';
+import { EasingFunctions } from '../utilities/easing-functions';
+import { Buckets } from '../utilities/buckets';
 
 // State holders outside of react
 const mouseLeft = new Vector2();
@@ -84,14 +84,14 @@ const updateDisplay = (
 };
 
 const calculateCuts = (positions: number[][]) =>
-  lastLengths.map((length, lengthIndex) => {
+  lastLengths.map((_length, lengthIndex) => {
     const [xPos, yPos] = positions[lengthIndex];
     const hover = razorBox.containsPoint(new Vector2(xPos, yPos));
     return hover && Mouse.isClicked();
   });
 
 const calculateSwirls = (positions: number[][], mousePos: Vector3) => {
-  const swirlAffect = lastLengths.map((length, lengthIndex) => {
+  const swirlAffect = lastLengths.map((_length, lengthIndex) => {
     const directionVector = Mouse.VelocityVector().normalize();
     const [xPos, yPos] = positions[lengthIndex];
     const distance = mousePos.distanceTo(new Vector3(xPos, yPos, 0));

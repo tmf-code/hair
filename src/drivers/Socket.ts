@@ -4,13 +4,13 @@ import type { Grid, HairLengths } from '../types/types';
 type Vector2 = [number, number];
 
 export class Socket {
+  static readonly EMIT_INTERVAL = 100;
   public listeners: Map<string, Function[]> = new Map();
   public socket: SocketIOClient.Socket;
 
   public lengths: number[] = [];
-  public grid: Vector2[];
+  public grid: Vector2[] = [];
   public rotations: number[] = [];
-
   private myCuts: boolean[] = [];
 
   private socketEventHandlers = {
@@ -37,18 +37,35 @@ export class Socket {
     });
   }
 
-  public constructor() {
-    this.grid = [];
-    const socket = process.env.NODE_ENV === 'production' ? io() : io('http://192.168.178.41:3001');
-
-    this.attachSocketHandlers(socket);
-
+  private createSocketEmitters(socket: SocketIOClient.Socket) {
     setInterval(() => {
-      if (this.myCuts.some(Boolean)) {
-        socket.emit('updateServerCuts', this.myCuts);
-        this.myCuts = this.myCuts.map(() => false);
+      if (this.clienthasCut()) {
+        this.updateServerCuts(socket);
+        this.resetClientCuts();
       }
-    }, 100);
+    }, Socket.EMIT_INTERVAL);
+  }
+
+  private updateServerCuts(socket: SocketIOClient.Socket) {
+    socket.emit('updateServerCuts', this.myCuts);
+  }
+
+  private resetClientCuts() {
+    this.myCuts = this.myCuts.map(() => false);
+  }
+
+  private clienthasCut() {
+    return this.myCuts.some(Boolean);
+  }
+
+  private createSocket() {
+    return process.env.NODE_ENV === 'production' ? io() : io('http://192.168.178.41:3001');
+  }
+
+  public constructor() {
+    const socket = this.createSocket();
+    this.attachSocketHandlers(socket);
+    this.createSocketEmitters(socket);
 
     this.socket = socket;
   }
@@ -63,22 +80,7 @@ export class Socket {
   emit(event: 'updateServerLengths', data: this['lengths']): void;
   emit(event: 'updateClientGrid', data: this['grid']): void;
   emit(event: string, data: any[]) {
-    switch (event) {
-      case 'updateClientLengths':
-        this.listeners.get('updateClientLengths')?.forEach((listener) => listener(data));
-        break;
-      case 'updateClientRotations':
-        this.listeners.get('updateClientRotations')?.forEach((listener) => listener(data));
-        break;
-      case 'updateClientGrid':
-        this.listeners.get('updateClientGrid')?.forEach((listener) => listener(data));
-        break;
-      case 'updateServerLengths':
-        this.listeners.get('updateServerLengths')?.forEach((listener) => listener(data));
-        break;
-      default:
-        break;
-    }
+    this.listeners.get(event)?.forEach((listener) => listener(data));
   }
 
   addListener(name: 'updateClientLengths', listener: (data: this['lengths']) => void): void;
