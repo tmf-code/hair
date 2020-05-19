@@ -1,4 +1,4 @@
-export class HairLengths {
+class HairLengths {
   private lengths: number[] = [];
   size() {
     return this.lengths.length;
@@ -16,3 +16,7 @@ export class HairLengths {
     return this.lengths;
   }
 }
+
+const hairLengths = new HairLengths();
+
+export { hairLengths };

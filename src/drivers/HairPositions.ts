@@ -1,4 +1,4 @@
-export class HairPositions {
+class HairPositions {
   private positions: [number, number][] = [];
   setPositions(positions: [number, number][]) {
     this.positions = [...positions];
@@ -7,3 +7,7 @@ export class HairPositions {
     return [...this.positions];
   }
 }
+
+const hairPositions = new HairPositions();
+
+export { hairPositions };
