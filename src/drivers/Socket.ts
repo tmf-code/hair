@@ -74,27 +74,6 @@ export class Socket {
     this.lengths = this.lengths.map((length, lengthIndex) => (cuts[lengthIndex] ? 0 : length));
     this.myCuts = cuts.map((currentCut, cutIndex) => currentCut || this.myCuts[cutIndex]);
   }
-
-  emit(event: 'updateClientLengths', data: this['lengths']): void;
-  emit(event: 'updateClientRotations', data: this['rotations']): void;
-  emit(event: 'updateServerLengths', data: this['lengths']): void;
-  emit(event: 'updateClientGrid', data: this['grid']): void;
-  emit(event: string, data: any[]) {
-    this.listeners.get(event)?.forEach((listener) => listener(data));
-  }
-
-  addListener(name: 'updateClientLengths', listener: (data: this['lengths']) => void): void;
-  addListener(name: 'updateClientRotations', listener: (data: this['rotations']) => void): void;
-  addListener(name: 'updateClientGrid', listener: (data: this['grid']) => void): void;
-  addListener(name: string, listener: Function) {
-    if (this.listeners.has(name)) {
-      console.log('grid');
-      const existingListeners = this.listeners.get(name)!;
-      this.listeners.set(name, [...existingListeners, listener]);
-      return;
-    }
-    this.listeners.set(name, [listener]);
-  }
 }
 
 export const socket = new Socket();
