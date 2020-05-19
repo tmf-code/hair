@@ -6,7 +6,10 @@ import { Rotations } from './types/types';
 import { Triangles } from './components/Triangles';
 import { hairPositions } from './drivers/HairPositions';
 import { hairRotations } from './drivers/HairRotations';
+import { Socket } from './drivers/Socket';
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const socket = new Socket();
 const App = () => {
   const [hairGrid, setHairPositions] = useState<[number, number][]>([]);
   const [rotations, setRotations] = useState<Rotations>([]);

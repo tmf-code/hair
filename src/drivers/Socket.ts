@@ -55,5 +55,3 @@ export class Socket {
     hairCuts.addFromClient(cuts);
   }
 }
-
-export const socket = new Socket();

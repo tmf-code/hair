@@ -2,7 +2,6 @@ import { triangleGeometry } from './Triangle';
 import { Grid, Rotations, HairLengths } from '../types/types';
 import { useThree, useFrame } from 'react-three-fiber';
 import React, { useMemo, useRef } from 'react';
-import { socket } from '../drivers/Socket';
 import {
   Object3D,
   InstancedMesh,
@@ -22,6 +21,7 @@ import { FIFO } from '../utilities/fifo';
 import { EasingFunctions } from '../utilities/easing-functions';
 import { Buckets } from '../utilities/buckets';
 import { hairLengths } from '../drivers/HairLengths';
+import { hairCuts } from '../drivers/HairCuts';
 
 // State holders outside of react
 const mouseLeft = new Vector2();
@@ -183,8 +183,7 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
       ref.current?.setMatrixAt(grid.length + index, transformHolder.matrix);
     });
 
-    hairLengths.cutHairs(cutAffect);
-    socket.addNewCuts(cutAffect);
+    hairCuts.addFromClient(cutAffect);
   });
   return (
     <>
