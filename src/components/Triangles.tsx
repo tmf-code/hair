@@ -38,7 +38,7 @@ type TrianglesProps = {
 
 const readyToRender = (ref: React.MutableRefObject<InstancedMesh | undefined>, grid: Grid) => {
   const isMeshMade = !!ref.current;
-  const hairsRetrievedFromServer = socket.getLengths().length !== 0;
+  const hairsRetrievedFromServer = socket.getHairLengths().length !== 0;
   const gridConstructed = grid.length !== 0;
 
   return isMeshMade && hairsRetrievedFromServer && gridConstructed;
@@ -140,7 +140,7 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
   const razorRef = useRef<Mesh>();
 
   useFrame(() => {
-    lastLengths = socket.getLengths();
+    lastLengths = socket.getHairLengths();
 
     if (!readyToRender(ref, grid)) return;
     createRotationsOnFirstRender(grid);

@@ -6,12 +6,12 @@ import { HairRotations } from './HairRotations';
 
 export class Socket {
   private static readonly EMIT_INTERVAL = 100;
-  private lengths = new HairLengths();
+  private hairLengths = new HairLengths();
   private hairPositions = new HairPositions();
   private hairRotations = new HairRotations();
 
-  public getLengths(): number[] {
-    return this.lengths.getLengths();
+  public getHairLengths(): number[] {
+    return this.hairLengths.getLengths();
   }
 
   public getHairPositions(): [number, number][] {
@@ -40,16 +40,16 @@ export class Socket {
         this.hairPositions.setPositions(grid);
       },
       updateClientGrowth: (growthSpeed: number) => {
-        this.lengths.grow(growthSpeed);
+        this.hairLengths.grow(growthSpeed);
       },
-      updateClientLengths: (lengths: number[]) => {
-        this.lengths.updateLengths(lengths);
+      updateClientLengths: (hairLengths: number[]) => {
+        this.hairLengths.updateLengths(hairLengths);
       },
       updateClientRotations: (hairRotations: number[]) => {
         this.hairRotations.setRotations(hairRotations);
       },
       updateClientCuts: (cuts: boolean[]) => {
-        this.lengths.cutHairs(cuts);
+        this.hairLengths.cutHairs(cuts);
       },
     };
     Object.entries(socketEventHandlers).forEach(([name, handler]) => {
@@ -84,7 +84,7 @@ export class Socket {
   }
 
   private cutLengths(cuts: boolean[]) {
-    this.lengths.cutHairs(cuts);
+    this.hairLengths.cutHairs(cuts);
   }
 
   private addNewCuts(cuts: boolean[]) {
