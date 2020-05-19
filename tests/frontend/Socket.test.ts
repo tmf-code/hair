@@ -1,2 +1,5 @@
-import { Socket } from '../../src/drivers/Socket';
+test('aasdasd', () => {
+  expect(true).toEqual(true);
+});
 
+export {};
