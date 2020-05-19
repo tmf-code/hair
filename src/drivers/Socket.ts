@@ -13,29 +13,35 @@ export class Socket {
 
   private myCuts: boolean[] = [];
 
+  private socketEventHandlers = {
+    updateClientGrid: (grid: Grid) => {
+      this.grid = grid;
+    },
+    updateClientGrowth: (growthSpeed: number) => {
+      this.lengths = this.lengths.map((length) => Math.min(length + growthSpeed, 1));
+    },
+    updateClientLengths: (lengths: HairLengths) => {
+      this.lengths = lengths;
+    },
+    updateClientRotations: (rotations: number[]) => {
+      this.rotations = rotations;
+    },
+    updateClientCuts: (cuts: boolean[]) => {
+      this.lengths = this.lengths.map((length, lengthIndex) => (cuts[lengthIndex] ? 0 : length));
+    },
+  };
+
+  private attachSocketHandlers(socket: SocketIOClient.Socket) {
+    Object.entries(this.socketEventHandlers).forEach(([name, handler]) => {
+      socket.on(name, handler);
+    });
+  }
+
   public constructor() {
     this.grid = [];
     const socket = process.env.NODE_ENV === 'production' ? io() : io('http://192.168.178.41:3001');
 
-    socket.on('updateClientGrid', (grid: Grid) => {
-      this.grid = grid;
-    });
-
-    socket.on('updateClientGrowth', (growthSpeed: number) => {
-      this.lengths = this.lengths.map((length) => Math.min(length + growthSpeed, 1));
-    });
-
-    socket.on('updateClientLengths', (lengths: HairLengths) => {
-      this.lengths = lengths;
-    });
-
-    socket.on('updateClientRotations', (rotations: number[]) => {
-      this.rotations = rotations;
-    });
-
-    socket.on('updateClientCuts', (cuts: boolean[]) => {
-      this.lengths = this.lengths.map((length, lengthIndex) => (cuts[lengthIndex] ? 0 : length));
-    });
+    this.attachSocketHandlers(socket);
 
     setInterval(() => {
       if (this.myCuts.some(Boolean)) {
