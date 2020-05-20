@@ -1,5 +1,5 @@
 import path from 'path';
-import Express = require('express');
+import Express from 'express';
 
 const appRoot = process.env.PWD;
 

@@ -1,3 +1,4 @@
+import { growthSpeed } from './../../backend/src/constants';
 import io from 'socket.io-client';
 import http from 'http';
 import { AddressInfo } from 'net';
@@ -106,16 +107,34 @@ describe('Create socket Tests', () => {
   test('Socket should initialise two intervals', () => {
     expect(setInterval).toHaveBeenCalledTimes(2);
   });
-  // test('Socket should attempt to cut at interval', () => {
-  //   const intervalMultiple = SERVER_EMIT_INTERVAL * 4.5;
-  //   jest.advanceTimersByTime(intervalMultiple);
-  //   expect(ioServer.emit).toBeCalledTimes(Math.floor(intervalMultiple) * 2);
-  // });
-  // test('should communicate with waiting for socket.io handshakes', (done) => {
-  //   socket!.emit('examlpe', 'some messages');
-  //   setTimeout(() => {
-  //     // Put your server side expect() here
-  //     done();
-  //   }, 50 /* gives enough time to process message */);
-  // });
+  test('Socket should grow at interval', (done) => {
+    const intervalsCount = 1.5;
+    const totalWaitInterval = SERVER_EMIT_INTERVAL * intervalsCount;
+
+    socket!.once('updateClientGrowth', (message: number) => {
+      expect(message).toBe(growthSpeed);
+      done();
+    });
+
+    jest.advanceTimersByTime(totalWaitInterval);
+  });
+  test('Socket should updateCuts at interval', (done) => {
+    const intervalsCount = 1.5;
+    const totalWaitInterval = SERVER_EMIT_INTERVAL * intervalsCount;
+    const expected = lengths.map(() => true);
+
+    socket!.emit('updateServerCuts', expected);
+
+    socket!.once('updateClientCuts', (message: boolean[]) => {
+      expect(message).toStrictEqual(expected);
+      done();
+    });
+
+    jest.useRealTimers();
+
+    setTimeout(() => {
+      jest.useFakeTimers();
+      jest.advanceTimersByTime(totalWaitInterval);
+    }, 50 /* gives enough time to process message */);
+  });
 });
