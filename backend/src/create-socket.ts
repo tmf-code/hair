@@ -3,6 +3,7 @@ import { growthSpeed, SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
 
 const createSocket = (server: import('http').Server) => {
+  // eslint-disable-next-line prefer-const
   let { grid, lengths, rotations } = createGrid();
   let cuts = grid.map(() => false);
   const io = SocketIO(server);

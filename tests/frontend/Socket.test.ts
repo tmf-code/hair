@@ -1,7 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable import/first */
 import { Socket } from '../../src/drivers/Socket';
 
 jest.mock('socket.io-client');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const io = require('socket.io-client');
 
 const socketOnMock = jest.fn();
@@ -41,6 +43,4 @@ describe('Socket Initial state', () => {
       expect(socketOnMock).toBeCalledWith(handlerName, expect.any(Function));
     });
   });
-
-  test('Socket establishes dev connection', () => {});
 });

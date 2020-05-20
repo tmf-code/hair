@@ -21,7 +21,7 @@ describe('Create socket Tests', () => {
     if (socket?.connected) {
       socket?.disconnect();
     }
-    ioServer!.close();
+    ioServer?.close();
     done();
   });
 
@@ -43,26 +43,26 @@ describe('Create socket Tests', () => {
     rotations = [];
 
     const connected = new Promise((resolve) => {
-      socket!.on('connect', () => {
+      socket?.on('connect', () => {
         resolve();
       });
     });
 
     const gridRecieved = new Promise((resolve) => {
-      socket!.once('updateClientGrid', (message: [number, number][]) => {
+      socket?.once('updateClientGrid', (message: [number, number][]) => {
         grid = message;
         resolve();
       });
     });
 
     const rotationsReceived = new Promise((resolve) => {
-      socket!.once('updateClientRotations', (message: number[]) => {
+      socket?.once('updateClientRotations', (message: number[]) => {
         rotations = message;
         resolve();
       });
     });
     const lenghtsReceived = new Promise((resolve) => {
-      socket!.once('updateClientLengths', (message: number[]) => {
+      socket?.once('updateClientLengths', (message: number[]) => {
         lengths = message;
         resolve();
       });
@@ -83,7 +83,7 @@ describe('Create socket Tests', () => {
   test('Socket should be able to emit', (done) => {
     const testMessage = 'Test';
     ioServer.emit('echo', testMessage);
-    socket!.once('echo', (message: string) => {
+    socket?.once('echo', (message: string) => {
       expect(message).toBe(testMessage);
       done();
     });
@@ -111,7 +111,7 @@ describe('Create socket Tests', () => {
     const intervalsCount = 1.5;
     const totalWaitInterval = SERVER_EMIT_INTERVAL * intervalsCount;
 
-    socket!.once('updateClientGrowth', (message: number) => {
+    socket?.once('updateClientGrowth', (message: number) => {
       expect(message).toBe(growthSpeed);
       done();
     });
@@ -123,9 +123,9 @@ describe('Create socket Tests', () => {
     const totalWaitInterval = SERVER_EMIT_INTERVAL * intervalsCount;
     const expected = lengths.map(() => true);
 
-    socket!.emit('updateServerCuts', expected);
+    socket?.emit('updateServerCuts', expected);
 
-    socket!.once('updateClientCuts', (message: boolean[]) => {
+    socket?.once('updateClientCuts', (message: boolean[]) => {
       expect(message).toStrictEqual(expected);
       done();
     });
