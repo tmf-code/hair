@@ -125,7 +125,7 @@ describe('Mouse Interactions', () => {
 });
 
 describe('Touch Interactions', () => {
-  describe('Mouse movement events', () => {
+  describe('Touch movement events', () => {
     const { innerWidth } = window;
     const touchLocation: [number, number] = [100, 200];
     beforeAll(() => {
@@ -152,24 +152,24 @@ describe('Touch Interactions', () => {
     });
   });
 
-  describe('Mouse click events', () => {
+  describe('Touch click events', () => {
     beforeEach(() => {
       Mouse.Reset();
     });
 
-    test('Mousedown then mouseup should toggle isClicked', () => {
-      document.dispatchEvent(new TouchEvent('mousedown'));
+    test('Touchstart  then touchend should toggle isClicked', () => {
+      document.dispatchEvent(new TouchEvent('touchstart'));
       expect(Mouse.isClicked()).toStrictEqual(true);
-      document.dispatchEvent(new TouchEvent('mouseup'));
+      document.dispatchEvent(new TouchEvent('touchend'));
       expect(Mouse.isClicked()).toStrictEqual(false);
     });
     test('Mousedown should set isClicked true', () => {
-      document.dispatchEvent(new TouchEvent('mousedown'));
+      document.dispatchEvent(new TouchEvent('touchstart'));
       expect(Mouse.isClicked()).toStrictEqual(true);
     });
 
     test('Mouseup should set isClicked false', () => {
-      document.dispatchEvent(new TouchEvent('mouseup'));
+      document.dispatchEvent(new TouchEvent('touchend'));
       expect(Mouse.isClicked()).toStrictEqual(false);
     });
   });
