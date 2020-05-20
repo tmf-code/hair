@@ -62,7 +62,6 @@ export class MockTouchEvent extends Event implements TouchEvent {
 
   private constructor(type: string, clientX: number, clientY: number) {
     super(type);
-    // this.type = type;
     this.touches = MockTouchList.oneTouchAtCoords(clientX, clientY);
   }
 
