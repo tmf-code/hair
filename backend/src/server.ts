@@ -1,7 +1,12 @@
 import path from 'path';
 import Express = require('express');
 
-const appRoot = process.env.PWD!;
+const appRoot = process.env.PWD;
+
+if (appRoot === undefined) {
+  throw new Error('process.env.PWD not exposed to server');
+}
+
 const PORT = process.env.PORT || 3000;
 
 export const makeProductionServer = () => {
