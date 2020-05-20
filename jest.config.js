@@ -1,9 +1,4 @@
-module.exports = {
-  testEnvironment: 'jsdom',
-  transform: {
-    '^.+\\.tsx?$': 'ts-jest',
-  },
-  testRegex: '(/__tests__/.*|(\\.|/)(test|spec))\\.tsx?$',
-  moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json', 'node'],
-  verbose: true,
+const config = {
+  projects: ['tests/frontend/jest.config.js', 'tests/backend/jest.config.js'],
 };
+module.exports = config;

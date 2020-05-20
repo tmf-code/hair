@@ -1,5 +1,5 @@
 import { createGrid } from './create-grid';
-import { growthSpeed } from './constants';
+import { growthSpeed, SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
 
 const createSocket = (server: import('http').Server) => {
@@ -18,8 +18,6 @@ const createSocket = (server: import('http').Server) => {
       cuts = cuts.map((currentCut, cutIndex) => currentCut || incomingCuts[cutIndex]);
       lengths = lengths.map((length, lengthIndex) => (incomingCuts[lengthIndex] ? 0 : length));
     });
-
-    socket.on('disconnect', () => console.log('Client disconnected'));
   });
 
   // Cut
@@ -28,13 +26,15 @@ const createSocket = (server: import('http').Server) => {
       io.emit('updateClientCuts', cuts);
       cuts = grid.map(() => false);
     }
-  }, 100);
+  }, SERVER_EMIT_INTERVAL);
 
   // Grow
   setInterval(() => {
     lengths = lengths.map((length) => Math.min(length + growthSpeed, 1));
     io.emit('updateClientGrowth', growthSpeed);
-  }, 100);
+  }, SERVER_EMIT_INTERVAL);
+
+  return io;
 };
 
 export { createSocket };
