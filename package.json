@@ -23,8 +23,8 @@
     "uuid": "^8.0.0"
   },
   "scripts": {
-    "watch:server-js": "cd ./backend && NODE_ENV=development nodemon ./dist/server.js",
-    "watch:server-ts": "cd ./backend && NODE_ENV=development tsc -w",
+    "watch:server-js": "cd ./backend && set NODE_ENV=development && nodemon ./dist/server.js",
+    "watch:server-ts": "cd ./backend && set NODE_ENV=development && tsc -w",
     "server": "concurrently \"npm:watch:server-js\" \"npm:watch:server-ts\"",
     "start:dev": "concurrently \"npm:server\" \"npm:frontend\"",
     "start": "NODE_ENV=production node ./backend/dist/server.js",
