@@ -1,4 +1,3 @@
-import io from 'socket.io-client';
 import { hairLengths } from './HairLengths';
 import { hairPositions } from './HairPositions';
 import { hairRotations } from './HairRotations';
@@ -8,14 +7,23 @@ export class Socket {
   private static readonly EMIT_INTERVAL = 100;
   private socket: SocketIOClient.Socket;
 
-  public constructor() {
-    this.socket = this.connectSocket();
-    this.attachSocketHandlers();
-    this.createSocketEmitters();
+  public constructor(io: SocketIOClientStatic, mode: string) {
+    if (this.validateMode(mode)) {
+      this.socket = this.connectSocket(io, mode);
+      this.attachSocketHandlers();
+      this.createSocketEmitters();
+    } else {
+      throw new Error(`Mode should be either 'production' or 'development', got ${mode}`);
+    }
   }
 
-  private connectSocket() {
-    return process.env.NODE_ENV === 'production' ? io() : io('http://192.168.178.41:3001');
+  private validateMode(mode: string): mode is 'production' | 'development' {
+    if (mode !== 'production' && mode !== 'development') return false;
+    return true;
+  }
+
+  private connectSocket(io: SocketIOClientStatic, mode: 'production' | 'development') {
+    return mode === 'production' ? io() : io('http://localhost:3001');
   }
 
   private attachSocketHandlers() {
@@ -49,9 +57,5 @@ export class Socket {
 
   private updateServerCuts() {
     this.socket.emit('updateServerCuts', hairCuts.getBufferAndClear());
-  }
-
-  public addNewCuts(cuts: boolean[]) {
-    hairCuts.addFromClient(cuts);
   }
 }

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Canvas } from 'react-three-fiber';
 
+import io from 'socket.io-client';
+
 import './styles/App.css';
 import { Rotations } from './types/types';
 import { Triangles } from './components/Triangles';
@@ -9,7 +11,7 @@ import { hairRotations } from './drivers/HairRotations';
 import { Socket } from './drivers/Socket';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const socket = new Socket();
+const socket = new Socket(io, process.env.NODE_ENV);
 const App = () => {
   const [hairGrid, setHairPositions] = useState<[number, number][]>([]);
   const [rotations, setRotations] = useState<Rotations>([]);
