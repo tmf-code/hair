@@ -33,6 +33,7 @@ describe('Initial Mouse State', () => {
     };
 
     document.dispatchEvent(new MouseEvent('mousemove', data));
+    expect(Mouse.Position()).toStrictEqual([data.clientX, data.clientY]);
     Mouse.Reset();
     expect(Mouse.Position()).toStrictEqual([0, 0]);
   });
