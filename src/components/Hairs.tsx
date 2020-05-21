@@ -20,7 +20,7 @@ const transformHolder = new Object3D();
 let lastLengths: HairLengths = [];
 let rotationOffsets: Rotations = [];
 
-type TrianglesProps = {
+type HairsProps = {
   grid: Grid;
   rotations: Rotations;
 };
@@ -62,7 +62,7 @@ const calculateCuts = (positions: number[][]) =>
     return hover && Mouse.isClicked();
   });
 
-const Triangles = ({ grid, rotations }: TrianglesProps) => {
+const Hairs = ({ grid, rotations }: HairsProps) => {
   const { viewport, mouse, camera, aspect } = useThree();
   const hairGeo = useMemo(() => triangleGeometry(viewport.width), [viewport.width]);
   const positions = useMemo(() => calculatePositions(grid, viewport), [grid, viewport]);
@@ -105,4 +105,4 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
   );
 };
 
-export { Triangles };
+export { Hairs };

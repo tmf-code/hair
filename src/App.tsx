@@ -5,7 +5,7 @@ import io from 'socket.io-client';
 
 import './styles/App.css';
 import { Rotations } from './types/types';
-import { Triangles } from './components/Triangles';
+import { Hairs } from './components/Hairs';
 import { hairPositions } from './drivers/HairPositions';
 import { hairRotations } from './drivers/HairRotations';
 import { Socket } from './drivers/Socket';
@@ -23,7 +23,7 @@ const App = () => {
 
   return (
     <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
-      <Triangles grid={hairGrid} rotations={rotations} />
+      <Hairs grid={hairGrid} rotations={rotations} />
     </Canvas>
   );
 };
