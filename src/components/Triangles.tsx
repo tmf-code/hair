@@ -2,18 +2,9 @@ import { triangleGeometry } from './triangle-geometry';
 import { Grid, Rotations, HairLengths } from '../types/types';
 import { useThree, useFrame } from 'react-three-fiber';
 import React, { useMemo, useRef } from 'react';
-import {
-  Object3D,
-  InstancedMesh,
-  MeshBasicMaterial,
-  Color,
-  Vector2,
-  Box2,
-  Vector3,
-  Mesh,
-} from 'three';
+import { Object3D, InstancedMesh, MeshBasicMaterial, Color, Vector2, Box2, Mesh } from 'three';
 import { mouseToWorld, calculatePositions } from '../utilities/utilities';
-import { hairColor, swirlRadius } from '../utilities/constants';
+import { hairColor } from '../utilities/constants';
 import { Mouse } from '../drivers/Mouse';
 
 import { Razor, updateRazorBox, updateRazorPosition } from './Razor';
@@ -21,6 +12,7 @@ import { FIFO } from '../utilities/fifo';
 import { hairLengths } from '../drivers/HairLengths';
 import { hairCuts } from '../drivers/HairCuts';
 import { FallingHair } from './FallingHair';
+import { calculateSwirls } from './calculate-swirls';
 
 // State holders outside of react
 
@@ -72,27 +64,6 @@ const calculateCuts = (positions: number[][]) =>
     return hover && Mouse.isClicked();
   });
 
-const calculateSwirls = (positions: number[][], mousePos: Vector3) => {
-  const swirlAffect = lastLengths.map((_length, lengthIndex) => {
-    const directionVector = Mouse.VelocityVector().normalize();
-    const [xPos, yPos] = positions[lengthIndex];
-    const distance = mousePos.distanceTo(new Vector3(xPos, yPos, 0));
-    const hover = distance < swirlRadius;
-    const shouldSwirl = hover && !Mouse.isClicked() && Mouse.VelocityVector().length() > 0.001;
-    return shouldSwirl
-      ? directionVector.multiplyScalar(1 - distance / swirlRadius)
-      : new Vector2(0, 0);
-  });
-
-  return swirlAffect.map((swirlAmount, hairIndex) => {
-    const rotationDifference =
-      Math.atan2(swirlAmount.y, swirlAmount.x) - rotationOffsets[hairIndex];
-    const newRotation =
-      rotationOffsets[hairIndex] + (rotationDifference * swirlAmount.length()) / 10;
-    return newRotation;
-  });
-};
-
 export type TriangleTransform = {
   type: 'empty' | 'useful';
   xPos: number;
@@ -136,7 +107,7 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
     updateDisplay(lastLengths, ref, positions, rotations);
 
     const cutAffect = calculateCuts(positions);
-    rotationOffsets = calculateSwirls(positions, mousePos);
+    rotationOffsets = calculateSwirls(positions, mousePos, lastLengths, rotationOffsets);
 
     const fallingHair = FallingHair.createFallingHair(rotations, rotationOffsets);
 
