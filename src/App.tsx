@@ -14,6 +14,7 @@ import { Razor } from './components/Razor';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const socket = new Socket(io, process.env.NODE_ENV);
 const razor = new Razor();
+const hairs = new Hairs();
 const App = () => {
   const [hairGrid, setHairPositions] = useState<[number, number][]>([]);
   const [rotations, setRotations] = useState<Rotations>([]);
@@ -26,7 +27,7 @@ const App = () => {
   return (
     <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
       <razor.screenElement />
-      <Hairs
+      <hairs.screenElement
         grid={hairGrid}
         rotations={rotations}
         razorContainsPoint={razor.containsPoint.bind(razor)}
