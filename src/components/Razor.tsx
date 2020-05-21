@@ -1,8 +1,9 @@
 import { forwardRef, useState, useEffect, useMemo } from 'react';
-import { TextureLoader } from 'three';
+import { TextureLoader, Vector3, Mesh, Vector2, Box2 } from 'three';
 import React from 'react';
 import { useSpring, a } from 'react-spring/three';
 import razorSVG from '../svgs/razor.svg';
+import { razorWidth, razorHeight } from '../utilities/constants';
 
 type RazorProps = {
   ref: any;
@@ -50,3 +51,22 @@ function installUseEffects(
     });
   };
 }
+
+const mouseLeft = new Vector2();
+const mouseRight = new Vector2();
+
+export const updateRazorBox = (razorBox: Box2, mousePos: Vector3, aspect: number) => {
+  mouseLeft.set(mousePos.x - razorWidth * aspect, mousePos.y - razorHeight);
+  mouseRight.set(mousePos.x + razorWidth * aspect, mousePos.y + razorHeight);
+  razorBox.set(mouseLeft, mouseRight);
+};
+
+export const updateRazorPosition = (
+  razorRef: React.MutableRefObject<Mesh | undefined>,
+  mousePos: Vector3,
+  aspect: number,
+) => {
+  if (razorRef.current) {
+    razorRef.current.position.set(mousePos.x, mousePos.y - (2.1 / 2) * 0.9 * aspect, mousePos.z);
+  }
+};

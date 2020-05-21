@@ -13,22 +13,21 @@ import {
   Mesh,
 } from 'three';
 import { mouseToWorld, calculatePositions } from '../utilities/utilities';
-import { hairColor, razorWidth, razorHeight, swirlRadius } from '../utilities/constants';
+import { hairColor, swirlRadius } from '../utilities/constants';
 import { Mouse } from '../drivers/Mouse';
 
-import { Razor } from './Razor';
+import { Razor, updateRazorBox, updateRazorPosition } from './Razor';
 import { FIFO } from '../utilities/fifo';
 import { hairLengths } from '../drivers/HairLengths';
 import { hairCuts } from '../drivers/HairCuts';
 import { FallingHair } from './FallingHair';
 
 // State holders outside of react
-const mouseLeft = new Vector2();
-const mouseRight = new Vector2();
+
 const razorBox = new Box2();
 const transformHolder = new Object3D();
 let lastLengths: HairLengths = [];
-export let rotationOffsets: Rotations = [];
+let rotationOffsets: Rotations = [];
 const maxFallingHair = 1500;
 
 type TrianglesProps = {
@@ -42,21 +41,6 @@ const readyToRender = (ref: React.MutableRefObject<InstancedMesh | undefined>, g
   const gridConstructed = grid.length !== 0;
 
   return isMeshMade && hairsRetrievedFromServer && gridConstructed;
-};
-
-const updateRazorBox = (mousePos: Vector3, aspect: number) => {
-  mouseLeft.set(mousePos.x - razorWidth * aspect, mousePos.y - razorHeight);
-  mouseRight.set(mousePos.x + razorWidth * aspect, mousePos.y + razorHeight);
-  razorBox.set(mouseLeft, mouseRight);
-};
-const updateRazorPosition = (
-  razorRef: React.MutableRefObject<Mesh | undefined>,
-  mousePos: Vector3,
-  aspect: number,
-) => {
-  if (razorRef.current) {
-    razorRef.current.position.set(mousePos.x, mousePos.y - (2.1 / 2) * 0.9 * aspect, mousePos.z);
-  }
 };
 
 const createRotationsOnFirstRender = (grid: Grid) => {
@@ -147,7 +131,7 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
     ref!.current!.instanceMatrix.needsUpdate = true;
 
     const mousePos = mouseToWorld(mouse, camera);
-    updateRazorBox(mousePos, aspect);
+    updateRazorBox(razorBox, mousePos, aspect);
     updateRazorPosition(razorRef, mousePos, aspect);
     updateDisplay(lastLengths, ref, positions, rotations);
 
