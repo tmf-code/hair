@@ -23,7 +23,7 @@ class Hairs {
   private lastLengths: HairLengths = [];
   private rotationOffsets: Rotations = [];
 
-  readyToRender = (ref: React.MutableRefObject<InstancedMesh | undefined>, grid: Grid) => {
+  private readyToRender = (ref: React.MutableRefObject<InstancedMesh | undefined>, grid: Grid) => {
     const isMeshMade = !!ref.current;
     const hairsRetrievedFromServer = hairLengths.getLengths().length !== 0;
     const gridConstructed = grid.length !== 0;
@@ -31,11 +31,11 @@ class Hairs {
     return isMeshMade && hairsRetrievedFromServer && gridConstructed;
   };
 
-  createRotationsOnFirstRender = (grid: Grid) => {
+  private createRotationsOnFirstRender = (grid: Grid) => {
     if (this.rotationOffsets.length === 0) this.rotationOffsets = grid.map(() => 0);
   };
 
-  updateDisplay = (
+  private updateDisplay = (
     lengths: HairLengths,
     ref: React.MutableRefObject<InstancedMesh | undefined>,
     positions: number[][],
@@ -53,13 +53,13 @@ class Hairs {
     });
   };
 
-  calculateCuts = (razorContainsPoint: (arg0: Position2D) => boolean, positions: Grid) =>
+  private calculateCuts = (razorContainsPoint: (arg0: Position2D) => boolean, positions: Grid) =>
     this.lastLengths.map((_length, lengthIndex) => {
       const hover = razorContainsPoint(positions[lengthIndex]);
       return hover && Mouse.isClicked();
     });
 
-  screenElement = ({ grid, rotations, razorContainsPoint }: HairsProps) => {
+  public screenElement = ({ grid, rotations, razorContainsPoint }: HairsProps) => {
     const { viewport, mouse, camera } = useThree();
     const hairGeo = useMemo(() => triangleGeometry(viewport.width), [viewport.width]);
     const positions = useMemo(() => calculatePositions(grid, viewport), [grid, viewport]);
