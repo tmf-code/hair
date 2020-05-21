@@ -18,5 +18,6 @@ const config = {
     },
   },
   testEnvironment: 'node',
+  roots: ['<rootDir>/../../backend/src/', './'],
 };
 module.exports = config;
