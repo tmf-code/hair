@@ -84,7 +84,7 @@ const emptyCutHair: TriangleTransform = {
   timeStamp: 0,
 };
 
-const cutHairFIFO = new FIFO<TriangleTransform>(maxFallingHair, emptyCutHair, 'hairIndex');
+const fallingHairHplder = new FallingHair(maxFallingHair, emptyCutHair);
 
 const Triangles = ({ grid, rotations }: TrianglesProps) => {
   const { viewport, mouse, camera, aspect } = useThree();
@@ -112,9 +112,9 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
     const fallingHair = FallingHair.createFallingHair(rotations, rotationOffsets);
 
     const cuts = fallingHair(positions, lastLengths, cutAffect);
-    cuts.forEach((cut) => cutHairFIFO.addIfUnique(cut));
 
-    FallingHair.makeHairFall(viewport, grid, ref, cutHairFIFO, maxFallingHair, transformHolder);
+    fallingHairHplder.addUniqueToFIFO(cuts);
+    fallingHairHplder.makeHairFall(viewport, grid, ref, maxFallingHair, transformHolder);
 
     hairCuts.addFromClient(cutAffect);
   });

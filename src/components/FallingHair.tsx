@@ -6,6 +6,11 @@ import { EasingFunctions } from '../utilities/easing-functions';
 import { FIFO } from '../utilities/fifo';
 
 export class FallingHair {
+  cutHairFIFO: FIFO<TriangleTransform>;
+  constructor(maxFallingHair: number, emptyCutHair: TriangleTransform) {
+    this.cutHairFIFO = new FIFO<TriangleTransform>(maxFallingHair, emptyCutHair, 'hairIndex');
+  }
+
   static createFallingHair(rotations: Rotations, rotationOffsets: Rotations) {
     return (positions: number[][], lengths: HairLengths, cutAffect: boolean[]) =>
       cutAffect
@@ -30,7 +35,7 @@ export class FallingHair {
         );
   }
 
-  static makeHairFall(
+  makeHairFall(
     viewport: {
       width: number;
       height: number;
@@ -38,14 +43,13 @@ export class FallingHair {
     },
     grid: [number, number][],
     ref: React.MutableRefObject<InstancedMesh | undefined>,
-    cutHairFIFO: FIFO<TriangleTransform>,
     maxFallingHair: number,
     transformHolder: Object3D,
   ) {
     const frameTime = Date.now();
     const animationDuration = 800;
     const heightBuckets = new Buckets(10, -viewport.width / 2.0, viewport.width / 2.0);
-    cutHairFIFO.stack.forEach((transform, index) => {
+    this.cutHairFIFO.stack.forEach((transform, index) => {
       const { xPos, yPos, rotation, length, timeStamp, type } = transform;
 
       if (type === 'empty') return;
@@ -62,5 +66,9 @@ export class FallingHair {
       transformHolder.updateMatrix();
       ref.current?.setMatrixAt(grid.length + index, transformHolder.matrix);
     });
+  }
+
+  addUniqueToFIFO(cuts: TriangleTransform[]) {
+    cuts.forEach((cut) => this.cutHairFIFO.addIfUnique(cut));
   }
 }
