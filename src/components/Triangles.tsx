@@ -8,7 +8,6 @@ import { hairColor } from '../utilities/constants';
 import { Mouse } from '../drivers/Mouse';
 
 import { Razor, updateRazorBox, updateRazorPosition } from './Razor';
-import { FIFO } from '../utilities/fifo';
 import { hairLengths } from '../drivers/HairLengths';
 import { hairCuts } from '../drivers/HairCuts';
 import { FallingHair } from './FallingHair';
@@ -64,27 +63,7 @@ const calculateCuts = (positions: number[][]) =>
     return hover && Mouse.isClicked();
   });
 
-export type TriangleTransform = {
-  type: 'empty' | 'useful';
-  xPos: number;
-  yPos: number;
-  rotation: number;
-  length: number;
-  hairIndex: number;
-  timeStamp: number;
-};
-
-const emptyCutHair: TriangleTransform = {
-  type: 'empty',
-  xPos: 0,
-  yPos: 0,
-  rotation: 0,
-  length: 0,
-  hairIndex: -1,
-  timeStamp: 0,
-};
-
-const fallingHairHplder = new FallingHair(maxFallingHair, emptyCutHair);
+const fallingHair = new FallingHair(maxFallingHair);
 
 const Triangles = ({ grid, rotations }: TrianglesProps) => {
   const { viewport, mouse, camera, aspect } = useThree();
@@ -109,12 +88,18 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
     const cutAffect = calculateCuts(positions);
     rotationOffsets = calculateSwirls(positions, mousePos, lastLengths, rotationOffsets);
 
-    const fallingHair = FallingHair.createFallingHair(rotations, rotationOffsets);
-
-    const cuts = fallingHair(positions, lastLengths, cutAffect);
-
-    fallingHairHplder.addUniqueToFIFO(cuts);
-    fallingHairHplder.makeHairFall(viewport, grid, ref, maxFallingHair, transformHolder);
+    fallingHair.update(
+      positions,
+      lastLengths,
+      cutAffect,
+      rotations,
+      rotationOffsets,
+      viewport,
+      grid,
+      ref,
+      maxFallingHair,
+      transformHolder,
+    );
 
     hairCuts.addFromClient(cutAffect);
   });

@@ -1,14 +1,36 @@
-import { Rotations, HairLengths } from '../types/types';
-import { TriangleTransform } from './Triangles';
+import { Rotations, HairLengths, Grid } from '../types/types';
 import { InstancedMesh, Object3D } from 'three';
 import { Buckets } from '../utilities/buckets';
 import { EasingFunctions } from '../utilities/easing-functions';
 import { FIFO } from '../utilities/fifo';
 
+type TriangleTransform = {
+  type: 'empty' | 'useful';
+  xPos: number;
+  yPos: number;
+  rotation: number;
+  length: number;
+  hairIndex: number;
+  timeStamp: number;
+};
+
 export class FallingHair {
+  static readonly emptyCutHair: TriangleTransform = {
+    type: 'empty',
+    xPos: 0,
+    yPos: 0,
+    rotation: 0,
+    length: 0,
+    hairIndex: -1,
+    timeStamp: 0,
+  };
   cutHairFIFO: FIFO<TriangleTransform>;
-  constructor(maxFallingHair: number, emptyCutHair: TriangleTransform) {
-    this.cutHairFIFO = new FIFO<TriangleTransform>(maxFallingHair, emptyCutHair, 'hairIndex');
+  constructor(maxFallingHair: number) {
+    this.cutHairFIFO = new FIFO<TriangleTransform>(
+      maxFallingHair,
+      FallingHair.emptyCutHair,
+      'hairIndex',
+    );
   }
 
   static createFallingHair(rotations: Rotations, rotationOffsets: Rotations) {
@@ -66,6 +88,45 @@ export class FallingHair {
       transformHolder.updateMatrix();
       ref.current?.setMatrixAt(grid.length + index, transformHolder.matrix);
     });
+  }
+
+  public update(
+    positions: number[][],
+    lastLengths: HairLengths,
+    cutAffect: boolean[],
+    rotations: Rotations,
+    rotationOffsets: Rotations,
+    viewport: {
+      width: number;
+      height: number;
+      factor: number;
+    },
+    grid: Grid,
+    ref: React.MutableRefObject<InstancedMesh | undefined>,
+    maxFallingHair: number,
+    transformHolder: Object3D,
+  ) {
+    const cuts = FallingHair.calculateCuts(
+      positions,
+      lastLengths,
+      cutAffect,
+      rotations,
+      rotationOffsets,
+    );
+
+    this.addUniqueToFIFO(cuts);
+    this.makeHairFall(viewport, grid, ref, maxFallingHair, transformHolder);
+  }
+
+  static calculateCuts(
+    positions: number[][],
+    lastLengths: HairLengths,
+    cutAffect: boolean[],
+    rotations: Rotations,
+    rotationOffsets: Rotations,
+  ) {
+    const fallingHair = FallingHair.createFallingHair(rotations, rotationOffsets);
+    return fallingHair(positions, lastLengths, cutAffect);
   }
 
   addUniqueToFIFO(cuts: TriangleTransform[]) {
