@@ -2,12 +2,12 @@ import { triangleGeometry } from './triangle-geometry';
 import { Grid, Rotations, HairLengths } from '../types/types';
 import { useThree, useFrame } from 'react-three-fiber';
 import React, { useMemo, useRef } from 'react';
-import { Object3D, InstancedMesh, MeshBasicMaterial, Color, Vector2, Box2, Mesh } from 'three';
+import { Object3D, InstancedMesh, MeshBasicMaterial, Color, Vector2, Mesh } from 'three';
 import { mouseToWorld, calculatePositions } from '../utilities/utilities';
 import { hairColor, maxFallingHair } from '../utilities/constants';
 import { Mouse } from '../drivers/Mouse';
 
-import { Razor, updateRazorBox, updateRazorPosition } from './Razor';
+import { Razor, updateRazorBox, updateRazorPosition, razorBox } from './Razor';
 import { hairLengths } from '../drivers/HairLengths';
 import { hairCuts } from '../drivers/HairCuts';
 import { FallingHair } from './FallingHair';
@@ -15,7 +15,6 @@ import { calculateSwirls } from './calculate-swirls';
 
 // State holders outside of react
 
-const razorBox = new Box2();
 const transformHolder = new Object3D();
 let lastLengths: HairLengths = [];
 let rotationOffsets: Rotations = [];

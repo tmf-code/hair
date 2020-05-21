@@ -12,6 +12,8 @@ type RazorProps = {
   props?: any;
 };
 
+export const razorBox = new Box2();
+
 export const Razor = forwardRef(({ scale }: RazorProps, ref) => {
   const texture = useMemo(() => new TextureLoader().load(razorSVG), []);
   const [mouseUp, setMouseUp] = useState(true);
