@@ -64,9 +64,9 @@ export class FallingHair {
   private createFallingHair(
     rotationOffsets: Rotations,
     lengths: HairLengths,
-    cutAffect: boolean[],
+    cutEffect: boolean[],
   ) {
-    return cutAffect
+    return cutEffect
       .map((cut, index) => [cut, index] as [boolean, number])
       .filter(([isCut]) => isCut)
       .map(([, index]) => index)
@@ -113,18 +113,18 @@ export class FallingHair {
     });
   }
 
-  public update(lastLengths: HairLengths, cutAffect: boolean[], rotationOffsets: Rotations) {
-    const cuts = this.calculateCuts(lastLengths, cutAffect, rotationOffsets);
+  public update(lastLengths: HairLengths, cutEffect: boolean[], rotationOffsets: Rotations) {
+    const cuts = this.calculateCuts(lastLengths, cutEffect, rotationOffsets);
     this.addUniqueToFIFO(cuts);
     this.makeHairFall();
   }
 
   private calculateCuts(
     lastLengths: HairLengths,
-    cutAffect: boolean[],
+    cutEffect: boolean[],
     rotationOffsets: Rotations,
   ) {
-    return this.createFallingHair(rotationOffsets, lastLengths, cutAffect);
+    return this.createFallingHair(rotationOffsets, lastLengths, cutEffect);
   }
 
   private addUniqueToFIFO(cuts: TriangleTransform[]) {
