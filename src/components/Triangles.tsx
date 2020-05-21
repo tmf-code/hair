@@ -18,11 +18,9 @@ import { Mouse } from '../drivers/Mouse';
 
 import { Razor } from './Razor';
 import { FIFO } from '../utilities/fifo';
-import { EasingFunctions } from '../utilities/easing-functions';
-import { Buckets } from '../utilities/buckets';
 import { hairLengths } from '../drivers/HairLengths';
 import { hairCuts } from '../drivers/HairCuts';
-import { createFallingHair, makeHairFall } from './createFallingHair';
+import { FallingHair } from './FallingHair';
 
 // State holders outside of react
 const mouseLeft = new Vector2();
@@ -156,12 +154,12 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
     const cutAffect = calculateCuts(positions);
     rotationOffsets = calculateSwirls(positions, mousePos);
 
-    const fallingHair = createFallingHair(rotations, rotationOffsets);
+    const fallingHair = FallingHair.createFallingHair(rotations, rotationOffsets);
 
     const cuts = fallingHair(positions, lastLengths, cutAffect);
     cuts.forEach((cut) => cutHairFIFO.addIfUnique(cut));
 
-    makeHairFall(viewport, grid, ref, cutHairFIFO, maxFallingHair, transformHolder);
+    FallingHair.makeHairFall(viewport, grid, ref, cutHairFIFO, maxFallingHair, transformHolder);
 
     hairCuts.addFromClient(cutAffect);
   });
