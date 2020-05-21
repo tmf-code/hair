@@ -2,7 +2,7 @@ import { triangleGeometry } from './triangle-geometry';
 import { Grid, Rotations, HairLengths, Position2D } from '../types/types';
 import { useThree, useFrame } from 'react-three-fiber';
 import React, { useMemo, useRef } from 'react';
-import { Object3D, InstancedMesh, MeshBasicMaterial, Color } from 'three';
+import { Object3D, InstancedMesh, MeshBasicMaterial, Color, Camera, Vector2 } from 'three';
 import { mouseToWorld, calculatePositions } from '../utilities/utilities';
 import { hairColor, maxFallingHair } from '../utilities/constants';
 import { Mouse } from '../drivers/Mouse';
@@ -22,92 +22,109 @@ class Hairs {
   private readonly transformHolder = new Object3D();
   private lastLengths: HairLengths = [];
   private rotationOffsets: Rotations = [];
+  private positions: Grid = [];
+  private rotations: Rotations = [];
+  private grid: Grid = [];
+  private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
+  private material: MeshBasicMaterial = new MeshBasicMaterial({ color: new Color(hairColor) });
+  private fallingHair: FallingHair | undefined;
 
-  private readyToRender = (ref: React.MutableRefObject<InstancedMesh | undefined>, grid: Grid) => {
-    const isMeshMade = !!ref.current;
+  private readyToRender = () => {
+    const isMeshMade = !!this.ref?.current;
     const hairsRetrievedFromServer = hairLengths.getLengths().length !== 0;
-    const gridConstructed = grid.length !== 0;
+    const gridConstructed = this.grid.length !== 0;
 
     return isMeshMade && hairsRetrievedFromServer && gridConstructed;
   };
 
-  private createRotationsOnFirstRender = (grid: Grid) => {
-    if (this.rotationOffsets.length === 0) this.rotationOffsets = grid.map(() => 0);
+  private createRotationsOnFirstRender = () => {
+    if (this.rotationOffsets.length === 0) this.rotationOffsets = this.grid.map(() => 0);
   };
 
-  private updateDisplay = (
-    lengths: HairLengths,
-    ref: React.MutableRefObject<InstancedMesh | undefined>,
-    positions: number[][],
-    rotations: number[],
-  ) => {
-    lengths.forEach((length, lengthIndex) => {
-      const [xPos, yPos] = positions[lengthIndex];
-      const rotation = rotations[lengthIndex] + this.rotationOffsets[lengthIndex];
+  private updateStaticHairs = () => {
+    if (!this.ref?.current) return;
+
+    this.ref.current.instanceMatrix.needsUpdate = true;
+
+    this.lastLengths.forEach((length, lengthIndex) => {
+      const [xPos, yPos] = this.positions[lengthIndex];
+      const rotation = this.rotations[lengthIndex] + this.rotationOffsets[lengthIndex];
 
       this.transformHolder.position.set(xPos, yPos, 0);
       this.transformHolder.rotation.set(0, 0, rotation);
       this.transformHolder.scale.set(1, length, 1);
       this.transformHolder.updateMatrix();
-      ref.current?.setMatrixAt(lengthIndex, this.transformHolder.matrix);
+
+      this.ref?.current?.setMatrixAt(lengthIndex, this.transformHolder.matrix);
     });
   };
 
-  private calculateCuts = (razorContainsPoint: (arg0: Position2D) => boolean, positions: Grid) =>
+  private updateLengths = () => {
+    this.lastLengths = hairLengths.getLengths();
+  };
+
+  private instanceCount = () => this.grid.length + maxFallingHair;
+
+  private calculateCuts = (razorContainsPoint: (arg0: Position2D) => boolean) =>
     this.lastLengths.map((_length, lengthIndex) => {
-      const hover = razorContainsPoint(positions[lengthIndex]);
+      const hover = razorContainsPoint(this.positions[lengthIndex]);
       return hover && Mouse.isClicked();
     });
 
+  private updateCutHairs(razorContainsPoint: (arg0: Position2D) => boolean) {
+    const cuts = this.calculateCuts(razorContainsPoint);
+    this.fallingHair?.update(this.lastLengths, cuts, this.rotationOffsets);
+    hairCuts.addFromClient(cuts);
+  }
+
+  private updateSwirls(mouse: Vector2, camera: Camera) {
+    const mousePos = mouseToWorld(mouse, camera);
+    this.rotationOffsets = calculateSwirls(
+      this.positions,
+      mousePos,
+      this.lastLengths,
+      this.rotationOffsets,
+    );
+  }
+
+  private updateFrame(
+    razorContainsPoint: (arg0: Position2D) => boolean,
+    mouse: Vector2,
+    camera: Camera,
+  ) {
+    this.updateLengths();
+    this.createRotationsOnFirstRender();
+    this.updateStaticHairs();
+    this.updateCutHairs(razorContainsPoint);
+    this.updateSwirls(mouse, camera);
+  }
   public screenElement = ({ grid, rotations, razorContainsPoint }: HairsProps) => {
     const { viewport, mouse, camera } = useThree();
     const hairGeo = useMemo(() => triangleGeometry(viewport.width), [viewport.width]);
-    const positions = useMemo(() => calculatePositions(grid, viewport), [grid, viewport]);
-    const ref = useRef<InstancedMesh>();
+    useMemo(() => (this.positions = calculatePositions(grid, viewport)), [grid, viewport]);
+    this.ref = useRef<InstancedMesh>();
 
-    const fallingHair = new FallingHair(
-      positions,
-      rotations,
+    this.grid = grid;
+    this.rotations = rotations;
+
+    this.fallingHair = new FallingHair(
+      this.positions,
+      this.rotations,
       viewport,
-      ref,
-      grid,
+      this.ref,
+      this.grid,
       this.transformHolder,
     );
 
     useFrame(() => {
-      this.lastLengths = hairLengths.getLengths();
-
-      if (!this.readyToRender(ref, grid)) return;
-      this.createRotationsOnFirstRender(grid);
-
-      if (ref?.current) {
-        ref.current.instanceMatrix.needsUpdate = true;
-      }
-
-      this.updateDisplay(this.lastLengths, ref, positions, rotations);
-
-      const cutAffect = this.calculateCuts(razorContainsPoint, positions);
-      const mousePos = mouseToWorld(mouse, camera);
-      this.rotationOffsets = calculateSwirls(
-        positions,
-        mousePos,
-        this.lastLengths,
-        this.rotationOffsets,
-      );
-
-      fallingHair.update(this.lastLengths, cutAffect, this.rotationOffsets);
-
-      hairCuts.addFromClient(cutAffect);
+      if (!this.readyToRender()) return;
+      this.updateFrame(razorContainsPoint, mouse, camera);
     });
     return (
       <>
         <instancedMesh
-          ref={ref}
-          args={[
-            hairGeo,
-            new MeshBasicMaterial({ color: new Color(hairColor) }),
-            grid.length + maxFallingHair,
-          ]}
+          ref={this.ref}
+          args={[hairGeo, this.material, this.instanceCount()]}
         ></instancedMesh>
       </>
     );
