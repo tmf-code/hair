@@ -22,6 +22,7 @@ import { EasingFunctions } from '../utilities/easing-functions';
 import { Buckets } from '../utilities/buckets';
 import { hairLengths } from '../drivers/HairLengths';
 import { hairCuts } from '../drivers/HairCuts';
+import { createFallingHair } from './createFallingHair';
 
 // State holders outside of react
 const mouseLeft = new Vector2();
@@ -29,7 +30,7 @@ const mouseRight = new Vector2();
 const razorBox = new Box2();
 const transformHolder = new Object3D();
 let lastLengths: HairLengths = [];
-let rotationOffsets: Rotations = [];
+export let rotationOffsets: Rotations = [];
 const maxFallingHair = 1500;
 
 type TrianglesProps = {
@@ -110,7 +111,7 @@ const calculateSwirls = (positions: number[][], mousePos: Vector3) => {
   });
 };
 
-type TriangleTransform = {
+export type TriangleTransform = {
   type: 'empty' | 'useful';
   xPos: number;
   yPos: number;
@@ -180,30 +181,6 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
 };
 
 export { Triangles };
-function createFallingHair(rotations: Rotations) {
-  return (positions: number[][], lengths: HairLengths, cutAffect: boolean[]) =>
-    cutAffect
-      .map((cut, index) => [cut, index] as [boolean, number])
-      .filter(([isCut]) => isCut)
-      .map(([, index]) => index)
-      .map(
-        (hairIndex): TriangleTransform => {
-          const length = lengths[hairIndex];
-          const [xPos, yPos] = positions[hairIndex];
-          const rotation = rotations[hairIndex] + rotationOffsets[hairIndex];
-          return {
-            xPos,
-            yPos,
-            rotation,
-            length,
-            type: 'useful',
-            hairIndex,
-            timeStamp: Date.now(),
-          };
-        },
-      );
-}
-
 function makeHairFall(
   viewport: {
     width: number;
