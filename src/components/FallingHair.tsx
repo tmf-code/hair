@@ -35,6 +35,7 @@ export class FallingHair {
   private rotations: Rotations;
 
   private readonly animationDuration: number;
+  private readonly transformHolder: Object3D;
 
   constructor(
     positions: Grid,
@@ -42,6 +43,7 @@ export class FallingHair {
     viewport: { width: number; height: number; factor: number },
     ref: React.MutableRefObject<InstancedMesh | undefined>,
     grid: Grid,
+    transformHolder: Object3D,
   ) {
     this.cutHairFIFO = new FIFO<TriangleTransform>(
       maxFallingHair,
@@ -56,6 +58,7 @@ export class FallingHair {
     this.viewport = viewport;
     this.maxFallingHair = maxFallingHair;
     this.animationDuration = animationDuration;
+    this.transformHolder = transformHolder;
   }
 
   private createFallingHair(
@@ -85,7 +88,7 @@ export class FallingHair {
       );
   }
 
-  private makeHairFall(transformHolder: Object3D) {
+  private makeHairFall() {
     const frameTime = Date.now();
 
     const heightBuckets = new Buckets(10, -this.viewport.width / 2.0, this.viewport.width / 2.0);
@@ -102,23 +105,18 @@ export class FallingHair {
       const destination = -this.viewport.height / 2.0 + Math.abs(yPos / 8.0) + bucketHeight;
       const distance = (yPos - destination) * EasingFunctions.easeInQuad(animationProgression);
 
-      transformHolder.position.set(xPos, yPos - distance, 0);
-      transformHolder.rotation.set(0, 0, rotation);
-      transformHolder.scale.set(1, length, 1);
-      transformHolder.updateMatrix();
-      this.ref.current?.setMatrixAt(this.grid.length + index, transformHolder.matrix);
+      this.transformHolder.position.set(xPos, yPos - distance, 0);
+      this.transformHolder.rotation.set(0, 0, rotation);
+      this.transformHolder.scale.set(1, length, 1);
+      this.transformHolder.updateMatrix();
+      this.ref.current?.setMatrixAt(this.grid.length + index, this.transformHolder.matrix);
     });
   }
 
-  public update(
-    lastLengths: HairLengths,
-    cutAffect: boolean[],
-    rotationOffsets: Rotations,
-    transformHolder: Object3D,
-  ) {
+  public update(lastLengths: HairLengths, cutAffect: boolean[], rotationOffsets: Rotations) {
     const cuts = this.calculateCuts(lastLengths, cutAffect, rotationOffsets);
     this.addUniqueToFIFO(cuts);
-    this.makeHairFall(transformHolder);
+    this.makeHairFall();
   }
 
   private calculateCuts(

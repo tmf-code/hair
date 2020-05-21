@@ -68,7 +68,7 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
   const positions = useMemo(() => calculatePositions(grid, viewport), [grid, viewport]);
   const ref = useRef<InstancedMesh>();
 
-  const fallingHair = new FallingHair(positions, rotations, viewport, ref, grid);
+  const fallingHair = new FallingHair(positions, rotations, viewport, ref, grid, transformHolder);
   const razorRef = useRef<Mesh>();
 
   useFrame(() => {
@@ -86,7 +86,7 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
     const cutAffect = calculateCuts(positions);
     rotationOffsets = calculateSwirls(positions, mousePos, lastLengths, rotationOffsets);
 
-    fallingHair.update(lastLengths, cutAffect, rotationOffsets, transformHolder);
+    fallingHair.update(lastLengths, cutAffect, rotationOffsets);
 
     hairCuts.addFromClient(cutAffect);
   });
