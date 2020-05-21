@@ -1,5 +1,5 @@
 import { Camera, Vector3, Vector2 } from 'three';
-import { Grid } from '../types/types';
+import { Grid, Position2D } from '../types/types';
 
 export const lerp = function (value1: number, value2: number, amount: number) {
   amount = amount < 0 ? 0 : amount;
@@ -44,8 +44,10 @@ type ViewportDimensions = {
   height: number;
 };
 
-export const calculatePositions = function (grid: Grid, viewport: ViewportDimensions) {
-  return grid.map(([xPos, yPos]) => relativeToWorld(new Vector2(xPos, yPos), viewport));
+export const calculatePositions = function (grid: Grid, viewport: ViewportDimensions): Grid {
+  return grid.map(
+    ([xPos, yPos]) => relativeToWorld(new Vector2(xPos, yPos), viewport) as Position2D,
+  );
 };
 
 export const relativeToWorld = function (
