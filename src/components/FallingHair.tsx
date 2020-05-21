@@ -3,7 +3,7 @@ import { InstancedMesh, Object3D } from 'three';
 import { Buckets } from '../utilities/buckets';
 import { EasingFunctions } from '../utilities/easing-functions';
 import { FIFO } from '../utilities/fifo';
-import { maxFallingHair } from '../utilities/constants';
+import { maxFallingHair, animationDuration } from '../utilities/constants';
 
 type TriangleTransform = {
   type: 'empty' | 'useful';
@@ -34,6 +34,8 @@ export class FallingHair {
   private cutHairFIFO: FIFO<TriangleTransform>;
   private rotations: Rotations;
 
+  private readonly animationDuration: number;
+
   constructor(
     positions: Grid,
     rotations: Rotations,
@@ -53,6 +55,7 @@ export class FallingHair {
     this.ref = ref;
     this.viewport = viewport;
     this.maxFallingHair = maxFallingHair;
+    this.animationDuration = animationDuration;
   }
 
   private createFallingHair(
@@ -84,7 +87,7 @@ export class FallingHair {
 
   private makeHairFall(transformHolder: Object3D) {
     const frameTime = Date.now();
-    const animationDuration = 800;
+
     const heightBuckets = new Buckets(10, -this.viewport.width / 2.0, this.viewport.width / 2.0);
     this.cutHairFIFO.stack.forEach((transform, index) => {
       const { xPos, yPos, rotation, length, timeStamp, type } = transform;
@@ -94,7 +97,7 @@ export class FallingHair {
         (heightBuckets.add(xPos) * this.viewport.height) /
         this.maxFallingHair /
         heightBuckets.numBuckets;
-      const animationProgression = Math.min((frameTime - timeStamp) / animationDuration, 1.0);
+      const animationProgression = Math.min((frameTime - timeStamp) / this.animationDuration, 1.0);
 
       const destination = -this.viewport.height / 2.0 + Math.abs(yPos / 8.0) + bucketHeight;
       const distance = (yPos - destination) * EasingFunctions.easeInQuad(animationProgression);

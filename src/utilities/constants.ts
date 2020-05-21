@@ -6,3 +6,4 @@ export const razorWidth = 0.4;
 export const razorHeight = 0.1;
 export const swirlRadius = 2;
 export const maxFallingHair = 1500;
+export const animationDuration = 800;
