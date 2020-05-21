@@ -15,7 +15,7 @@ type TriangleTransform = {
 };
 
 export class FallingHair {
-  static readonly emptyCutHair: TriangleTransform = {
+  private static readonly emptyCutHair: TriangleTransform = {
     type: 'empty',
     xPos: 0,
     yPos: 0,
@@ -24,6 +24,7 @@ export class FallingHair {
     hairIndex: -1,
     timeStamp: 0,
   };
+
   cutHairFIFO: FIFO<TriangleTransform>;
   constructor(maxFallingHair: number) {
     this.cutHairFIFO = new FIFO<TriangleTransform>(
@@ -33,7 +34,7 @@ export class FallingHair {
     );
   }
 
-  static createFallingHair(rotations: Rotations, rotationOffsets: Rotations) {
+  private static createFallingHair(rotations: Rotations, rotationOffsets: Rotations) {
     return (positions: number[][], lengths: HairLengths, cutAffect: boolean[]) =>
       cutAffect
         .map((cut, index) => [cut, index] as [boolean, number])
@@ -57,7 +58,7 @@ export class FallingHair {
         );
   }
 
-  makeHairFall(
+  private makeHairFall(
     viewport: {
       width: number;
       height: number;
@@ -118,7 +119,7 @@ export class FallingHair {
     this.makeHairFall(viewport, grid, ref, maxFallingHair, transformHolder);
   }
 
-  static calculateCuts(
+  private static calculateCuts(
     positions: number[][],
     lastLengths: HairLengths,
     cutAffect: boolean[],
@@ -129,7 +130,7 @@ export class FallingHair {
     return fallingHair(positions, lastLengths, cutAffect);
   }
 
-  addUniqueToFIFO(cuts: TriangleTransform[]) {
+  private addUniqueToFIFO(cuts: TriangleTransform[]) {
     cuts.forEach((cut) => this.cutHairFIFO.addIfUnique(cut));
   }
 }
