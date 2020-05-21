@@ -156,7 +156,7 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
     const cutAffect = calculateCuts(positions);
     rotationOffsets = calculateSwirls(positions, mousePos);
 
-    const fallingHair = createFallingHair(rotations);
+    const fallingHair = createFallingHair(rotations, rotationOffsets);
 
     const cuts = fallingHair(positions, lastLengths, cutAffect);
     cuts.forEach((cut) => cutHairFIFO.addIfUnique(cut));

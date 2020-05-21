@@ -1,6 +1,6 @@
 import { Rotations, HairLengths } from '../types/types';
-import { TriangleTransform, rotationOffsets } from './Triangles';
-export function createFallingHair(rotations: Rotations) {
+import { TriangleTransform } from './Triangles';
+export function createFallingHair(rotations: Rotations, rotationOffsets: Rotations) {
   return (positions: number[][], lengths: HairLengths, cutAffect: boolean[]) =>
     cutAffect
       .map((cut, index) => [cut, index] as [boolean, number])
