@@ -1,5 +1,10 @@
 class HairLengths {
   private lengths: number[] = [];
+
+  constructor(lengths: number[]) {
+    this.lengths = lengths;
+  }
+
   size() {
     return this.lengths.length;
   }
@@ -21,6 +26,6 @@ class HairLengths {
   }
 }
 
-const hairLengths = new HairLengths();
+const hairLengths = new HairLengths([]);
 
 export { hairLengths };
