@@ -3,6 +3,7 @@ import { InstancedMesh, Object3D } from 'three';
 import { Buckets } from '../utilities/buckets';
 import { EasingFunctions } from '../utilities/easing-functions';
 import { FIFO } from '../utilities/fifo';
+import { maxFallingHair } from '../utilities/constants';
 
 type TriangleTransform = {
   type: 'empty' | 'useful';
@@ -25,13 +26,32 @@ export class FallingHair {
     timeStamp: 0,
   };
 
+  private static readonly maxFallingHair = 1500;
+
+  private positions: number[][];
+  private viewport: { width: number; height: number; factor: number };
+  private ref: React.MutableRefObject<InstancedMesh | undefined>;
+  private grid: Grid;
+  private maxFallingHair: number;
+
   cutHairFIFO: FIFO<TriangleTransform>;
-  constructor(maxFallingHair: number) {
+  constructor(
+    positions: number[][],
+    viewport: { width: number; height: number; factor: number },
+    ref: React.MutableRefObject<InstancedMesh | undefined>,
+    grid: Grid,
+  ) {
     this.cutHairFIFO = new FIFO<TriangleTransform>(
       maxFallingHair,
       FallingHair.emptyCutHair,
       'hairIndex',
     );
+
+    this.maxFallingHair = maxFallingHair;
+    this.positions = positions;
+    this.grid = grid;
+    this.ref = ref;
+    this.viewport = viewport;
   }
 
   private static createFallingHair(rotations: Rotations, rotationOffsets: Rotations) {
@@ -104,7 +124,6 @@ export class FallingHair {
     },
     grid: Grid,
     ref: React.MutableRefObject<InstancedMesh | undefined>,
-    maxFallingHair: number,
     transformHolder: Object3D,
   ) {
     const cuts = FallingHair.calculateCuts(
@@ -116,7 +135,7 @@ export class FallingHair {
     );
 
     this.addUniqueToFIFO(cuts);
-    this.makeHairFall(viewport, grid, ref, maxFallingHair, transformHolder);
+    this.makeHairFall(viewport, grid, ref, this.maxFallingHair, transformHolder);
   }
 
   private static calculateCuts(

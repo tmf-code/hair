@@ -4,7 +4,7 @@ import { useThree, useFrame } from 'react-three-fiber';
 import React, { useMemo, useRef } from 'react';
 import { Object3D, InstancedMesh, MeshBasicMaterial, Color, Vector2, Box2, Mesh } from 'three';
 import { mouseToWorld, calculatePositions } from '../utilities/utilities';
-import { hairColor } from '../utilities/constants';
+import { hairColor, maxFallingHair } from '../utilities/constants';
 import { Mouse } from '../drivers/Mouse';
 
 import { Razor, updateRazorBox, updateRazorPosition } from './Razor';
@@ -19,7 +19,6 @@ const razorBox = new Box2();
 const transformHolder = new Object3D();
 let lastLengths: HairLengths = [];
 let rotationOffsets: Rotations = [];
-const maxFallingHair = 1500;
 
 type TrianglesProps = {
   grid: Grid;
@@ -63,14 +62,13 @@ const calculateCuts = (positions: number[][]) =>
     return hover && Mouse.isClicked();
   });
 
-const fallingHair = new FallingHair(maxFallingHair);
-
 const Triangles = ({ grid, rotations }: TrianglesProps) => {
   const { viewport, mouse, camera, aspect } = useThree();
   const hairGeo = useMemo(() => triangleGeometry(viewport.width), [viewport.width]);
   const positions = useMemo(() => calculatePositions(grid, viewport), [grid, viewport]);
-
   const ref = useRef<InstancedMesh>();
+
+  const fallingHair = new FallingHair(positions, viewport, ref, grid);
   const razorRef = useRef<Mesh>();
 
   useFrame(() => {
@@ -97,7 +95,6 @@ const Triangles = ({ grid, rotations }: TrianglesProps) => {
       viewport,
       grid,
       ref,
-      maxFallingHair,
       transformHolder,
     );
 
