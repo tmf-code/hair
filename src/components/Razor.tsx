@@ -8,8 +8,6 @@ import { Position2D } from '../types/types';
 import { useThree, useFrame } from 'react-three-fiber';
 import { mouseToWorld } from '../utilities/utilities';
 
-type RazorProps = {};
-
 export class Razor {
   private mouseLeft = new Vector2();
   private mouseRight = new Vector2();
@@ -17,7 +15,7 @@ export class Razor {
   private razorBox = new Box2();
   private aspect = 1.0;
 
-  update(mousePos: Vector3, aspect: number) {
+  private update(mousePos: Vector3, aspect: number) {
     this.aspect = aspect;
     this.updateRazorBox(mousePos);
     this.updateRazorPosition(mousePos);
@@ -35,11 +33,8 @@ export class Razor {
 
   private updateRazorPosition(mousePos: Vector3) {
     if (this.razorRef?.current) {
-      this.razorRef.current.position.set(
-        mousePos.x,
-        mousePos.y - (2.1 / 2) * 0.9 * this.aspect,
-        mousePos.z,
-      );
+      const cursorOnTipOffset = -(2.1 / 2) * 0.9 * this.aspect;
+      this.razorRef.current.position.set(mousePos.x, mousePos.y + cursorOnTipOffset, mousePos.z);
       this.razorRef.current.matrixWorldNeedsUpdate = true;
     }
   }
@@ -48,24 +43,20 @@ export class Razor {
     const { mouse, camera, aspect } = useThree();
     const texture = useMemo(() => new TextureLoader().load(razorSVG), []);
     const [mouseUp, setMouseUp] = useState(true);
-
-    this.razorRef = useRef<Mesh>();
-    this.aspect = aspect;
-
     useEffect(this.installUseEffects(setMouseUp), []);
 
-    const { factor } = useSpring({ factor: mouseUp ? 1.1 : 1 });
+    this.razorRef = useRef<Mesh>();
 
     useFrame(() => {
       const mousePos = mouseToWorld(mouse, camera);
-      this.updateRazorBox(mousePos);
-      this.updateRazorPosition(mousePos);
+      this.update(mousePos, aspect);
     });
 
+    const { scaleFactor } = useSpring({ scaleFactor: mouseUp ? 1.1 : 1 });
     return (
       <a.mesh
         ref={this.razorRef}
-        scale={factor.interpolate((amount: number) => [
+        scale={scaleFactor.interpolate((amount: number) => [
           this.aspect * amount,
           this.aspect * amount,
           1,
