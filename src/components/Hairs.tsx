@@ -76,7 +76,10 @@ const Hairs = ({ grid, rotations }: HairsProps) => {
 
     if (!readyToRender(ref, grid)) return;
     createRotationsOnFirstRender(grid);
-    ref!.current!.instanceMatrix.needsUpdate = true;
+
+    if (ref?.current) {
+      ref.current.instanceMatrix.needsUpdate = true;
+    }
 
     const mousePos = mouseToWorld(mouse, camera);
     updateRazorBox(razorBox, mousePos, aspect);
