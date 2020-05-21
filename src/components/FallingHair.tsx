@@ -34,9 +34,11 @@ export class FallingHair {
   private grid: Grid;
   private maxFallingHair: number;
 
-  cutHairFIFO: FIFO<TriangleTransform>;
+  private cutHairFIFO: FIFO<TriangleTransform>;
+  private rotations: Rotations;
   constructor(
     positions: number[][],
+    rotations: Rotations,
     viewport: { width: number; height: number; factor: number },
     ref: React.MutableRefObject<InstancedMesh | undefined>,
     grid: Grid,
@@ -47,14 +49,15 @@ export class FallingHair {
       'hairIndex',
     );
 
-    this.maxFallingHair = maxFallingHair;
     this.positions = positions;
+    this.rotations = rotations;
     this.grid = grid;
     this.ref = ref;
     this.viewport = viewport;
+    this.maxFallingHair = maxFallingHair;
   }
 
-  private static createFallingHair(rotations: Rotations, rotationOffsets: Rotations) {
+  private createFallingHair(rotationOffsets: Rotations) {
     return (positions: number[][], lengths: HairLengths, cutAffect: boolean[]) =>
       cutAffect
         .map((cut, index) => [cut, index] as [boolean, number])
@@ -64,7 +67,7 @@ export class FallingHair {
           (hairIndex): TriangleTransform => {
             const length = lengths[hairIndex];
             const [xPos, yPos] = positions[hairIndex];
-            const rotation = rotations[hairIndex] + rotationOffsets[hairIndex];
+            const rotation = this.rotations[hairIndex] + rotationOffsets[hairIndex];
             return {
               xPos,
               yPos,
@@ -78,74 +81,49 @@ export class FallingHair {
         );
   }
 
-  private makeHairFall(
-    viewport: {
-      width: number;
-      height: number;
-      factor: number;
-    },
-    grid: [number, number][],
-    ref: React.MutableRefObject<InstancedMesh | undefined>,
-    maxFallingHair: number,
-    transformHolder: Object3D,
-  ) {
+  private makeHairFall(transformHolder: Object3D) {
     const frameTime = Date.now();
     const animationDuration = 800;
-    const heightBuckets = new Buckets(10, -viewport.width / 2.0, viewport.width / 2.0);
+    const heightBuckets = new Buckets(10, -this.viewport.width / 2.0, this.viewport.width / 2.0);
     this.cutHairFIFO.stack.forEach((transform, index) => {
       const { xPos, yPos, rotation, length, timeStamp, type } = transform;
 
       if (type === 'empty') return;
       const bucketHeight =
-        (heightBuckets.add(xPos) * viewport.height) / maxFallingHair / heightBuckets.numBuckets;
+        (heightBuckets.add(xPos) * this.viewport.height) /
+        this.maxFallingHair /
+        heightBuckets.numBuckets;
       const animationProgression = Math.min((frameTime - timeStamp) / animationDuration, 1.0);
 
-      const destination = -viewport.height / 2.0 + Math.abs(yPos / 8.0) + bucketHeight;
+      const destination = -this.viewport.height / 2.0 + Math.abs(yPos / 8.0) + bucketHeight;
       const distance = (yPos - destination) * EasingFunctions.easeInQuad(animationProgression);
 
       transformHolder.position.set(xPos, yPos - distance, 0);
       transformHolder.rotation.set(0, 0, rotation);
       transformHolder.scale.set(1, length, 1);
       transformHolder.updateMatrix();
-      ref.current?.setMatrixAt(grid.length + index, transformHolder.matrix);
+      this.ref.current?.setMatrixAt(this.grid.length + index, transformHolder.matrix);
     });
   }
 
   public update(
-    positions: number[][],
     lastLengths: HairLengths,
     cutAffect: boolean[],
-    rotations: Rotations,
     rotationOffsets: Rotations,
-    viewport: {
-      width: number;
-      height: number;
-      factor: number;
-    },
-    grid: Grid,
-    ref: React.MutableRefObject<InstancedMesh | undefined>,
     transformHolder: Object3D,
   ) {
-    const cuts = FallingHair.calculateCuts(
-      positions,
-      lastLengths,
-      cutAffect,
-      rotations,
-      rotationOffsets,
-    );
-
+    const cuts = this.calculateCuts(this.positions, lastLengths, cutAffect, rotationOffsets);
     this.addUniqueToFIFO(cuts);
-    this.makeHairFall(viewport, grid, ref, this.maxFallingHair, transformHolder);
+    this.makeHairFall(transformHolder);
   }
 
-  private static calculateCuts(
+  private calculateCuts(
     positions: number[][],
     lastLengths: HairLengths,
     cutAffect: boolean[],
-    rotations: Rotations,
     rotationOffsets: Rotations,
   ) {
-    const fallingHair = FallingHair.createFallingHair(rotations, rotationOffsets);
+    const fallingHair = this.createFallingHair(rotationOffsets);
     return fallingHair(positions, lastLengths, cutAffect);
   }
 
