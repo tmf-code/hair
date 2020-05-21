@@ -2,9 +2,15 @@ import { hairLengths } from './HairLengths';
 class HairCuts {
   private clientCutBuffer: boolean[] = [];
   addFromClient(hairCuts: boolean[]) {
-    this.clientCutBuffer = hairCuts.map(
-      (currentCut, cutIndex) => currentCut || this.clientCutBuffer[cutIndex],
-    );
+    this.clientCutBuffer = hairCuts.map((currentCut, cutIndex) => {
+      const clientDidCut = currentCut === true;
+      const bufferHasCut = this.clientCutBuffer[cutIndex] !== undefined;
+      if (clientDidCut) return currentCut;
+      if (bufferHasCut) return this.clientCutBuffer[cutIndex];
+
+      return false;
+    });
+
     this.applyToHairLengths(hairCuts);
   }
   addFromServer(hairCuts: boolean[]) {

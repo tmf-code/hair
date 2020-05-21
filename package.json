@@ -34,7 +34,7 @@
     "build": "npm run build:server && npm run build:frontend",
     "eslint": "eslint \"./src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
-    "test": "jest --watchAll"
+    "test": "jest --watch"
   },
   "husky": {
     "hooks": {
