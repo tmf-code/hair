@@ -1,6 +1,6 @@
 import { lerp } from '../utilities/utilities';
 
-class HairPositionsRelative {
+class HairPositions {
   private positions: [number, number][] = [];
   private screenPositions: [number, number][] = [];
   private viewportWidth = 1.0;
@@ -48,4 +48,4 @@ class HairPositionsRelative {
   }
 }
 
-export { HairPositionsRelative };
+export { HairPositions };

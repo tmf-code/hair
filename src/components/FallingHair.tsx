@@ -5,7 +5,7 @@ import { EasingFunctions } from '../utilities/easing-functions';
 import { FIFO } from '../utilities/fifo';
 import { maxFallingHair, animationDuration } from '../utilities/constants';
 import { HairRotations } from '../drivers/HairRotations';
-import { HairPositionsRelative } from '../drivers/HairPositionsRelative';
+import { HairPositions } from '../drivers/HairPositions';
 
 type TriangleTransform = {
   type: 'empty' | 'useful';
@@ -36,10 +36,10 @@ export class FallingHair {
   private readonly animationDuration: number;
   private readonly transformHolder: Object3D;
   hairRotations: HairRotations;
-  hairPositions: HairPositionsRelative;
+  hairPositions: HairPositions;
 
   constructor(
-    hairPositions: HairPositionsRelative,
+    hairPositions: HairPositions,
     viewport: { width: number; height: number; factor: number },
     ref: React.MutableRefObject<InstancedMesh | undefined>,
     transformHolder: Object3D,

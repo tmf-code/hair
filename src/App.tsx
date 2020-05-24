@@ -5,7 +5,7 @@ import io from 'socket.io-client';
 
 import './styles/App.css';
 import { Hairs } from './components/Hairs';
-import { HairPositionsRelative } from './drivers/HairPositionsRelative';
+import { HairPositions } from './drivers/HairPositions';
 import { HairRotations } from './drivers/HairRotations';
 import { Socket } from './drivers/Socket';
 import { Razor } from './components/Razor';
@@ -13,7 +13,7 @@ import { HairCuts } from './drivers/HairCuts';
 import { HairLengths } from './drivers/HairLengths';
 
 const hairRotations = new HairRotations();
-const hairPositions = new HairPositionsRelative();
+const hairPositions = new HairPositions();
 const hairLengths = new HairLengths([]);
 const hairCuts = new HairCuts(hairLengths);
 const razor = new Razor();
