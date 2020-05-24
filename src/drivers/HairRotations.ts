@@ -24,10 +24,9 @@ class HairRotations {
     return this.rotations;
   }
 
-  calculateSwirls = (positions: number[][], mousePos: Vector3, lastLengths: number[]) => {
-    const swirlAffect = lastLengths.map((_length, lengthIndex) => {
+  calculateSwirls = (positions: number[][], mousePos: Vector3) => {
+    const swirlAffect = positions.map(([xPos, yPos]) => {
       const directionVector = Mouse.VelocityVector().normalize();
-      const [xPos, yPos] = positions[lengthIndex];
       const distance = mousePos.distanceTo(new Vector3(xPos, yPos, 0));
       const hover = distance < swirlRadius;
       const shouldSwirl = hover && !Mouse.isClicked() && Mouse.VelocityVector().length() > 0.001;

@@ -91,11 +91,7 @@ class Hairs {
 
   private updateSwirls(mouse: Vector2, camera: Camera) {
     const mousePos = mouseToWorld(mouse, camera);
-    this.hairRotations.calculateSwirls(
-      this.hairPositions.getScreenPositions(),
-      mousePos,
-      this.lastLengths,
-    );
+    this.hairRotations.calculateSwirls(this.hairPositions.getScreenPositions(), mousePos);
   }
 
   private updateFrame(
