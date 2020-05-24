@@ -1,14 +1,14 @@
-import { HairPositions } from '../../src/drivers/HairPositions';
+import { HairPositionsRelative } from '../../src/drivers/HairPositionsRelative';
 
-const hairPositions = new HairPositions();
+const hairPositions = new HairPositionsRelative();
 
-describe('HairPositions initial state', () => {
+describe('HairPositionsRelative initial state', () => {
   test('Initial positions are empty', () => {
     expect(hairPositions.getPositions()).toStrictEqual([]);
   });
 });
 
-describe('HairPositions actions', () => {
+describe('HairPositionsRelative actions', () => {
   test('Adding positions updates positions', () => {
     const givenPositions = [
       [0, 1],

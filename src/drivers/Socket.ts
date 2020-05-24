@@ -1,5 +1,5 @@
 import { HairLengths } from './HairLengths';
-import { HairPositions } from './HairPositions';
+import { HairPositionsRelative } from './HairPositionsRelative';
 import { HairRotations } from './HairRotations';
 import { HairCuts } from './HairCuts';
 
@@ -8,7 +8,7 @@ export class Socket {
   private socket: SocketIOClient.Socket;
   private hairCuts: HairCuts;
   private hairLengths: HairLengths;
-  hairPositions: HairPositions;
+  hairPositions: HairPositionsRelative;
   hairRotations: HairRotations;
 
   constructor(
@@ -16,7 +16,7 @@ export class Socket {
     mode: string,
     hairCuts: HairCuts,
     hairLengths: HairLengths,
-    hairPositions: HairPositions,
+    hairPositions: HairPositionsRelative,
     hairRotations: HairRotations,
   ) {
     this.hairCuts = hairCuts;
