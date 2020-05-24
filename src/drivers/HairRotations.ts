@@ -1,4 +1,4 @@
-import { Vector3, Vector2 } from 'three';
+import { Vector3 } from 'three';
 import { Mouse } from './Mouse';
 import { swirlRadius } from '../utilities/constants';
 
@@ -25,17 +25,20 @@ class HairRotations {
   }
 
   calculateSwirls = (positions: number[][], mousePos: Vector3) => {
-    const swirlAffect = positions.map(([xPos, yPos]) => {
-      const directionVector = Mouse.VelocityVector().normalize();
-      const distance = mousePos.distanceTo(new Vector3(xPos, yPos, 0));
-      const hover = distance < swirlRadius;
-      const shouldSwirl = hover && !Mouse.isClicked() && Mouse.VelocityVector().length() > 0.001;
-      return shouldSwirl
-        ? directionVector.multiplyScalar(1 - distance / swirlRadius)
-        : new Vector2(0, 0);
-    });
+    const isMousePerformingSwirl = !Mouse.isClicked() && Mouse.VelocityVector().length() > 0.001;
+    const noSwirl = (hairIndex: number) => this.rotationOffsets[hairIndex];
 
-    const newRotationOffsets = swirlAffect.map((swirlAmount, hairIndex) => {
+    const newRotationOffsets = positions.map(([xPos, yPos], hairIndex) => {
+      if (!isMousePerformingSwirl) return noSwirl(hairIndex);
+
+      const distance = mousePos.distanceTo(new Vector3(xPos, yPos, 0));
+      const isHovering = distance < swirlRadius;
+
+      if (!isHovering) return noSwirl(hairIndex);
+
+      const directionVector = Mouse.VelocityVector().normalize();
+      const swirlAmount = directionVector.multiplyScalar(1 - distance / swirlRadius);
+
       const rotationDifference =
         Math.atan2(swirlAmount.y, swirlAmount.x) - this.rotationOffsets[hairIndex];
       const newRotation =
