@@ -21,7 +21,7 @@ type HairsProps = {
 };
 class Hairs {
   private readonly transformHolder = new Object3D();
-  private lastLengths: number[] | undefined = [];
+  private lastLengths: number[] = [];
   private rotationOffsets: Rotations = [];
   private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
   private material: MeshBasicMaterial = new MeshBasicMaterial({ color: new Color(hairColor) });
@@ -64,7 +64,7 @@ class Hairs {
 
     this.ref.current.instanceMatrix.needsUpdate = true;
 
-    this.lastLengths?.forEach((length, lengthIndex) => {
+    this.lastLengths.forEach((length, lengthIndex) => {
       const [xPos, yPos] = this.hairPositionsScreen.getPositions()[lengthIndex];
       const rotation =
         this.hairRotations.getRotations()[lengthIndex] + this.rotationOffsets[lengthIndex];
@@ -85,29 +85,25 @@ class Hairs {
   private instanceCount = () => this.hairPositionsRelative.getPositions().length + maxFallingHair;
 
   private calculateCuts = (razorContainsPoint: (arg0: Position2D) => boolean) =>
-    this.lastLengths?.map((_length, lengthIndex) => {
+    this.lastLengths.map((_length, lengthIndex) => {
       const hover = razorContainsPoint(this.hairPositionsScreen.getPositions()[lengthIndex]);
       return hover && Mouse.isClicked();
     });
 
   private updateCutHairs(razorContainsPoint: (arg0: Position2D) => boolean) {
     const cuts = this.calculateCuts(razorContainsPoint);
-    if (this.lastLengths && cuts) {
-      this.fallingHair?.update(this.lastLengths, cuts, this.rotationOffsets);
-      this.hairCuts.addFromClient(cuts);
-    }
+    this.fallingHair?.update(this.lastLengths, cuts, this.rotationOffsets);
+    this.hairCuts.addFromClient(cuts);
   }
 
   private updateSwirls(mouse: Vector2, camera: Camera) {
     const mousePos = mouseToWorld(mouse, camera);
-    if (this.lastLengths) {
-      this.rotationOffsets = calculateSwirls(
-        this.hairPositionsScreen.getPositions(),
-        mousePos,
-        this.lastLengths,
-        this.rotationOffsets,
-      );
-    }
+    this.rotationOffsets = calculateSwirls(
+      this.hairPositionsScreen.getPositions(),
+      mousePos,
+      this.lastLengths,
+      this.rotationOffsets,
+    );
   }
 
   private updateFrame(
