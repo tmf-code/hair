@@ -12,12 +12,12 @@ import { HairCuts } from '../drivers/HairCuts';
 import { FallingHair } from './FallingHair';
 import { calculateSwirls } from './calculate-swirls';
 
-const hairCuts = new HairCuts();
 // State holders outside of react
 type HairsProps = {
   grid: Grid;
   rotations: Rotations;
   razorContainsPoint: (arg0: Position2D) => boolean;
+  hairCuts: HairCuts;
 };
 class Hairs {
   private readonly transformHolder = new Object3D();
@@ -29,6 +29,7 @@ class Hairs {
   private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
   private material: MeshBasicMaterial = new MeshBasicMaterial({ color: new Color(hairColor) });
   private fallingHair: FallingHair | undefined;
+  private hairCuts: HairCuts | undefined;
 
   private readyToRender = () => {
     const isMeshMade = !!this.ref?.current;
@@ -75,7 +76,7 @@ class Hairs {
   private updateCutHairs(razorContainsPoint: (arg0: Position2D) => boolean) {
     const cuts = this.calculateCuts(razorContainsPoint);
     this.fallingHair?.update(this.lastLengths, cuts, this.rotationOffsets);
-    hairCuts.addFromClient(cuts);
+    this.hairCuts?.addFromClient(cuts);
   }
 
   private updateSwirls(mouse: Vector2, camera: Camera) {
@@ -99,12 +100,13 @@ class Hairs {
     this.updateCutHairs(razorContainsPoint);
     this.updateSwirls(mouse, camera);
   }
-  public screenElement = ({ grid, rotations, razorContainsPoint }: HairsProps) => {
+  public screenElement = ({ grid, rotations, razorContainsPoint, hairCuts }: HairsProps) => {
     const { viewport, mouse, camera } = useThree();
     const hairGeo = useMemo(() => triangleGeometry(viewport.width), [viewport.width]);
     useMemo(() => (this.positions = calculatePositions(grid, viewport)), [grid, viewport]);
     this.ref = useRef<InstancedMesh>();
 
+    this.hairCuts = hairCuts;
     this.grid = grid;
     this.rotations = rotations;
 

@@ -10,11 +10,14 @@ import { hairPositions } from './drivers/HairPositions';
 import { hairRotations } from './drivers/HairRotations';
 import { Socket } from './drivers/Socket';
 import { Razor } from './components/Razor';
+import { HairCuts } from './drivers/HairCuts';
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const socket = new Socket(io, process.env.NODE_ENV);
 const razor = new Razor();
 const hairs = new Hairs();
+const hairCuts = new HairCuts();
+
 const App = () => {
   const [hairGrid, setHairPositions] = useState<[number, number][]>([]);
   const [rotations, setRotations] = useState<Rotations>([]);
@@ -31,6 +34,7 @@ const App = () => {
         grid={hairGrid}
         rotations={rotations}
         razorContainsPoint={razor.containsPoint.bind(razor)}
+        hairCuts={hairCuts}
       />
     </Canvas>
   );
