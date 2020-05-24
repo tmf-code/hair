@@ -34,6 +34,7 @@
     "build": "npm run build:server && npm run build:frontend",
     "eslint": "eslint \"./src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
+    "load-test": "artillery run tests/load-tests/load-test.yml",
     "test": "jest --watch"
   },
   "husky": {
@@ -71,6 +72,7 @@
     "@types/uuid": "^8.0.0",
     "@typescript-eslint/eslint-plugin": "^2.34.0",
     "@typescript-eslint/parser": "^2.34.0",
+    "artillery": "^1.6.0",
     "concurrently": "^5.2.0",
     "nodemon": "^2.0.4",
     "supertest": "^4.0.2",

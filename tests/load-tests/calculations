@@ -1,0 +1,43 @@
+"Emitting from a client: socket.emit(event, args)
+
+If event and args are not supplied, 12 bytes are sent to the server.
+If args is omitted but event is supplied, the total size is 22 bytes and the length of event.
+If args and event are supplied, the same rules are followed, but the results may vary depending on the data type of args.
+Emitting from the server: same format as from client
+
+If event and args are not supplied, 8 bytes are sent to the client.
+If args is omitted but event is supplied, the total size is 17 bytes and the length of event.
+If args and event are supplied, the same rules are followed, but the results may vary depending on the data type of args.
+Server to client heartbeat: every 25 seconds per client
+
+5 bytes from server
+9 bytes client response
+Handshaking: once per client
+
+216 bytes from server
+431 bytes response from client
+129 bytes follow up from server"
+
+
+data (max)
+width * height * bytes per float * 10 times per second + bytes per message
+60*60*2*10 + 22 = 72 022 B/s per client = 72 kB/s per client (actual is about 20)
+
+Heartbeat every 25 seconds per client
+1kB/s per 1000 clients
+1/50 * Clients messages per second
+
+Handshaking once per client
+~1kb per client
+
+"On my dev machine I can dump about 40000 messages per second to a single localhost client with the 4 integers as a payload (counter + 3 timestamps) on a 2 GHz CPU. Both server and client node processes use 95-100% of a CPU core each. So pure throughput looks ok."
+
+"I can emit 100 messages per second to 100 local clients at 55% CPU usage on the server process."
+
+Data cost = 
+72kB/s * 200 * $.01/GB / 1000 / 1000 = 0.0001 / second = $8.64 per day = $300 per month (or with actual around 100)
+
+I get 95 responses / second from laptop at 66% cpu usage
+2% cpu usage per tab on node server (not much different scaling the dimensions 1.5% if 10x10)
+
+Conclusions => It seems like the most stressing thing is the sending rate. Even though data is massive
