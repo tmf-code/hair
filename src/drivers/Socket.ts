@@ -3,13 +3,13 @@ import { hairPositions } from './HairPositions';
 import { hairRotations } from './HairRotations';
 import { HairCuts } from './HairCuts';
 
-const hairCuts = new HairCuts();
-
 export class Socket {
   private static readonly EMIT_INTERVAL = 100;
   private socket: SocketIOClient.Socket;
+  private hairCuts: HairCuts;
 
-  public constructor(io: SocketIOClientStatic, mode: string) {
+  constructor(io: SocketIOClientStatic, mode: string, hairCuts: HairCuts) {
+    this.hairCuts = hairCuts;
     if (this.validateMode(mode)) {
       this.socket = this.connectSocket(io, mode);
       this.attachSocketHandlers();
@@ -41,7 +41,7 @@ export class Socket {
       updateClientRotations: (serverHairRotations: number[]) =>
         hairRotations.setRotations(serverHairRotations),
 
-      updateClientCuts: (cuts: boolean[]) => hairCuts.addFromServer(cuts),
+      updateClientCuts: (cuts: boolean[]) => this.hairCuts.addFromServer(cuts),
     };
 
     Object.entries(socketEventHandlers).forEach(([name, handler]) => {
@@ -51,13 +51,13 @@ export class Socket {
 
   private createSocketEmitters() {
     setInterval(() => {
-      if (hairCuts.hasClientCuts()) {
+      if (this.hairCuts.hasClientCuts()) {
         this.updateServerCuts();
       }
     }, Socket.EMIT_INTERVAL);
   }
 
   private updateServerCuts() {
-    this.socket.emit('updateServerCuts', hairCuts.getBufferAndClear());
+    this.socket.emit('updateServerCuts', this.hairCuts.getBufferAndClear());
   }
 }

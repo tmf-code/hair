@@ -12,11 +12,11 @@ import { Socket } from './drivers/Socket';
 import { Razor } from './components/Razor';
 import { HairCuts } from './drivers/HairCuts';
 
+const hairCuts = new HairCuts();
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const socket = new Socket(io, process.env.NODE_ENV);
+const socket = new Socket(io, process.env.NODE_ENV, hairCuts);
 const razor = new Razor();
 const hairs = new Hairs();
-const hairCuts = new HairCuts();
 
 const App = () => {
   const [hairGrid, setHairPositions] = useState<[number, number][]>([]);
