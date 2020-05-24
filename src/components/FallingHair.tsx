@@ -3,8 +3,6 @@ import { Buckets } from '../utilities/buckets';
 import { EasingFunctions } from '../utilities/easing-functions';
 import { FIFO } from '../utilities/fifo';
 import { maxFallingHair, animationDuration } from '../utilities/constants';
-import { HairRotations } from '../drivers/HairRotations';
-import { HairPositions } from '../drivers/HairPositions';
 
 type TriangleTransform = {
   type: 'empty' | 'useful';
@@ -34,15 +32,15 @@ export class FallingHair {
 
   private readonly animationDuration: number;
   private readonly transformHolder: Object3D;
-  hairRotations: HairRotations;
-  hairPositions: HairPositions;
+  hairRotations: number[];
+  hairPositions: [number, number][];
 
   constructor(
-    hairPositions: HairPositions,
+    hairPositions: [number, number][],
     viewport: { width: number; height: number; factor: number },
     ref: React.MutableRefObject<InstancedMesh | undefined>,
     transformHolder: Object3D,
-    hairRotations: HairRotations,
+    hairRotations: number[],
   ) {
     this.cutHairFIFO = new FIFO<TriangleTransform>(
       maxFallingHair,
@@ -60,8 +58,6 @@ export class FallingHair {
   }
 
   private createFallingHair(lengths: number[], cutEffect: boolean[]) {
-    const positions = this.hairPositions.getScreenPositions();
-    const rotations = this.hairRotations.getRotations();
     return cutEffect
       .map((cut, index) => [cut, index] as [boolean, number])
       .filter(([isCut]) => isCut)
@@ -69,8 +65,8 @@ export class FallingHair {
       .map(
         (hairIndex): TriangleTransform => {
           const length = lengths[hairIndex];
-          const [xPos, yPos] = positions[hairIndex];
-          const rotation = rotations[hairIndex];
+          const [xPos, yPos] = this.hairPositions[hairIndex];
+          const rotation = this.hairRotations[hairIndex];
           return {
             xPos,
             yPos,
@@ -105,10 +101,7 @@ export class FallingHair {
       this.transformHolder.rotation.set(0, 0, rotation);
       this.transformHolder.scale.set(1, length, 1);
       this.transformHolder.updateMatrix();
-      this.ref.current?.setMatrixAt(
-        this.hairPositions.getPositions().length + index,
-        this.transformHolder.matrix,
-      );
+      this.ref.current?.setMatrixAt(this.hairPositions.length + index, this.transformHolder.matrix);
     });
   }
 

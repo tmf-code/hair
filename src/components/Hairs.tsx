@@ -111,11 +111,11 @@ class Hairs {
     this.ref = useRef<InstancedMesh>();
 
     this.fallingHair = new FallingHair(
-      this.hairPositions,
+      this.hairPositions.getScreenPositions(),
       viewport,
       this.ref,
       this.transformHolder,
-      this.hairRotations,
+      this.hairRotations.getRotations(),
     );
 
     useFrame(() => {
