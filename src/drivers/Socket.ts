@@ -1,7 +1,9 @@
 import { hairLengths } from './HairLengths';
 import { hairPositions } from './HairPositions';
 import { hairRotations } from './HairRotations';
-import { hairCuts } from './HairCuts';
+import { HairCuts } from './HairCuts';
+
+const hairCuts = new HairCuts();
 
 export class Socket {
   private static readonly EMIT_INTERVAL = 100;

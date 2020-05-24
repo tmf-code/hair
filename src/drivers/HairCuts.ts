@@ -32,6 +32,4 @@ class HairCuts {
   }
 }
 
-const hairCuts = new HairCuts();
-
-export { hairCuts };
+export { HairCuts };

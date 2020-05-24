@@ -1,6 +1,7 @@
-import { hairCuts } from '../../src/drivers/HairCuts';
+import { HairCuts } from '../../src/drivers/HairCuts';
 import { hairLengths } from '../../src/drivers/HairLengths';
 
+const hairCuts = new HairCuts();
 describe('HairCuts Initial State', () => {
   test('Does not have pending cuts', () => {
     expect(hairCuts.hasClientCuts()).toBeFalsy();

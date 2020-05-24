@@ -8,10 +8,11 @@ import { hairColor, maxFallingHair } from '../utilities/constants';
 import { Mouse } from '../drivers/Mouse';
 
 import { hairLengths } from '../drivers/HairLengths';
-import { hairCuts } from '../drivers/HairCuts';
+import { HairCuts } from '../drivers/HairCuts';
 import { FallingHair } from './FallingHair';
 import { calculateSwirls } from './calculate-swirls';
 
+const hairCuts = new HairCuts();
 // State holders outside of react
 type HairsProps = {
   grid: Grid;
