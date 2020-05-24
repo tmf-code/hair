@@ -52,7 +52,7 @@ export class Socket {
         this.hairLengths.updateLengths(serverHairLengths),
 
       updateClientRotations: (serverHairRotations: number[]) =>
-        this.hairRotations.setRotations(serverHairRotations),
+        this.hairRotations.setInitialRotations(serverHairRotations),
 
       updateClientCuts: (cuts: boolean[]) => this.hairCuts.addFromServer(cuts),
     };

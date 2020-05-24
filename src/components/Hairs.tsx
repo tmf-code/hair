@@ -1,5 +1,5 @@
 import { triangleGeometry } from './triangle-geometry';
-import { Rotations, Position2D } from '../types/types';
+import { Position2D } from '../types/types';
 import { useThree, useFrame } from 'react-three-fiber';
 import React, { useMemo, useRef } from 'react';
 import { Object3D, InstancedMesh, MeshBasicMaterial, Color, Camera, Vector2 } from 'three';
@@ -10,7 +10,6 @@ import { Mouse } from '../drivers/Mouse';
 import { HairLengths } from '../drivers/HairLengths';
 import { HairCuts } from '../drivers/HairCuts';
 import { FallingHair } from './FallingHair';
-import { calculateSwirls } from './calculate-swirls';
 import { HairPositions } from '../drivers/HairPositions';
 import { HairRotations } from '../drivers/HairRotations';
 
@@ -21,7 +20,6 @@ type HairsProps = {
 class Hairs {
   private readonly transformHolder = new Object3D();
   private lastLengths: number[] = [];
-  private rotationOffsets: Rotations = [];
   private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
   private material: MeshBasicMaterial = new MeshBasicMaterial({ color: new Color(hairColor) });
   private fallingHair: FallingHair | undefined;
@@ -50,11 +48,6 @@ class Hairs {
     return isMeshMade && hairsRetrievedFromServer && gridConstructed;
   };
 
-  private createRotationsOnFirstRender = () => {
-    if (this.rotationOffsets.length === 0)
-      this.rotationOffsets = this.hairPositions.getPositions().map(() => 0);
-  };
-
   private updateStaticHairs = () => {
     if (!this.ref?.current) return;
 
@@ -65,7 +58,7 @@ class Hairs {
 
     this.lastLengths.forEach((length, lengthIndex) => {
       const [xPos, yPos] = positions[lengthIndex];
-      const rotation = rotations[lengthIndex] + this.rotationOffsets[lengthIndex];
+      const rotation = rotations[lengthIndex];
 
       this.transformHolder.position.set(xPos, yPos, 0);
       this.transformHolder.rotation.set(0, 0, rotation);
@@ -92,17 +85,16 @@ class Hairs {
 
   private updateCutHairs(razorContainsPoint: (arg0: Position2D) => boolean) {
     const cuts = this.calculateCuts(razorContainsPoint);
-    this.fallingHair?.update(this.lastLengths, cuts, this.rotationOffsets);
+    this.fallingHair?.update(this.lastLengths, cuts);
     this.hairCuts.addFromClient(cuts);
   }
 
   private updateSwirls(mouse: Vector2, camera: Camera) {
     const mousePos = mouseToWorld(mouse, camera);
-    this.rotationOffsets = calculateSwirls(
+    this.hairRotations.calculateSwirls(
       this.hairPositions.getScreenPositions(),
       mousePos,
       this.lastLengths,
-      this.rotationOffsets,
     );
   }
 
@@ -112,7 +104,6 @@ class Hairs {
     camera: Camera,
   ) {
     this.updateLengths();
-    this.createRotationsOnFirstRender();
     this.updateStaticHairs();
     this.updateCutHairs(razorContainsPoint);
     this.updateSwirls(mouse, camera);

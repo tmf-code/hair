@@ -1,4 +1,3 @@
-import { Rotations } from '../types/types';
 import { InstancedMesh, Object3D } from 'three';
 import { Buckets } from '../utilities/buckets';
 import { EasingFunctions } from '../utilities/easing-functions';
@@ -60,7 +59,9 @@ export class FallingHair {
     this.hairRotations = hairRotations;
   }
 
-  private createFallingHair(rotationOffsets: Rotations, lengths: number[], cutEffect: boolean[]) {
+  private createFallingHair(lengths: number[], cutEffect: boolean[]) {
+    const positions = this.hairPositions.getScreenPositions();
+    const rotations = this.hairRotations.getRotations();
     return cutEffect
       .map((cut, index) => [cut, index] as [boolean, number])
       .filter(([isCut]) => isCut)
@@ -68,9 +69,8 @@ export class FallingHair {
       .map(
         (hairIndex): TriangleTransform => {
           const length = lengths[hairIndex];
-          const [xPos, yPos] = this.hairPositions.getScreenPositions()[hairIndex];
-          const rotation =
-            this.hairRotations.getRotations()[hairIndex] + rotationOffsets[hairIndex];
+          const [xPos, yPos] = positions[hairIndex];
+          const rotation = rotations[hairIndex];
           return {
             xPos,
             yPos,
@@ -112,14 +112,14 @@ export class FallingHair {
     });
   }
 
-  public update(lastLengths: number[], cutEffect: boolean[], rotationOffsets: Rotations) {
-    const cuts = this.calculateCuts(lastLengths, cutEffect, rotationOffsets);
+  public update(lastLengths: number[], cutEffect: boolean[]) {
+    const cuts = this.calculateCuts(lastLengths, cutEffect);
     this.addUniqueToFIFO(cuts);
     this.makeHairFall();
   }
 
-  private calculateCuts(lastLengths: number[], cutEffect: boolean[], rotationOffsets: Rotations) {
-    return this.createFallingHair(rotationOffsets, lastLengths, cutEffect);
+  private calculateCuts(lastLengths: number[], cutEffect: boolean[]) {
+    return this.createFallingHair(lastLengths, cutEffect);
   }
 
   private addUniqueToFIFO(cuts: TriangleTransform[]) {
