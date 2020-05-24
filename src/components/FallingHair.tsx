@@ -5,7 +5,7 @@ import { EasingFunctions } from '../utilities/easing-functions';
 import { FIFO } from '../utilities/fifo';
 import { maxFallingHair, animationDuration } from '../utilities/constants';
 import { HairRotations } from '../drivers/HairRotations';
-import { HairPositionsScreen } from '../drivers/HairPositionsScreen';
+import { HairPositionsRelative } from '../drivers/HairPositionsRelative';
 
 type TriangleTransform = {
   type: 'empty' | 'useful';
@@ -36,10 +36,10 @@ export class FallingHair {
   private readonly animationDuration: number;
   private readonly transformHolder: Object3D;
   hairRotations: HairRotations;
-  hairPositions: HairPositionsScreen;
+  hairPositions: HairPositionsRelative;
 
   constructor(
-    hairPositions: HairPositionsScreen,
+    hairPositions: HairPositionsRelative,
     viewport: { width: number; height: number; factor: number },
     ref: React.MutableRefObject<InstancedMesh | undefined>,
     transformHolder: Object3D,
@@ -68,7 +68,7 @@ export class FallingHair {
       .map(
         (hairIndex): TriangleTransform => {
           const length = lengths[hairIndex];
-          const [xPos, yPos] = this.hairPositions.getPositions()[hairIndex];
+          const [xPos, yPos] = this.hairPositions.getScreenPositions()[hairIndex];
           const rotation =
             this.hairRotations.getRotations()[hairIndex] + rotationOffsets[hairIndex];
           return {

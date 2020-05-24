@@ -13,7 +13,6 @@ import { FallingHair } from './FallingHair';
 import { calculateSwirls } from './calculate-swirls';
 import { HairPositionsRelative } from '../drivers/HairPositionsRelative';
 import { HairRotations } from '../drivers/HairRotations';
-import { HairPositionsScreen } from '../drivers/HairPositionsScreen';
 
 // State holders outside of react
 type HairsProps = {
@@ -27,7 +26,6 @@ class Hairs {
   private material: MeshBasicMaterial = new MeshBasicMaterial({ color: new Color(hairColor) });
   private fallingHair: FallingHair | undefined;
   private hairCuts: HairCuts;
-  private hairPositionsScreen: HairPositionsScreen;
   private hairLengths: HairLengths;
   private hairPositionsRelative: HairPositionsRelative;
   private hairRotations: HairRotations;
@@ -40,8 +38,6 @@ class Hairs {
   ) {
     this.hairCuts = hairCuts;
     this.hairPositionsRelative = hairPositionsRelative;
-    this.hairPositionsScreen = new HairPositionsScreen();
-    this.hairPositionsScreen.setFromRelative(this.hairPositionsRelative, 1, 1);
     this.hairRotations = hairRotations;
     this.hairLengths = hairLengths;
   }
@@ -65,7 +61,7 @@ class Hairs {
     this.ref.current.instanceMatrix.needsUpdate = true;
 
     this.lastLengths.forEach((length, lengthIndex) => {
-      const [xPos, yPos] = this.hairPositionsScreen.getPositions()[lengthIndex];
+      const [xPos, yPos] = this.hairPositionsRelative.getScreenPositions()[lengthIndex];
       const rotation =
         this.hairRotations.getRotations()[lengthIndex] + this.rotationOffsets[lengthIndex];
 
@@ -86,7 +82,9 @@ class Hairs {
 
   private calculateCuts = (razorContainsPoint: (arg0: Position2D) => boolean) =>
     this.lastLengths.map((_length, lengthIndex) => {
-      const hover = razorContainsPoint(this.hairPositionsScreen.getPositions()[lengthIndex]);
+      const hover = razorContainsPoint(
+        this.hairPositionsRelative.getScreenPositions()[lengthIndex],
+      );
       return hover && Mouse.isClicked();
     });
 
@@ -99,7 +97,7 @@ class Hairs {
   private updateSwirls(mouse: Vector2, camera: Camera) {
     const mousePos = mouseToWorld(mouse, camera);
     this.rotationOffsets = calculateSwirls(
-      this.hairPositionsScreen.getPositions(),
+      this.hairPositionsRelative.getScreenPositions(),
       mousePos,
       this.lastLengths,
       this.rotationOffsets,
@@ -120,19 +118,13 @@ class Hairs {
   public screenElement = ({ razorContainsPoint }: HairsProps) => {
     const { viewport, mouse, camera } = useThree();
     const hairGeo = useMemo(() => triangleGeometry(viewport.width), [viewport.width]);
-    useMemo(
-      () =>
-        this.hairPositionsScreen.setFromRelative(
-          this.hairPositionsRelative,
-          viewport.width,
-          viewport.height,
-        ),
-      [viewport],
-    );
+    useMemo(() => this.hairPositionsRelative.setViewport(viewport.width, viewport.height), [
+      viewport,
+    ]);
     this.ref = useRef<InstancedMesh>();
 
     this.fallingHair = new FallingHair(
-      this.hairPositionsScreen,
+      this.hairPositionsRelative,
       viewport,
       this.ref,
       this.transformHolder,
