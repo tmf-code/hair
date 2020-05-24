@@ -6,7 +6,7 @@ export class Mouse {
 
   public listeners: Map<string, MouseListener> = new Map();
   public position: [number, number];
-  public isClicked: boolean = false;
+  public isClicked = false;
   private velocityVector: Vector2;
   private positionVector: Vector2;
   private timeout: number | undefined;

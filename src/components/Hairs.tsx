@@ -1,44 +1,62 @@
 import { triangleGeometry } from './triangle-geometry';
-import { Grid, Rotations, HairLengths, Position2D } from '../types/types';
+import { Rotations, Position2D } from '../types/types';
 import { useThree, useFrame } from 'react-three-fiber';
 import React, { useMemo, useRef } from 'react';
 import { Object3D, InstancedMesh, MeshBasicMaterial, Color, Camera, Vector2 } from 'three';
-import { mouseToWorld, calculatePositions } from '../utilities/utilities';
+import { mouseToWorld } from '../utilities/utilities';
 import { hairColor, maxFallingHair } from '../utilities/constants';
 import { Mouse } from '../drivers/Mouse';
 
-import { hairLengths } from '../drivers/HairLengths';
-import { hairCuts } from '../drivers/HairCuts';
+import { HairLengths } from '../drivers/HairLengths';
+import { HairCuts } from '../drivers/HairCuts';
 import { FallingHair } from './FallingHair';
 import { calculateSwirls } from './calculate-swirls';
+import { HairPositionsRelative } from '../drivers/HairPositionsRelative';
+import { HairRotations } from '../drivers/HairRotations';
+import { HairPositionsScreen } from '../drivers/HairPositionsScreen';
 
 // State holders outside of react
 type HairsProps = {
-  grid: Grid;
-  rotations: Rotations;
   razorContainsPoint: (arg0: Position2D) => boolean;
 };
 class Hairs {
   private readonly transformHolder = new Object3D();
-  private lastLengths: HairLengths = [];
+  private lastLengths: number[] | undefined = [];
   private rotationOffsets: Rotations = [];
-  private positions: Grid = [];
-  private rotations: Rotations = [];
-  private grid: Grid = [];
   private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
   private material: MeshBasicMaterial = new MeshBasicMaterial({ color: new Color(hairColor) });
   private fallingHair: FallingHair | undefined;
+  private hairCuts: HairCuts | undefined;
+  private hairPositionsScreen: HairPositionsScreen;
+  private hairLengths: HairLengths | undefined;
+  private hairPositionsRelative: HairPositionsRelative;
+  private hairRotations: HairRotations;
+
+  constructor(
+    hairRotations: HairRotations,
+    hairPositionsRelative: HairPositionsRelative,
+    hairLengths: HairLengths,
+    hairCuts: HairCuts,
+  ) {
+    this.hairCuts = hairCuts;
+    this.hairPositionsRelative = hairPositionsRelative;
+    this.hairPositionsScreen = new HairPositionsScreen();
+    this.hairPositionsScreen.setFromRelative(this.hairPositionsRelative, 1, 1);
+    this.hairRotations = hairRotations;
+    this.hairLengths = hairLengths;
+  }
 
   private readyToRender = () => {
     const isMeshMade = !!this.ref?.current;
-    const hairsRetrievedFromServer = hairLengths.getLengths().length !== 0;
-    const gridConstructed = this.grid.length !== 0;
+    const hairsRetrievedFromServer = this.hairLengths?.getLengths().length !== 0;
+    const gridConstructed = this.hairPositionsRelative.getPositions().length !== 0;
 
     return isMeshMade && hairsRetrievedFromServer && gridConstructed;
   };
 
   private createRotationsOnFirstRender = () => {
-    if (this.rotationOffsets.length === 0) this.rotationOffsets = this.grid.map(() => 0);
+    if (this.rotationOffsets.length === 0)
+      this.rotationOffsets = this.hairPositionsRelative.getPositions().map(() => 0);
   };
 
   private updateStaticHairs = () => {
@@ -46,9 +64,10 @@ class Hairs {
 
     this.ref.current.instanceMatrix.needsUpdate = true;
 
-    this.lastLengths.forEach((length, lengthIndex) => {
-      const [xPos, yPos] = this.positions[lengthIndex];
-      const rotation = this.rotations[lengthIndex] + this.rotationOffsets[lengthIndex];
+    this.lastLengths?.forEach((length, lengthIndex) => {
+      const [xPos, yPos] = this.hairPositionsScreen.getPositions()[lengthIndex];
+      const rotation =
+        this.hairRotations.getRotations()[lengthIndex] + this.rotationOffsets[lengthIndex];
 
       this.transformHolder.position.set(xPos, yPos, 0);
       this.transformHolder.rotation.set(0, 0, rotation);
@@ -60,31 +79,35 @@ class Hairs {
   };
 
   private updateLengths = () => {
-    this.lastLengths = hairLengths.getLengths();
+    this.lastLengths = this.hairLengths?.getLengths();
   };
 
-  private instanceCount = () => this.grid.length + maxFallingHair;
+  private instanceCount = () => this.hairPositionsRelative.getPositions().length + maxFallingHair;
 
   private calculateCuts = (razorContainsPoint: (arg0: Position2D) => boolean) =>
-    this.lastLengths.map((_length, lengthIndex) => {
-      const hover = razorContainsPoint(this.positions[lengthIndex]);
+    this.lastLengths?.map((_length, lengthIndex) => {
+      const hover = razorContainsPoint(this.hairPositionsScreen.getPositions()[lengthIndex]);
       return hover && Mouse.isClicked();
     });
 
   private updateCutHairs(razorContainsPoint: (arg0: Position2D) => boolean) {
     const cuts = this.calculateCuts(razorContainsPoint);
-    this.fallingHair?.update(this.lastLengths, cuts, this.rotationOffsets);
-    hairCuts.addFromClient(cuts);
+    if (this.lastLengths && cuts) {
+      this.fallingHair?.update(this.lastLengths, cuts, this.rotationOffsets);
+      this.hairCuts?.addFromClient(cuts);
+    }
   }
 
   private updateSwirls(mouse: Vector2, camera: Camera) {
     const mousePos = mouseToWorld(mouse, camera);
-    this.rotationOffsets = calculateSwirls(
-      this.positions,
-      mousePos,
-      this.lastLengths,
-      this.rotationOffsets,
-    );
+    if (this.lastLengths) {
+      this.rotationOffsets = calculateSwirls(
+        this.hairPositionsScreen.getPositions(),
+        mousePos,
+        this.lastLengths,
+        this.rotationOffsets,
+      );
+    }
   }
 
   private updateFrame(
@@ -98,22 +121,26 @@ class Hairs {
     this.updateCutHairs(razorContainsPoint);
     this.updateSwirls(mouse, camera);
   }
-  public screenElement = ({ grid, rotations, razorContainsPoint }: HairsProps) => {
+  public screenElement = ({ razorContainsPoint }: HairsProps) => {
     const { viewport, mouse, camera } = useThree();
     const hairGeo = useMemo(() => triangleGeometry(viewport.width), [viewport.width]);
-    useMemo(() => (this.positions = calculatePositions(grid, viewport)), [grid, viewport]);
+    useMemo(
+      () =>
+        this.hairPositionsScreen.setFromRelative(
+          this.hairPositionsRelative,
+          viewport.width,
+          viewport.height,
+        ),
+      [viewport],
+    );
     this.ref = useRef<InstancedMesh>();
 
-    this.grid = grid;
-    this.rotations = rotations;
-
     this.fallingHair = new FallingHair(
-      this.positions,
-      this.rotations,
+      this.hairPositionsScreen,
       viewport,
       this.ref,
-      this.grid,
       this.transformHolder,
+      this.hairRotations,
     );
 
     useFrame(() => {

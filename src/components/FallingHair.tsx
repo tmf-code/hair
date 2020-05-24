@@ -1,9 +1,11 @@
-import { Rotations, HairLengths, Grid } from '../types/types';
+import { Rotations } from '../types/types';
 import { InstancedMesh, Object3D } from 'three';
 import { Buckets } from '../utilities/buckets';
 import { EasingFunctions } from '../utilities/easing-functions';
 import { FIFO } from '../utilities/fifo';
 import { maxFallingHair, animationDuration } from '../utilities/constants';
+import { HairRotations } from '../drivers/HairRotations';
+import { HairPositionsScreen } from '../drivers/HairPositionsScreen';
 
 type TriangleTransform = {
   type: 'empty' | 'useful';
@@ -26,24 +28,22 @@ export class FallingHair {
     timeStamp: 0,
   };
 
-  private positions: Grid;
   private viewport: { width: number; height: number; factor: number };
   private ref: React.MutableRefObject<InstancedMesh | undefined>;
-  private grid: Grid;
   private maxFallingHair: number;
   private cutHairFIFO: FIFO<TriangleTransform>;
-  private rotations: Rotations;
 
   private readonly animationDuration: number;
   private readonly transformHolder: Object3D;
+  hairRotations: HairRotations;
+  hairPositions: HairPositionsScreen;
 
   constructor(
-    positions: Grid,
-    rotations: Rotations,
+    hairPositions: HairPositionsScreen,
     viewport: { width: number; height: number; factor: number },
     ref: React.MutableRefObject<InstancedMesh | undefined>,
-    grid: Grid,
     transformHolder: Object3D,
+    hairRotations: HairRotations,
   ) {
     this.cutHairFIFO = new FIFO<TriangleTransform>(
       maxFallingHair,
@@ -51,21 +51,16 @@ export class FallingHair {
       'hairIndex',
     );
 
-    this.positions = positions;
-    this.rotations = rotations;
-    this.grid = grid;
+    this.hairPositions = hairPositions;
     this.ref = ref;
     this.viewport = viewport;
     this.maxFallingHair = maxFallingHair;
     this.animationDuration = animationDuration;
     this.transformHolder = transformHolder;
+    this.hairRotations = hairRotations;
   }
 
-  private createFallingHair(
-    rotationOffsets: Rotations,
-    lengths: HairLengths,
-    cutEffect: boolean[],
-  ) {
+  private createFallingHair(rotationOffsets: Rotations, lengths: number[], cutEffect: boolean[]) {
     return cutEffect
       .map((cut, index) => [cut, index] as [boolean, number])
       .filter(([isCut]) => isCut)
@@ -73,8 +68,9 @@ export class FallingHair {
       .map(
         (hairIndex): TriangleTransform => {
           const length = lengths[hairIndex];
-          const [xPos, yPos] = this.positions[hairIndex];
-          const rotation = this.rotations[hairIndex] + rotationOffsets[hairIndex];
+          const [xPos, yPos] = this.hairPositions.getPositions()[hairIndex];
+          const rotation =
+            this.hairRotations.getRotations()[hairIndex] + rotationOffsets[hairIndex];
           return {
             xPos,
             yPos,
@@ -109,21 +105,20 @@ export class FallingHair {
       this.transformHolder.rotation.set(0, 0, rotation);
       this.transformHolder.scale.set(1, length, 1);
       this.transformHolder.updateMatrix();
-      this.ref.current?.setMatrixAt(this.grid.length + index, this.transformHolder.matrix);
+      this.ref.current?.setMatrixAt(
+        this.hairPositions.getPositions().length + index,
+        this.transformHolder.matrix,
+      );
     });
   }
 
-  public update(lastLengths: HairLengths, cutEffect: boolean[], rotationOffsets: Rotations) {
+  public update(lastLengths: number[], cutEffect: boolean[], rotationOffsets: Rotations) {
     const cuts = this.calculateCuts(lastLengths, cutEffect, rotationOffsets);
     this.addUniqueToFIFO(cuts);
     this.makeHairFall();
   }
 
-  private calculateCuts(
-    lastLengths: HairLengths,
-    cutEffect: boolean[],
-    rotationOffsets: Rotations,
-  ) {
+  private calculateCuts(lastLengths: number[], cutEffect: boolean[], rotationOffsets: Rotations) {
     return this.createFallingHair(rotationOffsets, lastLengths, cutEffect);
   }
 

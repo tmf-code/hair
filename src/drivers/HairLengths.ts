@@ -26,6 +26,4 @@ class HairLengths {
   }
 }
 
-const hairLengths = new HairLengths([]);
-
-export { hairLengths };
+export { HairLengths };

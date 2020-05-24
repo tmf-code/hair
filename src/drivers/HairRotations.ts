@@ -8,6 +8,4 @@ class HairRotations {
   }
 }
 
-const hairRotations = new HairRotations();
-
-export { hairRotations };
+export { HairRotations };

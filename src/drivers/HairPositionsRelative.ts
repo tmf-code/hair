@@ -1,4 +1,4 @@
-class HairPositions {
+class HairPositionsRelative {
   private positions: [number, number][] = [];
   setPositions(positions: [number, number][]) {
     this.positions = positions;
@@ -8,6 +8,4 @@ class HairPositions {
   }
 }
 
-const hairPositions = new HairPositions();
-
-export { hairPositions };
+export { HairPositionsRelative };

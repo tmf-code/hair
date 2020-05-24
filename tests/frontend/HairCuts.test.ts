@@ -1,5 +1,8 @@
-import { hairCuts } from '../../src/drivers/HairCuts';
-import { hairLengths } from '../../src/drivers/HairLengths';
+import { HairCuts } from '../../src/drivers/HairCuts';
+import { HairLengths } from '../../src/drivers/HairLengths';
+
+const hairLengths = new HairLengths([]);
+const hairCuts = new HairCuts(hairLengths);
 
 describe('HairCuts Initial State', () => {
   test('Does not have pending cuts', () => {

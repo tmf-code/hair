@@ -1,5 +1,4 @@
 import { Camera, Vector3, Vector2 } from 'three';
-import { Grid, Position2D } from '../types/types';
 
 export const lerp = function (value1: number, value2: number, amount: number) {
   amount = amount < 0 ? 0 : amount;
@@ -38,21 +37,3 @@ export const mouseToWorld = (mouse: Vector2, camera: Camera) => {
 };
 
 export type WorldLimits = ReturnType<typeof getWorldLimits>;
-
-type ViewportDimensions = {
-  width: number;
-  height: number;
-};
-
-export const calculatePositions = function (grid: Grid, viewport: ViewportDimensions): Grid {
-  return grid.map(
-    ([xPos, yPos]) => relativeToWorld(new Vector2(xPos, yPos), viewport) as Position2D,
-  );
-};
-
-export const relativeToWorld = function (
-  { x, y }: Vector2,
-  { width, height }: { width: number; height: number },
-) {
-  return [lerp(-width / 2.0, width / 2.0, x), lerp(height / 2.0, -height / 2.0, y)];
-};
