@@ -27,32 +27,32 @@ class Hairs {
   private fallingHair: FallingHair | undefined;
   private hairCuts: HairCuts;
   private hairLengths: HairLengths;
-  private HairPositions: HairPositions;
+  private hairPositions: HairPositions;
   private hairRotations: HairRotations;
 
   constructor(
     hairRotations: HairRotations,
-    HairPositions: HairPositions,
+    hairPositions: HairPositions,
     hairLengths: HairLengths,
     hairCuts: HairCuts,
   ) {
     this.hairCuts = hairCuts;
-    this.HairPositions = HairPositions;
+    this.hairPositions = hairPositions;
     this.hairRotations = hairRotations;
     this.hairLengths = hairLengths;
   }
 
   private readyToRender = () => {
     const isMeshMade = !!this.ref?.current;
-    const hairsRetrievedFromServer = this.hairLengths?.getLengths().length !== 0;
-    const gridConstructed = this.HairPositions.getPositions().length !== 0;
+    const hairsRetrievedFromServer = this.hairLengths.getLengths().length !== 0;
+    const gridConstructed = this.hairPositions.getPositions().length !== 0;
 
     return isMeshMade && hairsRetrievedFromServer && gridConstructed;
   };
 
   private createRotationsOnFirstRender = () => {
     if (this.rotationOffsets.length === 0)
-      this.rotationOffsets = this.HairPositions.getPositions().map(() => 0);
+      this.rotationOffsets = this.hairPositions.getPositions().map(() => 0);
   };
 
   private updateStaticHairs = () => {
@@ -60,10 +60,12 @@ class Hairs {
 
     this.ref.current.instanceMatrix.needsUpdate = true;
 
+    const rotations = this.hairRotations.getRotations();
+    const positions = this.hairPositions.getScreenPositions();
+
     this.lastLengths.forEach((length, lengthIndex) => {
-      const [xPos, yPos] = this.HairPositions.getScreenPositions()[lengthIndex];
-      const rotation =
-        this.hairRotations.getRotations()[lengthIndex] + this.rotationOffsets[lengthIndex];
+      const [xPos, yPos] = positions[lengthIndex];
+      const rotation = rotations[lengthIndex] + this.rotationOffsets[lengthIndex];
 
       this.transformHolder.position.set(xPos, yPos, 0);
       this.transformHolder.rotation.set(0, 0, rotation);
@@ -78,13 +80,15 @@ class Hairs {
     this.lastLengths = this.hairLengths.getLengths();
   };
 
-  private instanceCount = () => this.HairPositions.getPositions().length + maxFallingHair;
+  private instanceCount = () => this.hairPositions.getPositions().length + maxFallingHair;
 
-  private calculateCuts = (razorContainsPoint: (arg0: Position2D) => boolean) =>
-    this.lastLengths.map((_length, lengthIndex) => {
-      const hover = razorContainsPoint(this.HairPositions.getScreenPositions()[lengthIndex]);
+  private calculateCuts = (razorContainsPoint: (arg0: Position2D) => boolean) => {
+    const positions = this.hairPositions.getScreenPositions();
+    return this.lastLengths.map((_length, lengthIndex) => {
+      const hover = razorContainsPoint(positions[lengthIndex]);
       return hover && Mouse.isClicked();
     });
+  };
 
   private updateCutHairs(razorContainsPoint: (arg0: Position2D) => boolean) {
     const cuts = this.calculateCuts(razorContainsPoint);
@@ -95,7 +99,7 @@ class Hairs {
   private updateSwirls(mouse: Vector2, camera: Camera) {
     const mousePos = mouseToWorld(mouse, camera);
     this.rotationOffsets = calculateSwirls(
-      this.HairPositions.getScreenPositions(),
+      this.hairPositions.getScreenPositions(),
       mousePos,
       this.lastLengths,
       this.rotationOffsets,
@@ -116,11 +120,11 @@ class Hairs {
   public screenElement = ({ razorContainsPoint }: HairsProps) => {
     const { viewport, mouse, camera } = useThree();
     const hairGeo = useMemo(() => triangleGeometry(viewport.width), [viewport.width]);
-    useMemo(() => this.HairPositions.setViewport(viewport.width, viewport.height), [viewport]);
+    useMemo(() => this.hairPositions.setViewport(viewport.width, viewport.height), [viewport]);
     this.ref = useRef<InstancedMesh>();
 
     this.fallingHair = new FallingHair(
-      this.HairPositions,
+      this.hairPositions,
       viewport,
       this.ref,
       this.transformHolder,
