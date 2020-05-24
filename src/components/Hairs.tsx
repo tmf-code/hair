@@ -26,7 +26,7 @@ class Hairs {
   private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
   private material: MeshBasicMaterial = new MeshBasicMaterial({ color: new Color(hairColor) });
   private fallingHair: FallingHair | undefined;
-  private hairCuts: HairCuts | undefined;
+  private hairCuts: HairCuts;
   private hairPositionsScreen: HairPositionsScreen;
   private hairLengths: HairLengths | undefined;
   private hairPositionsRelative: HairPositionsRelative;
@@ -94,7 +94,7 @@ class Hairs {
     const cuts = this.calculateCuts(razorContainsPoint);
     if (this.lastLengths && cuts) {
       this.fallingHair?.update(this.lastLengths, cuts, this.rotationOffsets);
-      this.hairCuts?.addFromClient(cuts);
+      this.hairCuts.addFromClient(cuts);
     }
   }
 
