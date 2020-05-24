@@ -1,4 +1,4 @@
-import { hairLengths } from './HairLengths';
+import { HairLengths } from './HairLengths';
 import { hairPositions } from './HairPositions';
 import { hairRotations } from './HairRotations';
 import { HairCuts } from './HairCuts';
@@ -7,9 +7,16 @@ export class Socket {
   private static readonly EMIT_INTERVAL = 100;
   private socket: SocketIOClient.Socket;
   private hairCuts: HairCuts;
+  private hairLengths: HairLengths;
 
-  constructor(io: SocketIOClientStatic, mode: string, hairCuts: HairCuts) {
+  constructor(
+    io: SocketIOClientStatic,
+    mode: string,
+    hairCuts: HairCuts,
+    hairLenghts: HairLengths,
+  ) {
     this.hairCuts = hairCuts;
+    this.hairLengths = hairLenghts;
     if (this.validateMode(mode)) {
       this.socket = this.connectSocket(io, mode);
       this.attachSocketHandlers();
@@ -33,10 +40,10 @@ export class Socket {
       updateClientGrid: (serverHairPositions: [number, number][]) =>
         hairPositions.setPositions(serverHairPositions),
 
-      updateClientGrowth: (growthSpeed: number) => hairLengths.grow(growthSpeed),
+      updateClientGrowth: (growthSpeed: number) => this.hairLengths.grow(growthSpeed),
 
       updateClientLengths: (serverHairLengths: number[]) =>
-        hairLengths.updateLengths(serverHairLengths),
+        this.hairLengths.updateLengths(serverHairLengths),
 
       updateClientRotations: (serverHairRotations: number[]) =>
         hairRotations.setRotations(serverHairRotations),

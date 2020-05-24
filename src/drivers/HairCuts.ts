@@ -1,5 +1,9 @@
-import { hairLengths } from './HairLengths';
+import { HairLengths } from './HairLengths';
 class HairCuts {
+  private hairLengths: HairLengths;
+  constructor(hairLengths: HairLengths) {
+    this.hairLengths = hairLengths;
+  }
   private clientCutBuffer: boolean[] = [];
   addFromClient(hairCuts: boolean[]) {
     this.clientCutBuffer = hairCuts.map((currentCut, cutIndex) => {
@@ -17,7 +21,7 @@ class HairCuts {
     this.applyToHairLengths(hairCuts);
   }
   private applyToHairLengths(hairCuts: boolean[]) {
-    hairLengths.cutHairs(hairCuts);
+    this.hairLengths.cutHairs(hairCuts);
   }
   hasClientCuts() {
     return this.clientCutBuffer.some(Boolean);

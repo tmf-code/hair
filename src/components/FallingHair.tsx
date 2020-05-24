@@ -1,4 +1,4 @@
-import { Rotations, HairLengths, Grid } from '../types/types';
+import { Rotations, Grid } from '../types/types';
 import { InstancedMesh, Object3D } from 'three';
 import { Buckets } from '../utilities/buckets';
 import { EasingFunctions } from '../utilities/easing-functions';
@@ -61,11 +61,7 @@ export class FallingHair {
     this.transformHolder = transformHolder;
   }
 
-  private createFallingHair(
-    rotationOffsets: Rotations,
-    lengths: HairLengths,
-    cutEffect: boolean[],
-  ) {
+  private createFallingHair(rotationOffsets: Rotations, lengths: number[], cutEffect: boolean[]) {
     return cutEffect
       .map((cut, index) => [cut, index] as [boolean, number])
       .filter(([isCut]) => isCut)
@@ -113,17 +109,13 @@ export class FallingHair {
     });
   }
 
-  public update(lastLengths: HairLengths, cutEffect: boolean[], rotationOffsets: Rotations) {
+  public update(lastLengths: number[], cutEffect: boolean[], rotationOffsets: Rotations) {
     const cuts = this.calculateCuts(lastLengths, cutEffect, rotationOffsets);
     this.addUniqueToFIFO(cuts);
     this.makeHairFall();
   }
 
-  private calculateCuts(
-    lastLengths: HairLengths,
-    cutEffect: boolean[],
-    rotationOffsets: Rotations,
-  ) {
+  private calculateCuts(lastLengths: number[], cutEffect: boolean[], rotationOffsets: Rotations) {
     return this.createFallingHair(rotationOffsets, lastLengths, cutEffect);
   }
 

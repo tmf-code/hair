@@ -1,12 +1,12 @@
 import { Mouse } from '../drivers/Mouse';
 import { swirlRadius } from '../utilities/constants';
 import { Vector3, Vector2 } from 'three';
-import { HairLengths, Rotations } from '../types/types';
+import { Rotations } from '../types/types';
 
 export const calculateSwirls = (
   positions: number[][],
   mousePos: Vector3,
-  lastLengths: HairLengths,
+  lastLengths: number[],
   rotationOffsets: Rotations,
 ) => {
   const swirlAffect = lastLengths.map((_length, lengthIndex) => {
