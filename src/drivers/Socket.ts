@@ -1,5 +1,5 @@
 import { HairLengths } from './HairLengths';
-import { hairPositions } from './HairPositions';
+import { HairPositions } from './HairPositions';
 import { hairRotations } from './HairRotations';
 import { HairCuts } from './HairCuts';
 
@@ -8,15 +8,18 @@ export class Socket {
   private socket: SocketIOClient.Socket;
   private hairCuts: HairCuts;
   private hairLengths: HairLengths;
+  hairPositions: HairPositions;
 
   constructor(
     io: SocketIOClientStatic,
     mode: string,
     hairCuts: HairCuts,
-    hairLenghts: HairLengths,
+    hairLengths: HairLengths,
+    hairPositions: HairPositions,
   ) {
     this.hairCuts = hairCuts;
-    this.hairLengths = hairLenghts;
+    this.hairLengths = hairLengths;
+    this.hairPositions = hairPositions;
     if (this.validateMode(mode)) {
       this.socket = this.connectSocket(io, mode);
       this.attachSocketHandlers();
@@ -38,7 +41,7 @@ export class Socket {
   private attachSocketHandlers() {
     const socketEventHandlers = {
       updateClientGrid: (serverHairPositions: [number, number][]) =>
-        hairPositions.setPositions(serverHairPositions),
+        this.hairPositions.setPositions(serverHairPositions),
 
       updateClientGrowth: (growthSpeed: number) => this.hairLengths.grow(growthSpeed),
 

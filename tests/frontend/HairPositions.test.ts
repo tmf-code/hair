@@ -1,4 +1,6 @@
-import { hairPositions } from '../../src/drivers/HairPositions';
+import { HairPositions } from '../../src/drivers/HairPositions';
+
+const hairPositions = new HairPositions();
 
 describe('HairPositions initial state', () => {
   test('Initial positions are empty', () => {
