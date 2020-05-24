@@ -19,4 +19,27 @@ describe('HairPositionsRelative actions', () => {
     hairPositions.setPositions(givenPositions);
     expect(hairPositions.getPositions()).toStrictEqual(givenPositions);
   });
+
+  test('Setting viewport updates relative positions', () => {
+    const givenPositions = [
+      [0, 0],
+      [0, 1],
+      [1, 0],
+      [1, 1],
+    ] as [number, number][];
+
+    const viewportWidth = 1;
+    const viewportHeight = 1;
+
+    const expectedPositions = [
+      [-0.5, 0.5],
+      [-0.5, -0.5],
+      [0.5, 0.5],
+      [0.5, -0.5],
+    ] as [number, number][];
+
+    hairPositions.setPositions(givenPositions);
+    hairPositions.setViewport(viewportWidth, viewportHeight);
+    expect(hairPositions.getScreenPositions()).toStrictEqual(expectedPositions);
+  });
 });
