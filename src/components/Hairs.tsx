@@ -28,7 +28,7 @@ class Hairs {
   private fallingHair: FallingHair | undefined;
   private hairCuts: HairCuts;
   private hairPositionsScreen: HairPositionsScreen;
-  private hairLengths: HairLengths | undefined;
+  private hairLengths: HairLengths;
   private hairPositionsRelative: HairPositionsRelative;
   private hairRotations: HairRotations;
 
@@ -79,7 +79,7 @@ class Hairs {
   };
 
   private updateLengths = () => {
-    this.lastLengths = this.hairLengths?.getLengths();
+    this.lastLengths = this.hairLengths.getLengths();
   };
 
   private instanceCount = () => this.hairPositionsRelative.getPositions().length + maxFallingHair;
