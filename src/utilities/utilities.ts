@@ -58,6 +58,9 @@ export const mapOnZipped = <T, U>(
   return result;
 };
 
+export const clamp = (value: number, min: number, max: number) =>
+  Math.min(Math.max(min, value), max);
+
 export const zipTo = <T>(arrayB: T[]) => (elementFromA: T, indexOnA: number, arrayA: T[]) => {
   if (arrayA.length !== arrayB.length)
     throw new RangeError(
