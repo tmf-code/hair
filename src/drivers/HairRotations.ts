@@ -17,14 +17,17 @@ class HairRotations {
 
   setRotationOffsets(offsets: number[]) {
     this.rotationOffsets = offsets;
-    this.rotations = this.initialRotations.map(
-      (value, index) => value + this.rotationOffsets[index],
-    );
+
+    for (let index = 0; index < this.initialRotations.length; index++) {
+      const rotation = this.initialRotations[index];
+      const rotationOffset = this.rotationOffsets[index];
+      this.rotations[index] = rotation + rotationOffset;
+    }
   }
 
   setInitialRotations(rotations: number[]) {
-    this.initialRotations = rotations;
-    this.rotations = this.initialRotations;
+    this.initialRotations = [...rotations];
+    this.rotations = [...this.initialRotations];
     this.rotationOffsets = this.initialRotations.map(() => 0);
   }
 
