@@ -85,22 +85,15 @@ class FallingHairs {
     return fallingHair;
   }
 
-  private setTransform = ({
-    xPos,
-    yPos,
-    distanceToDestination,
-    rotation,
-    length,
-    hairIndex,
-  }: FallingHair) => {
+  private setTransform = (
+    { xPos, yPos, distanceToDestination, rotation, length }: FallingHair,
+    index: number,
+  ) => {
     this.transformHolder.position.set(xPos, yPos - distanceToDestination, 0);
     this.transformHolder.rotation.set(0, 0, rotation);
     this.transformHolder.scale.set(1, length, 1);
     this.transformHolder.updateMatrix();
-    this.ref?.current?.setMatrixAt(
-      this.hairPositions.length + hairIndex,
-      this.transformHolder.matrix,
-    );
+    this.ref?.current?.setMatrixAt(this.hairPositions.length + index, this.transformHolder.matrix);
   };
 
   private makeHairFall() {
@@ -112,7 +105,7 @@ class FallingHairs {
       this.maxFallingHair /
       heightBuckets.numBuckets;
 
-    this.cutHairFIFO.getStack().forEach((transform) => {
+    this.cutHairFIFO.getStack().forEach((transform, index) => {
       const { xPos, type } = transform;
 
       if (type === 'empty') return;
@@ -126,7 +119,7 @@ class FallingHairs {
         getBucketHeight(xPos),
       );
 
-      this.setTransform(fallingHair);
+      this.setTransform(fallingHair, index);
     });
   }
 
