@@ -1,5 +1,4 @@
 import { triangleGeometry } from './triangle-geometry';
-import { Position2D } from '../types/types';
 import { useThree, useFrame } from 'react-three-fiber';
 import React, { useMemo, useRef } from 'react';
 import { Object3D, InstancedMesh, MeshBasicMaterial, Color, Camera, Vector2 } from 'three';
@@ -15,7 +14,7 @@ import { HairRotations } from '../drivers/HairRotations';
 
 // State holders outside of react
 type HairsProps = {
-  razorContainsPoint: (arg0: Position2D) => boolean;
+  razorContainsPoint: (arg0: [number, number]) => boolean;
 };
 class Hairs {
   private readonly transformHolder = new Object3D();
@@ -75,7 +74,7 @@ class Hairs {
 
   private instanceCount = () => this.hairPositions.getPositions().length + maxFallingHair;
 
-  private calculateCuts = (razorContainsPoint: (arg0: Position2D) => boolean) => {
+  private calculateCuts = (razorContainsPoint: (arg0: [number, number]) => boolean) => {
     const positions = this.hairPositions.getScreenPositions();
     return this.lastLengths.map((_length, lengthIndex) => {
       const hover = razorContainsPoint(positions[lengthIndex]);
@@ -83,7 +82,7 @@ class Hairs {
     });
   };
 
-  private updateCutHairs(razorContainsPoint: (arg0: Position2D) => boolean) {
+  private updateCutHairs(razorContainsPoint: (arg0: [number, number]) => boolean) {
     const cuts = this.calculateCuts(razorContainsPoint);
     this.fallingHair?.update(this.lastLengths, cuts);
     this.hairCuts.addFromClient(cuts);
@@ -95,7 +94,7 @@ class Hairs {
   }
 
   private updateFrame(
-    razorContainsPoint: (arg0: Position2D) => boolean,
+    razorContainsPoint: (arg0: [number, number]) => boolean,
     mouse: Vector2,
     camera: Camera,
   ) {

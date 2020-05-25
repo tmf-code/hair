@@ -4,7 +4,6 @@ import React from 'react';
 import { useSpring, a } from 'react-spring/three';
 import razorSVG from '../svgs/razor.svg';
 import { razorWidth, razorHeight } from '../utilities/constants';
-import { Position2D } from '../types/types';
 import { useThree, useFrame } from 'react-three-fiber';
 import { mouseToWorld } from '../utilities/utilities';
 
@@ -21,7 +20,7 @@ export class Razor {
     this.updateRazorPosition(mousePos);
   }
 
-  containsPoint([xPos, yPos]: Position2D) {
+  containsPoint([xPos, yPos]: [number, number]) {
     return this.razorBox.containsPoint(new Vector2(xPos, yPos));
   }
 
