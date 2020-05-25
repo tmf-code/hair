@@ -24,8 +24,7 @@ export class Razor {
     this.aspect = aspect;
     const mousePos = mouseToWorld(mouse, camera);
     this.updateRazorTriangles(mousePos);
-    this.updateRazorPosition(mousePos);
-    this.updateRazorRotation();
+    this.updateRazorTransform(mousePos);
   }
 
   containsPoint([xPos, yPos]: [number, number]) {
@@ -60,18 +59,19 @@ export class Razor {
     this.razorTriangles = [triangleLeft, triangleRight];
   }
 
-  private updateRazorRotation() {
+  private updateRazorTransform(mousePos: Vector3) {
     this.rotation = Mouse.SmoothedAngle();
-    if (this.ref?.current) {
-      this.ref.current.rotation.set(0, 0, this.rotation);
-      this.ref.current.matrixWorldNeedsUpdate = true;
-    }
-  }
 
-  private updateRazorPosition(mousePos: Vector3) {
     if (this.ref?.current) {
       const cursorOnTipOffset = -(2.1 / 2) * 0.9 * this.aspect;
-      this.ref.current.position.set(mousePos.x, mousePos.y + cursorOnTipOffset, mousePos.z);
+      this.ref.current.matrixAutoUpdate = false;
+      this.ref.current.matrix.identity();
+      const mat4: Matrix4 = new Matrix4();
+
+      this.ref.current.matrix.multiply(mat4.makeTranslation(mousePos.x, mousePos.y, mousePos.z));
+      this.ref.current.matrix.multiply(mat4.makeRotationZ(this.rotation));
+      this.ref.current.matrix.multiply(mat4.makeTranslation(0, cursorOnTipOffset, 0));
+
       this.ref.current.matrixWorldNeedsUpdate = true;
     }
   }
