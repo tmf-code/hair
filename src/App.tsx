@@ -8,7 +8,8 @@ import { Hairs as HairRenderable } from './components/Hairs';
 import { HairPositions } from './drivers/HairPositions';
 import { HairRotations } from './drivers/HairRotations';
 import { Socket, SocketCallbacks } from './drivers/Socket';
-import { Razor } from './components/Razor';
+import { Razor as RazorRenderable } from './components/Razor';
+import { Razor } from './drivers/Razor';
 import { HairCuts } from './drivers/HairCuts';
 import { HairLengths } from './drivers/HairLengths';
 import { widthPoints, heightPoints } from './utilities/constants';
@@ -43,7 +44,7 @@ const socket = new Socket(io, process.env.NODE_ENV, socketCallbacks);
 const App = () => {
   return (
     <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
-      <razor.screenElement />
+      <RazorRenderable updateFrame={razor.updateFrame.bind(razor)} />
       <HairRenderable
         instanceCount={hairs.instanceCount()}
         updateFrame={hairs.updateFrame.bind(hairs)}
