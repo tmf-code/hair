@@ -18,6 +18,7 @@ export class FallingHair implements IfallingHair {
   readonly length: number;
   readonly hairIndex: number;
   readonly timeStamp: number;
+  readonly distanceToDestination: number;
 
   private readonly animationDuration: number;
   private readonly frameTime: number;
@@ -25,7 +26,6 @@ export class FallingHair implements IfallingHair {
   private readonly animationProgression: number;
   private readonly destinationHeight: number;
   private readonly bucketHeight: number;
-  public readonly distanceToDestination: number;
 
   constructor(
     { type, xPos, yPos, rotation, length, hairIndex, timeStamp }: IfallingHair,

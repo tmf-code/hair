@@ -18,7 +18,7 @@ class FallingHairs {
   private viewport: { width: number; height: number; factor: number };
   private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
   private maxFallingHair: number;
-  private cutHairFIFO: FIFO<IfallingHair>;
+  private cutHairFIFO: FIFO<IfallingHair, 'hairIndex'>;
 
   private readonly animationDuration: number;
   private readonly transformHolder: Object3D = new Object3D();
@@ -28,11 +28,7 @@ class FallingHairs {
   private hairCuts: boolean[];
 
   constructor(totalHairCount: number, maxFallingHair: number) {
-    this.cutHairFIFO = new FIFO<IfallingHair>(
-      maxFallingHair,
-      FallingHairs.emptyCutHair,
-      'hairIndex',
-    );
+    this.cutHairFIFO = new FIFO(maxFallingHair, FallingHairs.emptyCutHair, 'hairIndex');
 
     this.maxFallingHair = maxFallingHair;
     this.animationDuration = animationDuration;
@@ -116,7 +112,7 @@ class FallingHairs {
       this.maxFallingHair /
       heightBuckets.numBuckets;
 
-    this.cutHairFIFO.stack.forEach((transform) => {
+    this.cutHairFIFO.getStack().forEach((transform) => {
       const { xPos, type } = transform;
 
       if (type === 'empty') return;

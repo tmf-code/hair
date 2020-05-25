@@ -1,24 +1,30 @@
+import { filterOnce } from './filter-once';
+
 type IEmpty = {
   type: 'empty' | 'useful';
 };
 
-export class FIFO<T extends IEmpty> {
-  stack: T[];
+export class FIFO<T extends IEmpty, I extends keyof T> {
+  private stack: T[];
   public readonly maxSize: number;
   private currentSize: number;
-  private readonly emptyValue: T;
-  private readonly identifier: keyof T;
+  private readonly indentityKey: I;
+  individualsInStack: Set<T[I]>;
 
-  constructor(maxSize: number, emptyValue: T, identifier: keyof T) {
+  constructor(maxSize: number, emptyValue: T, indentityKey: I) {
     this.maxSize = maxSize;
-    this.emptyValue = emptyValue;
-    this.identifier = identifier;
+    this.indentityKey = indentityKey;
     this.currentSize = 0;
     this.stack = [...new Array(maxSize)].fill(emptyValue);
+    this.individualsInStack = new Set<T[I]>();
   }
 
   getCurrentSize(): number {
     return this.currentSize;
+  }
+
+  getStack() {
+    return this.stack;
   }
 
   /**
@@ -27,28 +33,16 @@ export class FIFO<T extends IEmpty> {
    * @param value The value to add to the stack
    * @returns The oldest value in the array
    */
-  add(value: T): T {
+  private add(value: T): T {
     this.stack.unshift(value);
+    this.individualsInStack.add(value[this.indentityKey]);
     const last = this.stack.pop()!;
 
-    if (last.type === 'empty') {
-      this.currentSize++;
-    }
+    if (last.type === 'empty') this.currentSize++;
+
+    this.individualsInStack.delete(last[this.indentityKey]);
 
     return last;
-  }
-
-  addReplace(value: T): T {
-    const tryGetIndex = this.stack.findIndex(
-      (stackedValue) => stackedValue[this.identifier] === value[this.identifier],
-    );
-
-    if (tryGetIndex !== -1) {
-      this.stack[tryGetIndex] = this.emptyValue;
-      this.currentSize--;
-    }
-
-    return this.add(value);
   }
 
   addIfUnique(value: T): T | false {
@@ -57,26 +51,34 @@ export class FIFO<T extends IEmpty> {
     return this.add(value);
   }
 
-  contains(value: T): boolean {
+  // 122.9ms
+  private contains(value: T): boolean {
     return this.stack.some(
-      (stackedValue) => stackedValue[this.identifier] === value[this.identifier],
+      (stackedValue) => stackedValue[this.indentityKey] === value[this.indentityKey],
     );
   }
-  /**
-   * Removes the last value of the FIFO stack
-   * Adds an empty value to make sure the stack is always full
-   * Adjusts the currentSize field
-   * @returns The oldest value in the array
-   */
-  remove(): T {
-    this.stack.unshift(this.emptyValue);
 
-    const last = this.stack.pop()!;
+  private comparator = (valueA: T, valueB: T) =>
+    valueA[this.indentityKey] === valueB[this.indentityKey];
 
-    if (last.type !== 'empty') {
-      this.currentSize--;
+  private constainsMany(values: T[]): boolean[] {
+    const results: boolean[] = [];
+
+    let remainingToSearch = values;
+
+    for (let index = 0; index < this.stack.length; index++) {
+      const existingValue = this.stack[index];
+      const lengthBeforeFilter = remainingToSearch.length;
+      remainingToSearch = filterOnce(existingValue, values, this.comparator.bind(this));
+      const lengthAfterFilter = remainingToSearch.length;
+
+      const doesContain = lengthBeforeFilter !== lengthAfterFilter;
+      results.push(doesContain);
+
+      const noMoreToSearch = lengthAfterFilter === 0;
+      if (noMoreToSearch) break;
     }
 
-    return this.stack.pop()!;
+    return results;
   }
 }
