@@ -3,9 +3,17 @@ import { Mouse } from './Mouse';
 import { swirlRadius } from '../utilities/constants';
 
 class HairRotations {
-  private initialRotations: number[] = [];
-  private rotations: number[] = [];
-  private rotationOffsets: number[] = [];
+  private initialRotations: number[];
+  private rotations: number[];
+  private rotationOffsets: number[];
+
+  constructor(size: number) {
+    const allZeros = [...new Array(size)].fill(0);
+
+    this.initialRotations = allZeros;
+    this.rotations = allZeros;
+    this.rotationOffsets = allZeros;
+  }
 
   setRotationOffsets(offsets: number[]) {
     this.rotationOffsets = offsets;

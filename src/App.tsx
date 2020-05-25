@@ -13,7 +13,7 @@ import { HairCuts } from './drivers/HairCuts';
 import { HairLengths } from './drivers/HairLengths';
 import { widthPoints, heightPoints } from './utilities/constants';
 
-const hairRotations = new HairRotations();
+const hairRotations = new HairRotations(widthPoints * heightPoints);
 const hairPositions = new HairPositions();
 const hairLengths = new HairLengths([]);
 const hairCuts = new HairCuts(widthPoints * heightPoints);
