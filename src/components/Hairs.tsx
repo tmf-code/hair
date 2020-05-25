@@ -4,13 +4,8 @@ import React, { useMemo, useRef } from 'react';
 import { InstancedMesh, MeshBasicMaterial, Color, Camera, Vector2 } from 'three';
 
 import { hairColor } from '../utilities/constants';
+import { Viewport } from '../types/Viewport';
 
-type Viewport = {
-  width: number;
-  height: number;
-  factor: number;
-};
-// State holders outside of react
 type HairsProps = {
   viewportChange: (viewport: Viewport) => void;
   updateFrame: (
@@ -27,13 +22,9 @@ const Hairs = ({ viewportChange, updateFrame, instanceCount }: HairsProps) => {
   const { viewport, mouse, camera } = useThree();
   const hairGeo = useMemo(() => triangleGeometry(viewport.width), [viewport.width]);
   useMemo(() => viewportChange(viewport), [viewport, viewportChange]);
-
-  useFrame(() => {
-    updateFrame(ref, mouse, camera);
-  });
+  useFrame(() => updateFrame(ref, mouse, camera));
 
   const ref = useRef<InstancedMesh>();
-
   return <instancedMesh ref={ref} args={[hairGeo, material, instanceCount]}></instancedMesh>;
 };
 

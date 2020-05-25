@@ -14,7 +14,7 @@ type TriangleTransform = {
   timeStamp: number;
 };
 
-export class FallingHair {
+class FallingHair {
   private static readonly emptyCutHair: TriangleTransform = {
     type: 'empty',
     xPos: 0,
@@ -130,3 +130,4 @@ export class FallingHair {
     cuts.forEach((cut) => this.cutHairFIFO.addIfUnique(cut));
   }
 }
+export { FallingHair };
