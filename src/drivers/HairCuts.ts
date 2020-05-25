@@ -1,38 +1,60 @@
-import { HairLengths } from './HairLengths';
+import { mapOnZipped } from './../utilities/utilities';
 class HairCuts {
-  private hairLengths: HairLengths;
-  constructor(hairLengths: HairLengths) {
-    this.hairLengths = hairLengths;
+  private readonly noCuts: boolean[] = [];
+  private clientCuts: boolean[] = [];
+  private newCuts: boolean[] = [];
+
+  constructor(cutSize: number) {
+    this.noCuts = [...new Array(cutSize)].fill(false);
+
+    this.clientCuts = this.noCuts;
+    this.newCuts = this.noCuts;
   }
-  private clientCutBuffer: boolean[] = [];
+
   addFromClient(hairCuts: boolean[]) {
-    this.clientCutBuffer = hairCuts.map((currentCut, cutIndex) => {
-      const clientDidCut = currentCut === true;
-      const bufferHasCut = this.clientCutBuffer[cutIndex] !== undefined;
-      if (clientDidCut) return currentCut;
-      if (bufferHasCut) return this.clientCutBuffer[cutIndex];
-
-      return false;
-    });
-
-    this.applyToHairLengths(hairCuts);
+    this.clientCuts = HairCuts.combineCuts(this.clientCuts, hairCuts);
+    this.newCuts = HairCuts.combineCuts(this.newCuts, this.clientCuts);
   }
+
   addFromServer(hairCuts: boolean[]) {
-    this.applyToHairLengths(hairCuts);
+    this.newCuts = HairCuts.combineCuts(this.newCuts, hairCuts);
   }
-  private applyToHairLengths(hairCuts: boolean[]) {
-    this.hairLengths.cutHairs(hairCuts);
+
+  private static combineCuts(cutsA: boolean[], cutsB: boolean[]) {
+    if (cutsA.length !== cutsB.length)
+      throw new RangeError(
+        `Unable to combine cutsA with cutsB. Lengths ${cutsA.length} and ${cutsB.length} do not match`,
+      );
+
+    return mapOnZipped(cutsA, cutsB, HairCuts.combiner);
   }
+
+  private static combiner(cutA: boolean, cutB: boolean) {
+    return cutA || cutB;
+  }
+
+  hasNewCuts() {
+    return this.newCuts.some(Boolean);
+  }
+
   hasClientCuts() {
-    return this.clientCutBuffer.some(Boolean);
+    return this.clientCuts.some(Boolean);
   }
-  getBufferAndClear() {
-    const bufferCopy = [...this.clientCutBuffer];
-    this.clearBuffer();
-    return bufferCopy;
+
+  getNewCuts() {
+    return this.newCuts;
   }
-  private clearBuffer() {
-    this.clientCutBuffer = this.clientCutBuffer.map((_) => false);
+
+  getClientCuts() {
+    return this.clientCuts;
+  }
+
+  clearClientCuts() {
+    this.clientCuts = this.noCuts;
+  }
+
+  clearNewCuts() {
+    this.newCuts = this.noCuts;
   }
 }
 

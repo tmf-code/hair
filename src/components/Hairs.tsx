@@ -86,6 +86,8 @@ class Hairs {
     const cuts = this.calculateCuts(razorContainsPoint);
     this.fallingHair?.update(this.lastLengths, cuts);
     this.hairCuts.addFromClient(cuts);
+    this.hairLengths.cutHairs(this.hairCuts.getNewCuts());
+    this.hairCuts.clearNewCuts();
   }
 
   private updateSwirls(mouse: Vector2, camera: Camera) {

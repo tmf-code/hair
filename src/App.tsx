@@ -11,11 +11,12 @@ import { Socket } from './drivers/Socket';
 import { Razor } from './components/Razor';
 import { HairCuts } from './drivers/HairCuts';
 import { HairLengths } from './drivers/HairLengths';
+import { widthPoints, heightPoints } from './utilities/constants';
 
 const hairRotations = new HairRotations();
 const hairPositions = new HairPositions();
 const hairLengths = new HairLengths([]);
-const hairCuts = new HairCuts(hairLengths);
+const hairCuts = new HairCuts(widthPoints * heightPoints);
 const razor = new Razor();
 const hairs = new Hairs(hairRotations, hairPositions, hairLengths, hairCuts);
 

@@ -71,6 +71,7 @@ export class Socket {
   }
 
   private updateServerCuts() {
-    this.socket.emit('updateServerCuts', this.hairCuts.getBufferAndClear());
+    this.socket.emit('updateServerCuts', this.hairCuts.getClientCuts());
+    this.hairCuts.clearClientCuts();
   }
 }

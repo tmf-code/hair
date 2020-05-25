@@ -36,4 +36,34 @@ export const mouseToWorld = (mouse: Vector2, camera: Camera) => {
   return new Vector3().copy(camera.position).add(vec.multiplyScalar(distance));
 };
 
+export const mapOnZipped = <T, U>(
+  arrayA: T[],
+  arrayB: T[],
+  callback: (elementA: T, elementB: T, index: number) => U,
+): U[] => {
+  if (arrayA.length !== arrayB.length)
+    throw new RangeError(
+      `Unable to combine arrayA with arrayB. Lengths ${arrayA.length} and ${arrayB.length} do not match`,
+    );
+
+  const result: U[] = [];
+  for (let index = 0; index < arrayA.length; index++) {
+    const elementInA = arrayA[index];
+    const elementInB = arrayB[index];
+
+    const callbackResult = callback(elementInA, elementInB, index);
+    result.push(callbackResult);
+  }
+
+  return result;
+};
+
+export const zipTo = <T>(arrayB: T[]) => (elementFromA: T, indexOnA: number, arrayA: T[]) => {
+  if (arrayA.length !== arrayB.length)
+    throw new RangeError(
+      `Unable to combine arrayA with arrayB. Lengths ${arrayA.length} and ${arrayB.length} do not match`,
+    );
+  return [elementFromA, arrayB[indexOnA]];
+};
+
 export type WorldLimits = ReturnType<typeof getWorldLimits>;
