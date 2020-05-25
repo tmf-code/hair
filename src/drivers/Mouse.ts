@@ -1,4 +1,3 @@
-import { SmoothlyAverage } from './../utilities/SmoothlyAverage';
 import { Vector2 } from 'three';
 import { SmoothlyCircularAverage } from '../utilities/SmoothlyCircularAverage';
 type MouseListener = (position: [number, number]) => void;

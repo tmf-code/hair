@@ -1,15 +1,12 @@
 import { Mouse } from './Mouse';
-import { Vector3, Mesh, Vector2, Box2, Camera, Triangle, Matrix3, Matrix4 } from 'three';
+import { Vector3, Mesh, Vector2, Camera, Triangle, Matrix4 } from 'three';
 import React from 'react';
 
 import { razorWidth, razorHeight } from '../utilities/constants';
 import { mouseToWorld } from '../utilities/utilities';
 
 export class Razor {
-  private mouseLeft = new Vector2();
-  private mouseRight = new Vector2();
   private ref: React.MutableRefObject<Mesh | undefined> | undefined;
-  private razorBox = new Box2();
   private razorTriangles: [Triangle, Triangle] = [new Triangle(), new Triangle()];
   private aspect = 1.0;
   private rotation = 0;
