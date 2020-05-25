@@ -1,5 +1,3 @@
-import { filterOnce } from './filter-once';
-
 type IEmpty = {
   type: 'empty' | 'useful';
 };
@@ -35,50 +33,18 @@ export class FIFO<T extends IEmpty, I extends keyof T> {
    */
   private add(value: T): T {
     this.stack.unshift(value);
-    this.individualsInStack.add(value[this.indentityKey]);
     const last = this.stack.pop()!;
 
     if (last.type === 'empty') this.currentSize++;
 
+    this.individualsInStack.add(value[this.indentityKey]);
     this.individualsInStack.delete(last[this.indentityKey]);
-
     return last;
   }
 
   addIfUnique(value: T): T | false {
-    if (this.contains(value)) return false;
+    if (this.individualsInStack.has(value[this.indentityKey])) return false;
 
     return this.add(value);
-  }
-
-  // 122.9ms
-  private contains(value: T): boolean {
-    return this.stack.some(
-      (stackedValue) => stackedValue[this.indentityKey] === value[this.indentityKey],
-    );
-  }
-
-  private comparator = (valueA: T, valueB: T) =>
-    valueA[this.indentityKey] === valueB[this.indentityKey];
-
-  private constainsMany(values: T[]): boolean[] {
-    const results: boolean[] = [];
-
-    let remainingToSearch = values;
-
-    for (let index = 0; index < this.stack.length; index++) {
-      const existingValue = this.stack[index];
-      const lengthBeforeFilter = remainingToSearch.length;
-      remainingToSearch = filterOnce(existingValue, values, this.comparator.bind(this));
-      const lengthAfterFilter = remainingToSearch.length;
-
-      const doesContain = lengthBeforeFilter !== lengthAfterFilter;
-      results.push(doesContain);
-
-      const noMoreToSearch = lengthAfterFilter === 0;
-      if (noMoreToSearch) break;
-    }
-
-    return results;
   }
 }
