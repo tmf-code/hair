@@ -5,7 +5,7 @@ import { Mouse } from '../drivers/Mouse';
 
 import { HairLengths } from '../drivers/HairLengths';
 import { HairCuts } from '../drivers/HairCuts';
-import { FallingHair } from './FallingHair';
+import { FallingHairs } from './FallingHairs';
 import { HairPositions } from '../drivers/HairPositions';
 import { HairRotations } from '../drivers/HairRotations';
 import { Viewport } from '../types/Viewport';
@@ -18,7 +18,7 @@ class Hairs {
   private hairLengths: HairLengths;
   private hairPositions: HairPositions;
   private hairRotations: HairRotations;
-  private fallingHair: FallingHair;
+  private fallingHair: FallingHairs;
   private razorContainsPoint: (arg0: [number, number]) => boolean;
 
   constructor(
@@ -36,7 +36,7 @@ class Hairs {
 
     this.lastLengths = hairLengths.getLengths();
 
-    this.fallingHair = new FallingHair(widthPoints * heightPoints, maxFallingHair);
+    this.fallingHair = new FallingHairs(widthPoints * heightPoints, maxFallingHair);
   }
 
   setViewport({ width, height, factor }: Viewport) {
