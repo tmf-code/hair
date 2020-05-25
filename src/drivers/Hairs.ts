@@ -11,6 +11,7 @@ import { HairRotations } from '../drivers/HairRotations';
 import { Viewport } from '../types/Viewport';
 
 class Hairs {
+  private readonly noCuts: false[];
   private readonly transformHolder = new Object3D();
   private lastLengths: number[] = [];
   private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
@@ -37,6 +38,8 @@ class Hairs {
     this.lastLengths = hairLengths.getLengths();
 
     this.fallingHair = new FallingHairs(widthPoints * heightPoints, maxFallingHair);
+
+    this.noCuts = [...new Array(widthPoints * heightPoints)].fill(false);
   }
 
   setViewport({ width, height, factor }: Viewport) {
@@ -68,17 +71,18 @@ class Hairs {
 
     const rotations = this.hairRotations.getRotations();
     const positions = this.hairPositions.getScreenPositions();
+    const lengths = this.hairLengths.getLengths();
 
-    this.lastLengths.forEach((length, lengthIndex) => {
-      const [xPos, yPos] = positions[lengthIndex];
-      const rotation = rotations[lengthIndex];
+    positions.forEach(([xPos, yPos], hairIndex) => {
+      const length = lengths[hairIndex];
+      const rotation = rotations[hairIndex];
 
       this.transformHolder.position.set(xPos, yPos, 0);
       this.transformHolder.rotation.set(0, 0, rotation);
       this.transformHolder.scale.set(1, length, 1);
       this.transformHolder.updateMatrix();
 
-      this.ref?.current?.setMatrixAt(lengthIndex, this.transformHolder.matrix);
+      this.ref?.current?.setMatrixAt(hairIndex, this.transformHolder.matrix);
     });
   };
 
@@ -112,11 +116,10 @@ class Hairs {
   public instanceCount = () => this.hairPositions.getPositions().length + maxFallingHair;
 
   private calculateCuts = (razorContainsPoint: (arg0: [number, number]) => boolean) => {
+    if (!Mouse.isClicked()) return this.noCuts;
+
     const positions = this.hairPositions.getScreenPositions();
-    return this.lastLengths.map((_length, lengthIndex) => {
-      const hover = razorContainsPoint(positions[lengthIndex]);
-      return hover && Mouse.isClicked();
-    });
+    return positions.map(razorContainsPoint);
   };
 }
 
