@@ -35,17 +35,18 @@ class HairRotations {
     return this.rotations;
   }
 
+  private noSwirl = (hairIndex: number) => this.rotationOffsets[hairIndex];
+
   calculateSwirls = (positions: number[][], mousePos: Vector3) => {
     const isMousePerformingSwirl = !Mouse.isClicked() && Mouse.VelocityVector().length() > 0.001;
-    const noSwirl = (hairIndex: number) => this.rotationOffsets[hairIndex];
 
     const newRotationOffsets = positions.map(([xPos, yPos], hairIndex) => {
-      if (!isMousePerformingSwirl) return noSwirl(hairIndex);
+      if (!isMousePerformingSwirl) return this.noSwirl(hairIndex);
 
       const distance = mousePos.distanceTo(new Vector3(xPos, yPos, 0));
       const isHovering = distance < swirlRadius;
 
-      if (!isHovering) return noSwirl(hairIndex);
+      if (!isHovering) return this.noSwirl(hairIndex);
 
       const directionVector = Mouse.VelocityVector().normalize();
       const swirlAmount = directionVector.multiplyScalar(1 - distance / swirlRadius);
