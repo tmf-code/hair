@@ -2,7 +2,7 @@ import { InstancedMesh, Object3D } from 'three';
 import { Buckets } from '../utilities/buckets';
 import { EasingFunctions } from '../utilities/easing-functions';
 import { FIFO } from '../utilities/fifo';
-import { maxFallingHair, animationDuration } from '../utilities/constants';
+import { animationDuration } from '../utilities/constants';
 
 type TriangleTransform = {
   type: 'empty' | 'useful';
@@ -26,35 +26,42 @@ export class FallingHair {
   };
 
   private viewport: { width: number; height: number; factor: number };
-  private ref: React.MutableRefObject<InstancedMesh | undefined>;
+  private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
   private maxFallingHair: number;
   private cutHairFIFO: FIFO<TriangleTransform>;
 
   private readonly animationDuration: number;
-  private readonly transformHolder: Object3D;
-  hairRotations: number[];
-  hairPositions: [number, number][];
+  private readonly transformHolder: Object3D = new Object3D();
+  private hairRotations: number[];
+  private hairPositions: [number, number][];
 
-  constructor(
-    hairPositions: [number, number][],
-    viewport: { width: number; height: number; factor: number },
-    ref: React.MutableRefObject<InstancedMesh | undefined>,
-    transformHolder: Object3D,
-    hairRotations: number[],
-  ) {
+  constructor(totalHairCount: number, maxFallingHair: number) {
     this.cutHairFIFO = new FIFO<TriangleTransform>(
       maxFallingHair,
       FallingHair.emptyCutHair,
       'hairIndex',
     );
 
-    this.hairPositions = hairPositions;
-    this.ref = ref;
-    this.viewport = viewport;
     this.maxFallingHair = maxFallingHair;
     this.animationDuration = animationDuration;
-    this.transformHolder = transformHolder;
-    this.hairRotations = hairRotations;
+
+    this.viewport = { width: 1, height: 1, factor: 1 };
+
+    const allZeros = [...new Array(totalHairCount)].fill(0);
+    this.hairRotations = allZeros;
+    this.hairPositions = allZeros;
+  }
+
+  setHairPositions(hairPositions: [number, number][]) {
+    this.hairPositions = hairPositions;
+  }
+
+  setViewport(viewport: { width: number; height: number; factor: number }) {
+    this.viewport = viewport;
+  }
+
+  setRef(ref: React.MutableRefObject<InstancedMesh | undefined>) {
+    this.ref = ref;
   }
 
   private createFallingHair(lengths: number[], cutEffect: boolean[]) {
@@ -101,18 +108,22 @@ export class FallingHair {
       this.transformHolder.rotation.set(0, 0, rotation);
       this.transformHolder.scale.set(1, length, 1);
       this.transformHolder.updateMatrix();
-      this.ref.current?.setMatrixAt(this.hairPositions.length + index, this.transformHolder.matrix);
+      this.ref?.current?.setMatrixAt(
+        this.hairPositions.length + index,
+        this.transformHolder.matrix,
+      );
     });
   }
 
-  public update(lastLengths: number[], cutEffect: boolean[]) {
-    const cuts = this.calculateCuts(lastLengths, cutEffect);
+  public update(lengths: number[], cutEffect: boolean[], rotations: number[]) {
+    this.hairRotations = rotations;
+    const cuts = this.calculateCuts(lengths, cutEffect);
     this.addUniqueToFIFO(cuts);
     this.makeHairFall();
   }
 
-  private calculateCuts(lastLengths: number[], cutEffect: boolean[]) {
-    return this.createFallingHair(lastLengths, cutEffect);
+  private calculateCuts(lengths: number[], cutEffect: boolean[]) {
+    return this.createFallingHair(lengths, cutEffect);
   }
 
   private addUniqueToFIFO(cuts: TriangleTransform[]) {

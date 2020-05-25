@@ -4,21 +4,31 @@ import { Canvas } from 'react-three-fiber';
 import io from 'socket.io-client';
 
 import './styles/App.css';
-import { Hairs } from './components/Hairs';
+import { Hairs as HairRenderable } from './components/Hairs';
 import { HairPositions } from './drivers/HairPositions';
 import { HairRotations } from './drivers/HairRotations';
 import { Socket, SocketCallbacks } from './drivers/Socket';
 import { Razor } from './components/Razor';
 import { HairCuts } from './drivers/HairCuts';
 import { HairLengths } from './drivers/HairLengths';
-import { widthPoints, heightPoints } from './utilities/constants';
+import { widthPoints, heightPoints, maxFallingHair } from './utilities/constants';
+import { Hairs } from './drivers/Hairs';
+import { FallingHair } from './components/FallingHair';
 
 const hairRotations = new HairRotations(widthPoints * heightPoints);
 const hairPositions = new HairPositions(widthPoints * heightPoints);
 const hairLengths = new HairLengths(widthPoints * heightPoints);
 const hairCuts = new HairCuts(widthPoints * heightPoints);
 const razor = new Razor();
-const hairs = new Hairs(hairRotations, hairPositions, hairLengths, hairCuts);
+const fallingHair = new FallingHair(widthPoints * heightPoints, maxFallingHair);
+const hairs = new Hairs(
+  razor.containsPoint.bind(razor),
+  hairRotations,
+  hairPositions,
+  hairLengths,
+  hairCuts,
+  fallingHair,
+);
 
 const socketCallbacks: SocketCallbacks = {
   setPositions: hairPositions.setPositions.bind(hairPositions),
@@ -37,7 +47,15 @@ const App = () => {
   return (
     <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
       <razor.screenElement />
-      <hairs.screenElement razorContainsPoint={razor.containsPoint.bind(razor)} />
+      <HairRenderable
+        instanceCount={hairs.instanceCount()}
+        updateFrame={hairs.updateFrame.bind(hairs)}
+        viewportChange={({ width, height, factor }) => {
+          hairPositions.setViewport(width, height);
+          fallingHair.setHairPositions(hairPositions.getScreenPositions());
+          fallingHair.setViewport({ width, height, factor });
+        }}
+      />
     </Canvas>
   );
 };
