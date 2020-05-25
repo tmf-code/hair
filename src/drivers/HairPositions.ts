@@ -6,6 +6,12 @@ class HairPositions {
   private viewportWidth = 1.0;
   private viewportHeight = 1.0;
 
+  constructor(size: number) {
+    const allZeros = [...new Array(size)].fill([0, 0]);
+    this.positions = allZeros;
+    this.screenPositions = allZeros;
+  }
+
   setPositions(positions: [number, number][]) {
     this.positions = positions;
     this.convertRelativeToScreen();

@@ -14,7 +14,7 @@ import { HairLengths } from './drivers/HairLengths';
 import { widthPoints, heightPoints } from './utilities/constants';
 
 const hairRotations = new HairRotations(widthPoints * heightPoints);
-const hairPositions = new HairPositions();
+const hairPositions = new HairPositions(widthPoints * heightPoints);
 const hairLengths = new HairLengths(widthPoints * heightPoints);
 const hairCuts = new HairCuts(widthPoints * heightPoints);
 const razor = new Razor();

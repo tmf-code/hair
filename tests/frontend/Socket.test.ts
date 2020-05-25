@@ -8,7 +8,7 @@ import { HairRotations } from '../../src/drivers/HairRotations';
 
 const hairCuts = new HairCuts(0);
 const hairLengths = new HairLengths(0);
-const hairPositions = new HairPositions();
+const hairPositions = new HairPositions(0);
 const hairRotations = new HairRotations(0);
 
 const socketCallbacks: SocketCallbacks = {
