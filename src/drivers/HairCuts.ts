@@ -1,11 +1,11 @@
 import { mapOnZipped } from './../utilities/utilities';
 class HairCuts {
-  private readonly noCuts: boolean[] = [];
-  private clientCuts: boolean[] = [];
-  private newCuts: boolean[] = [];
+  private readonly noCuts: boolean[];
+  private clientCuts: boolean[];
+  private newCuts: boolean[];
 
-  constructor(cutSize: number) {
-    this.noCuts = [...new Array(cutSize)].fill(false);
+  constructor(size: number) {
+    this.noCuts = [...new Array(size)].fill(false);
 
     this.clientCuts = this.noCuts;
     this.newCuts = this.noCuts;
