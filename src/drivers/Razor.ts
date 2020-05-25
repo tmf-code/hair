@@ -1,7 +1,8 @@
-import { Vector3, Mesh, Vector2, Box2 } from 'three';
+import { Vector3, Mesh, Vector2, Box2, Camera } from 'three';
 import React from 'react';
 
 import { razorWidth, razorHeight } from '../utilities/constants';
+import { mouseToWorld } from '../utilities/utilities';
 
 export class Razor {
   private mouseLeft = new Vector2();
@@ -12,11 +13,13 @@ export class Razor {
 
   public updateFrame(
     ref: React.MutableRefObject<Mesh | undefined>,
-    mousePos: Vector3,
+    mouse: Vector2,
     aspect: number,
+    camera: Camera,
   ) {
     this.ref = ref;
     this.aspect = aspect;
+    const mousePos = mouseToWorld(mouse, camera);
     this.updateRazorBox(mousePos);
     this.updateRazorPosition(mousePos);
   }
