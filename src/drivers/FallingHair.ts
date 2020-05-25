@@ -52,16 +52,17 @@ class FallingHair {
     this.hairPositions = allZeros;
   }
 
-  setHairPositions(hairPositions: [number, number][]) {
-    this.hairPositions = hairPositions;
-  }
-
-  setViewport(viewport: { width: number; height: number; factor: number }) {
-    this.viewport = viewport;
-  }
-
-  setRef(ref: React.MutableRefObject<InstancedMesh | undefined>) {
-    this.ref = ref;
+  public update(
+    lengths: number[],
+    cutEffect: boolean[],
+    rotations: number[],
+    positions: [number, number][],
+  ) {
+    this.hairRotations = rotations;
+    this.hairPositions = positions;
+    const cuts = this.createFallingHair(lengths, cutEffect);
+    this.addUniqueToFIFO(cuts);
+    this.makeHairFall();
   }
 
   private createFallingHair(lengths: number[], cutEffect: boolean[]) {
@@ -115,19 +116,16 @@ class FallingHair {
     });
   }
 
-  public update(lengths: number[], cutEffect: boolean[], rotations: number[]) {
-    this.hairRotations = rotations;
-    const cuts = this.calculateCuts(lengths, cutEffect);
-    this.addUniqueToFIFO(cuts);
-    this.makeHairFall();
-  }
-
-  private calculateCuts(lengths: number[], cutEffect: boolean[]) {
-    return this.createFallingHair(lengths, cutEffect);
-  }
-
   private addUniqueToFIFO(cuts: TriangleTransform[]) {
     cuts.forEach((cut) => this.cutHairFIFO.addIfUnique(cut));
+  }
+
+  setViewport(viewport: { width: number; height: number; factor: number }) {
+    this.viewport = viewport;
+  }
+
+  setRef(ref: React.MutableRefObject<InstancedMesh | undefined>) {
+    this.ref = ref;
   }
 }
 export { FallingHair };

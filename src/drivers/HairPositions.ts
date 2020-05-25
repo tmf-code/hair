@@ -1,8 +1,8 @@
 import { lerp } from '../utilities/utilities';
 
 class HairPositions {
-  private positions: [number, number][] = [];
-  private screenPositions: [number, number][] = [];
+  private positions: [number, number][];
+  private screenPositions: [number, number][];
   private viewportWidth = 1.0;
   private viewportHeight = 1.0;
 

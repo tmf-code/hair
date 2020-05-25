@@ -41,7 +41,6 @@ class Hairs {
 
   setViewport({ width, height, factor }: Viewport) {
     this.hairPositions.setViewport(width, height);
-    this.fallingHair.setHairPositions(this.hairPositions.getScreenPositions());
     this.fallingHair.setViewport({ width, height, factor });
   }
 
@@ -83,9 +82,16 @@ class Hairs {
     });
   };
 
-  private updateCutHairs(razorContainsPoint: (arg0: [number, number]) => boolean) {
+  private updateCutHairs(razorContainsPoint: (mousePosition: [number, number]) => boolean) {
     const cuts = this.calculateCuts(razorContainsPoint);
-    this.fallingHair.update(this.lastLengths, cuts, this.hairRotations.getRotations());
+
+    this.fallingHair.update(
+      this.hairLengths.getLengths(),
+      cuts,
+      this.hairRotations.getRotations(),
+      this.hairPositions.getScreenPositions(),
+    );
+
     this.hairCuts.addFromClient(cuts);
     this.hairLengths.cutHairs(this.hairCuts.getNewCuts());
     this.hairCuts.clearNewCuts();
