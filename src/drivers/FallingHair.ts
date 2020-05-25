@@ -34,6 +34,8 @@ class FallingHair {
   private readonly transformHolder: Object3D = new Object3D();
   private hairRotations: number[];
   private hairPositions: [number, number][];
+  private hairLengths: number[];
+  private hairCuts: boolean[];
 
   constructor(totalHairCount: number, maxFallingHair: number) {
     this.cutHairFIFO = new FIFO<TriangleTransform>(
@@ -50,6 +52,8 @@ class FallingHair {
     const allZeros = [...new Array(totalHairCount)].fill(0);
     this.hairRotations = allZeros;
     this.hairPositions = allZeros;
+    this.hairLengths = allZeros;
+    this.hairCuts = [...new Array(totalHairCount)].fill(false);
   }
 
   public update(
@@ -60,32 +64,39 @@ class FallingHair {
   ) {
     this.hairRotations = rotations;
     this.hairPositions = positions;
-    const cuts = this.createFallingHair(lengths, cutEffect);
+    this.hairLengths = lengths;
+    this.hairCuts = cutEffect;
+    const cuts = this.createFallingHair();
     this.addUniqueToFIFO(cuts);
     this.makeHairFall();
   }
 
-  private createFallingHair(lengths: number[], cutEffect: boolean[]) {
-    return cutEffect
-      .map((cut, index) => [cut, index] as [boolean, number])
-      .filter(([isCut]) => isCut)
-      .map(([, index]) => index)
-      .map(
-        (hairIndex): TriangleTransform => {
-          const length = lengths[hairIndex];
-          const [xPos, yPos] = this.hairPositions[hairIndex];
-          const rotation = this.hairRotations[hairIndex];
-          return {
-            xPos,
-            yPos,
-            rotation,
-            length,
-            type: 'useful',
-            hairIndex,
-            timeStamp: Date.now(),
-          };
-        },
-      );
+  private createFallingHair() {
+    const timeStamp = Date.now();
+    const type = 'useful';
+    const fallingHair: TriangleTransform[] = [];
+
+    for (let hairIndex = 0; hairIndex < this.hairCuts.length; hairIndex++) {
+      const didCut = this.hairCuts[hairIndex];
+
+      if (!didCut) continue;
+
+      const length = this.hairLengths[hairIndex];
+      const [xPos, yPos] = this.hairPositions[hairIndex];
+      const rotation = this.hairRotations[hairIndex];
+
+      fallingHair.push({
+        xPos,
+        yPos,
+        rotation,
+        length,
+        type,
+        hairIndex,
+        timeStamp,
+      });
+    }
+
+    return fallingHair;
   }
 
   private makeHairFall() {
