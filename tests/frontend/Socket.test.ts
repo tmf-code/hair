@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable import/first */
-import { Socket } from '../../src/drivers/Socket';
+import { Socket, SocketCallbacks } from '../../src/drivers/Socket';
 import { HairLengths } from '../../src/drivers/HairLengths';
 import { HairCuts } from '../../src/drivers/HairCuts';
 import { HairPositions } from '../../src/drivers/HairPositions';
@@ -9,7 +9,17 @@ import { HairRotations } from '../../src/drivers/HairRotations';
 const hairCuts = new HairCuts(0);
 const hairLengths = new HairLengths([]);
 const hairPositions = new HairPositions();
-const hairRotation = new HairRotations();
+const hairRotations = new HairRotations();
+
+const socketCallbacks: SocketCallbacks = {
+  setPositions: hairPositions.setPositions.bind(hairPositions),
+  setRotations: hairRotations.setInitialRotations.bind(hairRotations),
+  setLengths: hairLengths.updateLengths.bind(hairLengths),
+  tickGrowth: hairLengths.grow.bind(hairLengths),
+  setRemoteCuts: hairCuts.addFromServer.bind(hairCuts),
+  sendLocalCuts: hairCuts.getClientCuts.bind(hairCuts),
+  sentLocalCuts: hairCuts.clearClientCuts.bind(hairCuts),
+};
 
 jest.mock('socket.io-client');
 // eslint-disable-next-line @typescript-eslint/no-var-requires
@@ -28,19 +38,12 @@ describe('Socket Initial state', () => {
   });
 
   test('Socket establishes production connection', () => {
-    const socket = new Socket(io, 'production', hairCuts, hairLengths, hairPositions, hairRotation);
+    const socket = new Socket(io, 'production', socketCallbacks);
     expect(io).toBeCalledWith();
   });
 
   test('Socket establishes development connection', () => {
-    const socket = new Socket(
-      io,
-      'development',
-      hairCuts,
-      hairLengths,
-      hairPositions,
-      hairRotation,
-    );
+    const socket = new Socket(io, 'development', socketCallbacks);
     expect(io).toBeCalledWith('http://localhost:3001');
   });
 
@@ -53,14 +56,7 @@ describe('Socket Initial state', () => {
       'updateClientCuts',
     ] as const;
 
-    const socket = new Socket(
-      io,
-      'development',
-      hairCuts,
-      hairLengths,
-      hairPositions,
-      hairRotation,
-    );
+    const socket = new Socket(io, 'development', socketCallbacks);
 
     eventHandlerNames.forEach((handlerName) => {
       expect(socketOnMock).toBeCalledWith(handlerName, expect.any(Function));

@@ -7,7 +7,7 @@ import './styles/App.css';
 import { Hairs } from './components/Hairs';
 import { HairPositions } from './drivers/HairPositions';
 import { HairRotations } from './drivers/HairRotations';
-import { Socket } from './drivers/Socket';
+import { Socket, SocketCallbacks } from './drivers/Socket';
 import { Razor } from './components/Razor';
 import { HairCuts } from './drivers/HairCuts';
 import { HairLengths } from './drivers/HairLengths';
@@ -20,15 +20,18 @@ const hairCuts = new HairCuts(widthPoints * heightPoints);
 const razor = new Razor();
 const hairs = new Hairs(hairRotations, hairPositions, hairLengths, hairCuts);
 
+const socketCallbacks: SocketCallbacks = {
+  setPositions: hairPositions.setPositions.bind(hairPositions),
+  setRotations: hairRotations.setInitialRotations.bind(hairRotations),
+  setLengths: hairLengths.updateLengths.bind(hairLengths),
+  tickGrowth: hairLengths.grow.bind(hairLengths),
+  setRemoteCuts: hairCuts.addFromServer.bind(hairCuts),
+  sendLocalCuts: hairCuts.getClientCuts.bind(hairCuts),
+  sentLocalCuts: hairCuts.clearClientCuts.bind(hairCuts),
+};
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const socket = new Socket(
-  io,
-  process.env.NODE_ENV,
-  hairCuts,
-  hairLengths,
-  hairPositions,
-  hairRotations,
-);
+const socket = new Socket(io, process.env.NODE_ENV, socketCallbacks);
 
 const App = () => {
   return (

@@ -1,28 +1,19 @@
-import { HairLengths } from './HairLengths';
-import { HairPositions } from './HairPositions';
-import { HairRotations } from './HairRotations';
-import { HairCuts } from './HairCuts';
+export type SocketCallbacks = {
+  setPositions: (positions: [number, number][]) => void;
+  setRotations: (rotations: number[]) => void;
+  setLengths: (lengths: number[]) => void;
+  tickGrowth: (growthSpeed: number) => void;
+  setRemoteCuts: (cuts: boolean[]) => void;
+  sendLocalCuts: () => boolean[];
+  sentLocalCuts: () => void;
+};
 
 export class Socket {
   private static readonly EMIT_INTERVAL = 100;
   private socket: SocketIOClient.Socket;
-  private hairCuts: HairCuts;
-  private hairLengths: HairLengths;
-  hairPositions: HairPositions;
-  hairRotations: HairRotations;
+  private socketCallbacks: SocketCallbacks;
 
-  constructor(
-    io: SocketIOClientStatic,
-    mode: string,
-    hairCuts: HairCuts,
-    hairLengths: HairLengths,
-    hairPositions: HairPositions,
-    hairRotations: HairRotations,
-  ) {
-    this.hairCuts = hairCuts;
-    this.hairLengths = hairLengths;
-    this.hairPositions = hairPositions;
-    this.hairRotations = hairRotations;
+  constructor(io: SocketIOClientStatic, mode: string, socketCallbacks: SocketCallbacks) {
     if (this.validateMode(mode)) {
       this.socket = this.connectSocket(io, mode);
       this.attachSocketHandlers();
@@ -30,6 +21,8 @@ export class Socket {
     } else {
       throw new Error(`Mode should be either 'production' or 'development', got ${mode}`);
     }
+
+    this.socketCallbacks = socketCallbacks;
   }
 
   private validateMode(mode: string): mode is 'production' | 'development' {
@@ -44,17 +37,17 @@ export class Socket {
   private attachSocketHandlers() {
     const socketEventHandlers = {
       updateClientGrid: (serverHairPositions: [number, number][]) =>
-        this.hairPositions.setPositions(serverHairPositions),
+        this.socketCallbacks.setPositions(serverHairPositions),
 
-      updateClientGrowth: (growthSpeed: number) => this.hairLengths.grow(growthSpeed),
+      updateClientGrowth: (growthSpeed: number) => this.socketCallbacks.tickGrowth(growthSpeed),
 
       updateClientLengths: (serverHairLengths: number[]) =>
-        this.hairLengths.updateLengths(serverHairLengths),
+        this.socketCallbacks.setLengths(serverHairLengths),
 
       updateClientRotations: (serverHairRotations: number[]) =>
-        this.hairRotations.setInitialRotations(serverHairRotations),
+        this.socketCallbacks.setRotations(serverHairRotations),
 
-      updateClientCuts: (cuts: boolean[]) => this.hairCuts.addFromServer(cuts),
+      updateClientCuts: (cuts: boolean[]) => this.socketCallbacks.setRemoteCuts(cuts),
     };
 
     Object.entries(socketEventHandlers).forEach(([name, handler]) => {
@@ -64,14 +57,14 @@ export class Socket {
 
   private createSocketEmitters() {
     setInterval(() => {
-      if (this.hairCuts.hasClientCuts()) {
-        this.updateServerCuts();
-      }
+      const cuts = this.socketCallbacks.sendLocalCuts();
+      const hasCuts = cuts.some(Boolean);
+      if (hasCuts) this.updateServerCuts(cuts);
     }, Socket.EMIT_INTERVAL);
   }
 
-  private updateServerCuts() {
-    this.socket.emit('updateServerCuts', this.hairCuts.getClientCuts());
-    this.hairCuts.clearClientCuts();
+  private updateServerCuts(cuts: boolean[]) {
+    this.socket.emit('updateServerCuts', cuts);
+    this.socketCallbacks.sentLocalCuts();
   }
 }
