@@ -1,8 +1,9 @@
 class HairLengths {
-  private lengths: number[] = [];
+  private lengths: number[];
 
-  constructor(lengths: number[]) {
-    this.lengths = lengths;
+  constructor(size: number) {
+    const allZeros = [...new Array(size)].fill(0);
+    this.lengths = allZeros;
   }
 
   size() {

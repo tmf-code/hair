@@ -7,7 +7,7 @@ import { HairPositions } from '../../src/drivers/HairPositions';
 import { HairRotations } from '../../src/drivers/HairRotations';
 
 const hairCuts = new HairCuts(0);
-const hairLengths = new HairLengths([]);
+const hairLengths = new HairLengths(0);
 const hairPositions = new HairPositions();
 const hairRotations = new HairRotations(0);
 

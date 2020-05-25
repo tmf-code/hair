@@ -1,6 +1,6 @@
 import { HairLengths } from '../../src/drivers/HairLengths';
 
-const hairLengths = new HairLengths([]);
+const hairLengths = new HairLengths(0);
 describe('Hairlength Initial State', () => {
   test('Size should be zero', () => {
     expect(hairLengths.size()).toEqual(0);
