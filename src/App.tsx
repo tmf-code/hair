@@ -4,6 +4,8 @@ import { Canvas } from 'react-three-fiber';
 import io from 'socket.io-client';
 
 import './styles/App.css';
+import { Players } from './drivers/players';
+import { Players as PlayersRenderable } from './components/players';
 import { Hairs as HairRenderable } from './components/hairs';
 import { HairPositions } from './drivers/hairs/hair-positions';
 import { HairRotations } from './drivers/hairs/hair-rotations';
@@ -28,14 +30,18 @@ const hairs = new Hairs(
   hairCuts,
 );
 
+const players = new Players();
+
 const socketCallbacks: SocketCallbacks = {
   setPositions: hairPositions.setPositions.bind(hairPositions),
   setRotations: hairRotations.setInitialRotations.bind(hairRotations),
+  setPlayers: players.updatePlayers.bind(players),
   setLengths: hairLengths.updateLengths.bind(hairLengths),
   tickGrowth: hairLengths.grow.bind(hairLengths),
   setRemoteCuts: hairCuts.addFromServer.bind(hairCuts),
   sendLocalCuts: hairCuts.getClientCuts.bind(hairCuts),
   sentLocalCuts: hairCuts.clearClientCuts.bind(hairCuts),
+  sendLocation: razor.getLocation.bind(razor),
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -44,6 +50,7 @@ const socket = new Socket(io, process.env.NODE_ENV, socketCallbacks);
 const App = () => {
   return (
     <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
+      <PlayersRenderable players={players} numPlayers={Object.keys(players.players).length} />
       <RazorRenderable updateFrame={razor.updateFrame.bind(razor)} />
       <HairRenderable
         instanceCount={hairs.instanceCount()}

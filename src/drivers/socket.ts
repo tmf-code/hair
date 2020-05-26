@@ -1,17 +1,22 @@
 export type SocketCallbacks = {
   setPositions: (positions: [number, number][]) => void;
   setRotations: (rotations: number[]) => void;
+  setPlayers: (
+    playerData: Record<number, { rotation: number; position: [number, number] }>,
+  ) => void;
   setLengths: (lengths: number[]) => void;
   tickGrowth: (growthSpeed: number) => void;
   setRemoteCuts: (cuts: boolean[]) => void;
   sendLocalCuts: () => boolean[];
   sentLocalCuts: () => void;
+  sendLocation: () => { rotation: number; position: [number, number] };
 };
 
 export class Socket {
   private static readonly EMIT_INTERVAL = 100;
   private socket: SocketIOClient.Socket;
   private socketCallbacks: SocketCallbacks;
+  private clientID = '';
 
   constructor(io: SocketIOClientStatic, mode: string, socketCallbacks: SocketCallbacks) {
     if (this.validateMode(mode)) {
@@ -31,7 +36,7 @@ export class Socket {
   }
 
   private connectSocket(io: SocketIOClientStatic, mode: 'production' | 'development') {
-    return mode === 'production' ? io() : io('http://localhost:3001');
+    return mode === 'production' ? io() : io('http://192.168.178.41:3001');
   }
 
   private attachSocketHandlers() {
@@ -48,10 +53,25 @@ export class Socket {
         this.socketCallbacks.setRotations(serverHairRotations),
 
       updateClientCuts: (cuts: boolean[]) => this.socketCallbacks.setRemoteCuts(cuts),
+
+      updateClientPlayerLocations: (
+        playerData: Record<string, { rotation: number; position: [number, number] }>,
+      ) => {
+        if (playerData !== null) {
+          if (playerData[this.clientID] !== undefined) {
+            delete playerData[this.clientID];
+          }
+          this.socketCallbacks.setPlayers(playerData);
+        }
+      },
     };
 
     Object.entries(socketEventHandlers).forEach(([name, handler]) => {
       this.socket.on(name, handler);
+    });
+
+    this.socket.on('connect', () => {
+      this.clientID = this.socket.id;
     });
   }
 
@@ -60,11 +80,18 @@ export class Socket {
       const cuts = this.socketCallbacks.sendLocalCuts();
       const hasCuts = cuts.some(Boolean);
       if (hasCuts) this.updateServerCuts(cuts);
+
+      const location = this.socketCallbacks.sendLocation();
+      this.updatePlayerLocation(location);
     }, Socket.EMIT_INTERVAL);
   }
 
   private updateServerCuts(cuts: boolean[]) {
     this.socket.emit('updateServerCuts', cuts);
     this.socketCallbacks.sentLocalCuts();
+  }
+
+  private updatePlayerLocation(location: { rotation: number; position: [number, number] }) {
+    this.socket.emit('updatePlayerLocation', location);
   }
 }

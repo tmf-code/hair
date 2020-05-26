@@ -28,6 +28,14 @@ export const getWorldLimits = (camera: Camera | undefined) => {
   };
 };
 
+export const relativeToWorld = (position: [number, number], camera: Camera) => {
+  const vec = new Vector3(...position, 0);
+  vec.unproject(camera);
+  vec.sub(camera.position).normalize();
+  const distance = -camera.position.z / vec.z;
+  return new Vector3().copy(camera.position).add(vec.multiplyScalar(distance));
+};
+
 export const mouseToWorld = (mouse: Vector2, camera: Camera) => {
   const vec = new Vector3(mouse.x, mouse.y, 0);
   vec.unproject(camera);

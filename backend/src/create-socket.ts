@@ -6,6 +6,7 @@ const createSocket = (server: import('http').Server) => {
   // eslint-disable-next-line prefer-const
   let { grid, lengths, rotations } = createGrid();
   let cuts = grid.map(() => false);
+  const playerLocations: Record<string, { position: [number, number]; rotation: number }> = {};
   const io = SocketIO(server);
 
   io.on('connection', (socket) => {
@@ -18,6 +19,15 @@ const createSocket = (server: import('http').Server) => {
       }
       cuts = cuts.map((currentCut, cutIndex) => currentCut || incomingCuts[cutIndex]);
       lengths = lengths.map((length, lengthIndex) => (incomingCuts[lengthIndex] ? 0 : length));
+    });
+    socket.on(
+      'updatePlayerLocation',
+      ({ rotation, position }: { rotation: number; position: [number, number] }) => {
+        playerLocations[socket.id] = { rotation, position };
+      },
+    );
+    socket.on('disconnect', () => {
+      delete playerLocations[socket.id];
     });
   });
 
@@ -33,6 +43,11 @@ const createSocket = (server: import('http').Server) => {
   setInterval(() => {
     lengths = lengths.map((length) => Math.min(length + growthSpeed, 1));
     io.emit('updateClientGrowth', growthSpeed);
+  }, SERVER_EMIT_INTERVAL);
+
+  // Locations
+  setInterval(() => {
+    io.emit('updateClientPlayerLocations', playerLocations);
   }, SERVER_EMIT_INTERVAL);
 
   return io;

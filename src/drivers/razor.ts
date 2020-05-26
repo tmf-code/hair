@@ -10,6 +10,7 @@ export class Razor {
   private razorTriangles: [Triangle, Triangle] = [new Triangle(), new Triangle()];
   private aspect = 1.0;
   private rotation = 0;
+  private position = new Vector2(0, 0);
 
   public updateFrame(
     ref: React.MutableRefObject<Mesh | undefined>,
@@ -20,9 +21,12 @@ export class Razor {
     this.ref = ref;
     this.aspect = aspect;
     if (this.shouldUpdate()) {
+      this.position = mouse.clone();
       const mousePos = mouseToWorld(mouse, camera);
       this.updateRazorTriangles(mousePos);
       this.updateRazorTransform(mousePos);
+    } else {
+      this.position = new Vector2(-100, -100);
     }
   }
 
@@ -34,6 +38,13 @@ export class Razor {
 
   shouldUpdate(): boolean {
     return Mouse.isClicked();
+  }
+
+  getLocation(): { rotation: number; position: [number, number] } {
+    return {
+      rotation: this.rotation,
+      position: this.position.toArray() as [number, number],
+    };
   }
 
   private updateRazorTriangles(mousePos: Vector3) {
