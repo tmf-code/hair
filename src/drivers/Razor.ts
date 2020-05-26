@@ -19,6 +19,8 @@ export class Razor {
   ) {
     this.ref = ref;
     this.aspect = aspect;
+    if (this.shouldUpdate()) {
+    }
     const mousePos = mouseToWorld(mouse, camera);
     this.updateRazorTriangles(mousePos);
     this.updateRazorTransform(mousePos);
@@ -28,6 +30,10 @@ export class Razor {
     return this.razorTriangles.some((triangle) =>
       triangle.containsPoint(new Vector3(xPos, yPos, 0)),
     );
+  }
+
+  shouldUpdate(): boolean {
+    return Mouse.isClicked();
   }
 
   private updateRazorTriangles(mousePos: Vector3) {
