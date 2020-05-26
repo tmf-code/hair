@@ -27,7 +27,7 @@
     "watch:server-ts": "cd ./backend && cross-env NODE_ENV=development PWD=./ tsc -w",
     "server": "concurrently \"npm:watch:server-js\" \"npm:watch:server-ts\"",
     "start:dev": "concurrently \"npm:server\" \"npm:frontend\"",
-    "start": "cross-env NODE_ENV=production PWD=./ node ./backend/dist/app.js",
+    "start": "NODE_ENV=production node ./backend/dist/app.js",
     "frontend": "react-scripts start",
     "build:frontend": "react-scripts build",
     "build:server": "cd ./backend && tsc",
