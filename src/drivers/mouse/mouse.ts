@@ -1,15 +1,28 @@
+import {
+  mouseVelocitySampleInterval,
+  mouseDirectionSampleInterval,
+  mouseDirectionSmoothing,
+} from './../../utilities/constants';
+
 import { MouseVelocity } from './mouse-velocity';
 import { MouseClickState } from './mouse-click-state';
 import { MousePosition } from './mouse-position';
+import { MouseDirection } from './mouse-direction';
 
 export class Mouse {
-  static readonly VELOCITY_SAMPLE_INTERVAL = 50;
   static instance = new Mouse();
 
   private position: MousePosition = new MousePosition();
   private clickState: MouseClickState = new MouseClickState();
   private velocity: MouseVelocity = new MouseVelocity(
+    mouseVelocitySampleInterval,
     this.position.getPosition.bind(this.position),
+  );
+
+  private direction: MouseDirection = new MouseDirection(
+    mouseDirectionSampleInterval,
+    this.velocity.getVelocity.bind(this.velocity),
+    mouseDirectionSmoothing,
   );
 
   static getPosition() {
@@ -24,8 +37,8 @@ export class Mouse {
     return this.instance.velocity.getVelocity();
   }
 
-  static getVelocityAngle() {
-    return this.instance.velocity.getVelocityAngle();
+  static getDirection() {
+    return this.instance.direction.getDirection();
   }
 
   static reset() {

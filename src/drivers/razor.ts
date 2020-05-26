@@ -63,7 +63,7 @@ export class Razor {
   }
 
   private updateRazorTransform(mousePos: Vector3) {
-    this.rotation = Mouse.getVelocityAngle();
+    this.rotation = Mouse.getDirection();
 
     if (this.ref?.current) {
       const cursorOnTipOffset = -(2.1 / 2) * 0.5;
