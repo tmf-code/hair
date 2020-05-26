@@ -4,7 +4,7 @@ import React, { useMemo, useRef } from 'react';
 import { InstancedMesh, MeshBasicMaterial, Color, Camera, Vector2 } from 'three';
 
 import { hairColor } from '../utilities/constants';
-import { Viewport } from '../types/Viewport';
+import { Viewport } from '../types/viewport';
 
 type HairsProps = {
   viewportChange: (viewport: Viewport) => void;
