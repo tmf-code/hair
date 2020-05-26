@@ -58,6 +58,22 @@ export const mapOnZipped = <T, U>(
   return result;
 };
 
+export const lerpTheta = (
+  current: number,
+  target: number,
+  interpolation: number,
+  circleAt: number,
+) => {
+  const removeLoops = (distance: number) =>
+    clamp(distance - Math.floor(distance / circleAt) * circleAt, 0, circleAt);
+
+  const distance = target - current;
+  const unloopedDistance = removeLoops(distance);
+  const isLeft = unloopedDistance > Math.PI;
+  const offset = isLeft ? unloopedDistance - Math.PI * 2 : unloopedDistance;
+  return lerp(current, current + offset, interpolation);
+};
+
 export const clamp = (value: number, min: number, max: number) =>
   Math.min(Math.max(min, value), max);
 

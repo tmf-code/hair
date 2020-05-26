@@ -8,7 +8,7 @@ import { HairCuts } from './hair-cuts';
 import { FallingHairs } from './falling-hairs';
 import { HairPositions } from './hair-positions';
 import { HairRotations } from './hair-rotations';
-import { Viewport } from '../../types/Viewport';
+import { Viewport } from '../../types/viewport';
 
 class Hairs {
   private readonly noCuts: false[];

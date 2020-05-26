@@ -26,7 +26,7 @@ export class MouseClickState {
     return this.isClicked;
   }
 
-  Reset() {
+  reset() {
     this.clearEventListeners();
   }
 
