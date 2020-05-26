@@ -38,7 +38,7 @@ class HairRotations {
   private noSwirl = (hairIndex: number) => this.rotationOffsets[hairIndex];
 
   calculateSwirls = (positions: number[][], mousePos: Vector3) => {
-    const mouseVelocity = new Vector2().fromArray(Mouse.Velocity());
+    const mouseVelocity = new Vector2().fromArray(Mouse.getVelocity());
     const isMousePerformingSwirl = !Mouse.isClicked() && mouseVelocity.length() > 0.001;
 
     const newRotationOffsets = positions.map(([xPos, yPos], hairIndex) => {

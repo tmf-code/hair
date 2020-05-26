@@ -12,11 +12,11 @@ export class MouseVelocity {
     );
   }
 
-  public Velocity() {
+  public getVelocity() {
     return this.sampledVelocity.getVelocity();
   }
 
-  public VelocityAngle() {
+  public getVelocityAngle() {
     return Math.atan2(...this.sampledVelocity.getVelocity());
   }
 }

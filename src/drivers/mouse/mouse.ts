@@ -8,25 +8,27 @@ export class Mouse {
 
   private position: MousePosition = new MousePosition();
   private clickState: MouseClickState = new MouseClickState();
-  private velocity: MouseVelocity = new MouseVelocity(this.position.Position.bind(this.position));
+  private velocity: MouseVelocity = new MouseVelocity(
+    this.position.getPosition.bind(this.position),
+  );
 
-  static Position() {
-    return this.instance.position.Position();
+  static getPosition() {
+    return this.instance.position.getPosition();
   }
 
   static isClicked() {
     return this.instance.clickState.getIsClicked();
   }
 
-  static Velocity() {
-    return this.instance.velocity.Velocity();
+  static getVelocity() {
+    return this.instance.velocity.getVelocity();
   }
 
-  static VelocityAngle() {
-    return this.instance.velocity.VelocityAngle();
+  static getVelocityAngle() {
+    return this.instance.velocity.getVelocityAngle();
   }
 
-  static Reset() {
+  static reset() {
     this.instance = new Mouse();
   }
 }

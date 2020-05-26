@@ -17,10 +17,10 @@ export class MousePosition {
   };
 
   private handleMove(event: TouchEvent | MouseEvent) {
-    this.position = this.getPosition(event);
+    this.position = this.getPositionFromEvent(event);
   }
 
-  private getPosition(event: TouchEvent | MouseEvent): [number, number] {
+  private getPositionFromEvent(event: TouchEvent | MouseEvent): [number, number] {
     if (this.isTouchEvent(event)) return [event.touches[0].clientX, event.touches[0].clientY];
 
     return [event.clientX, event.clientY];
@@ -29,11 +29,11 @@ export class MousePosition {
   private isTouchEvent = (event: TouchEvent | MouseEvent): event is TouchEvent =>
     (event as TouchEvent).touches !== undefined;
 
-  Position() {
+  getPosition() {
     return this.position;
   }
 
-  Reset() {
+  reset() {
     this.clearEventListeners();
   }
 
