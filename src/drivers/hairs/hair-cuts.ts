@@ -1,4 +1,4 @@
-import { mapOnZipped } from './../utilities/utilities';
+import { mapOnZipped } from '../../utilities/utilities';
 class HairCuts {
   private readonly noCuts: boolean[];
   private clientCuts: boolean[];

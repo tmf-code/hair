@@ -1,5 +1,5 @@
-import { MouseVelocity } from './../../src/drivers/MouseVelocity';
-import { MockTouchEvent } from './MockTouchEvent';
+import { MouseVelocity } from '../src/drivers/MouseVelocity';
+import { MockTouchEvent } from '../tests/frontend/MockTouchEvent';
 import { Vector2 } from 'three';
 
 describe('Initial MouseVelocity State', () => {

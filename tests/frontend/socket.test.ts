@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable import/first */
-import { Socket, SocketCallbacks } from '../../src/drivers/Socket';
-import { HairLengths } from '../../src/drivers/HairLengths';
-import { HairCuts } from '../../src/drivers/HairCuts';
-import { HairPositions } from '../../src/drivers/HairPositions';
-import { HairRotations } from '../../src/drivers/HairRotations';
+import { Socket, SocketCallbacks } from '../../src/drivers/socket';
+import { HairLengths } from '../../src/drivers/hairs/hair-lengths';
+import { HairCuts } from '../../src/drivers/hairs/hair-cuts';
+import { HairPositions } from '../../src/drivers/hairs/hair-positions';
+import { HairRotations } from '../../src/drivers/hairs/hair-rotations';
 
 const hairCuts = new HairCuts(0);
 const hairLengths = new HairLengths(0);

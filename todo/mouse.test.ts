@@ -1,6 +1,6 @@
-import { MockTouchEvent } from './MockTouchEvent';
+import { MockTouchEvent } from '../tests/frontend/mock-touch-event';
 import { Vector2 } from 'three';
-import { Mouse } from '../../src/drivers/Mouse';
+import { Mouse } from '../src/drivers/mouse/mouse';
 
 describe('Initial Mouse State', () => {
   beforeAll(() => {

@@ -1,4 +1,4 @@
-import { EasingFunctions } from '../utilities/easing-functions';
+import { EasingFunctions } from '../../utilities/easing-functions';
 
 export interface IfallingHair {
   type: 'empty' | 'useful';

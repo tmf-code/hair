@@ -1,8 +1,8 @@
 import { InstancedMesh, Object3D } from 'three';
-import { Buckets } from '../utilities/buckets';
-import { FIFO } from '../utilities/fifo';
-import { animationDuration } from '../utilities/constants';
-import { FallingHair, IfallingHair } from './FallingHair';
+import { Buckets } from '../../utilities/buckets';
+import { FIFO } from '../../utilities/fifo';
+import { animationDuration } from '../../utilities/constants';
+import { FallingHair, IfallingHair } from './falling-hair';
 
 class FallingHairs {
   private static readonly emptyCutHair: IfallingHair = {

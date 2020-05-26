@@ -1,4 +1,4 @@
-import { lerp } from '../utilities/utilities';
+import { lerp } from '../../utilities/utilities';
 
 class HairPositions {
   private positions: [number, number][];

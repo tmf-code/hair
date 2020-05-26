@@ -1,4 +1,4 @@
-import { SampledVelocity } from '../../src/drivers/SampledVelocity';
+import { SampledVelocity } from '../src/utilities/sampled-velocity';
 
 jest.useFakeTimers();
 const sampleInterval = 1;

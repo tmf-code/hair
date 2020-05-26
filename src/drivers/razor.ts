@@ -1,10 +1,9 @@
-import { Mouse } from './Mouse';
 import { Vector3, Mesh, Vector2, Camera, Triangle, Matrix4 } from 'three';
 import React from 'react';
 
 import { razorWidth, razorHeight } from '../utilities/constants';
 import { mouseToWorld } from '../utilities/utilities';
-import { MouseVelocity } from './MouseVelocity';
+import { Mouse } from './mouse/mouse';
 
 export class Razor {
   private ref: React.MutableRefObject<Mesh | undefined> | undefined;
@@ -64,7 +63,7 @@ export class Razor {
   }
 
   private updateRazorTransform(mousePos: Vector3) {
-    this.rotation = MouseVelocity.VelocityAngle();
+    this.rotation = Mouse.VelocityAngle();
 
     if (this.ref?.current) {
       const cursorOnTipOffset = -(2.1 / 2) * 0.5;

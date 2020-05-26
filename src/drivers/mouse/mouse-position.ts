@@ -1,19 +1,12 @@
-import { SampledVelocity } from './SampledVelocity';
 import { Vector2 } from 'three';
 
-export class MouseVelocity {
-  static readonly VELOCITY_SAMPLE_INTERVAL = 50;
-  static instance = new MouseVelocity();
-
+export class MousePosition {
   private position: [number, number];
+  private positionVector: Vector2;
 
-  private static sampledVelocity: SampledVelocity = new SampledVelocity(
-    MouseVelocity.VELOCITY_SAMPLE_INTERVAL,
-    MouseVelocity.Position.bind(MouseVelocity),
-  );
-
-  private constructor() {
+  constructor() {
     this.position = [0, 0];
+    this.positionVector = new Vector2().set(this.position[0], this.position[1]);
     this.addEventListeners();
   }
 
@@ -29,6 +22,7 @@ export class MouseVelocity {
 
   private handleMove(event: TouchEvent | MouseEvent) {
     this.position = this.getPosition(event);
+    this.positionVector = new Vector2().fromArray(this.position);
   }
 
   private getPosition(event: TouchEvent | MouseEvent): [number, number] {
@@ -40,23 +34,16 @@ export class MouseVelocity {
   private isTouchEvent = (event: TouchEvent | MouseEvent): event is TouchEvent =>
     (event as TouchEvent).touches !== undefined;
 
-  private static Position() {
-    return this.instance.position;
+  Position() {
+    return this.position;
   }
 
-  static VelocityVector() {
-    return new Vector2()
-      .fromArray(this.sampledVelocity.getVelocity())
-      .divideScalar(window.innerWidth);
+  PositionVector() {
+    return this.positionVector.clone();
   }
 
-  static VelocityAngle() {
-    return Math.atan2(...this.sampledVelocity.getVelocity());
-  }
-
-  static Reset() {
-    this.instance.clearEventListeners();
-    this.instance = new MouseVelocity();
+  Reset() {
+    this.clearEventListeners();
   }
 
   private clearEventListeners() {

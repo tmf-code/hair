@@ -4,16 +4,16 @@ import { Canvas } from 'react-three-fiber';
 import io from 'socket.io-client';
 
 import './styles/App.css';
-import { Hairs as HairRenderable } from './components/Hairs';
-import { HairPositions } from './drivers/HairPositions';
-import { HairRotations } from './drivers/HairRotations';
-import { Socket, SocketCallbacks } from './drivers/Socket';
-import { Razor as RazorRenderable } from './components/Razor';
-import { Razor } from './drivers/Razor';
-import { HairCuts } from './drivers/HairCuts';
-import { HairLengths } from './drivers/HairLengths';
+import { Hairs as HairRenderable } from './components/hairs';
+import { HairPositions } from './drivers/hairs/hair-positions';
+import { HairRotations } from './drivers/hairs/hair-rotations';
+import { Socket, SocketCallbacks } from './drivers/socket';
+import { Razor as RazorRenderable } from './components/razor';
+import { Razor } from './drivers/razor';
+import { HairCuts } from './drivers/hairs/hair-cuts';
+import { HairLengths } from './drivers/hairs/hair-lengths';
 import { widthPoints, heightPoints } from './utilities/constants';
-import { Hairs } from './drivers/Hairs';
+import { Hairs } from './drivers/hairs/hairs';
 
 const hairRotations = new HairRotations(widthPoints * heightPoints);
 const hairPositions = new HairPositions(widthPoints * heightPoints);

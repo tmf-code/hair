@@ -1,14 +1,14 @@
 import { Object3D, InstancedMesh, Camera, Vector2 } from 'three';
-import { mouseToWorld } from '../utilities/utilities';
-import { maxFallingHair, widthPoints, heightPoints } from '../utilities/constants';
-import { Mouse } from '../drivers/Mouse';
+import { mouseToWorld } from '../../utilities/utilities';
+import { maxFallingHair, widthPoints, heightPoints } from '../../utilities/constants';
+import { Mouse } from '../mouse/mouse';
 
-import { HairLengths } from '../drivers/HairLengths';
-import { HairCuts } from '../drivers/HairCuts';
-import { FallingHairs } from './FallingHairs';
-import { HairPositions } from '../drivers/HairPositions';
-import { HairRotations } from '../drivers/HairRotations';
-import { Viewport } from '../types/Viewport';
+import { HairLengths } from './hair-lengths';
+import { HairCuts } from './hair-cuts';
+import { FallingHairs } from './falling-hairs';
+import { HairPositions } from './hair-positions';
+import { HairRotations } from './hair-rotations';
+import { Viewport } from '../../types/Viewport';
 
 class Hairs {
   private readonly noCuts: false[];

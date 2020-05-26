@@ -1,4 +1,4 @@
-import { HairPositions } from '../../src/drivers/HairPositions';
+import { HairPositions } from '../../src/drivers/hairs/hair-positions';
 
 const hairPositions = new HairPositions(0);
 

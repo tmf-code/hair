@@ -1,4 +1,4 @@
-import { HairLengths } from '../../src/drivers/HairLengths';
+import { HairLengths } from '../../src/drivers/hairs/hair-lengths';
 
 const hairLengths = new HairLengths(0);
 describe('Hairlength Initial State', () => {

@@ -1,4 +1,4 @@
-import { HairRotations } from '../../src/drivers/HairRotations';
+import { HairRotations } from '../../src/drivers/hairs/hair-rotations';
 
 describe('HairRotations initial state', () => {
   test('Initial rotations are empty', () => {

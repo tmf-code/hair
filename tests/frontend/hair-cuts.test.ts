@@ -1,4 +1,4 @@
-import { HairCuts } from '../../src/drivers/HairCuts';
+import { HairCuts } from '../../src/drivers/hairs/hair-cuts';
 
 const cutLength = 3;
 const allFalse = [...new Array(cutLength)].fill(false);
