@@ -18,16 +18,8 @@ export class Mouse {
     return this.instance.clickState.getIsClicked();
   }
 
-  static PositionVector() {
-    return this.instance.position.PositionVector();
-  }
-
   static Velocity() {
     return this.instance.velocity.Velocity();
-  }
-
-  static VelocityVector() {
-    return this.instance.velocity.VelocityVector();
   }
 
   static VelocityAngle() {

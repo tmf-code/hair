@@ -1,5 +1,4 @@
 import { SampledVelocity } from '../../utilities/sampled-velocity';
-import { Vector2 } from 'three';
 
 export class MouseVelocity {
   static readonly VELOCITY_SAMPLE_INTERVAL = 50;
@@ -14,13 +13,7 @@ export class MouseVelocity {
   }
 
   public Velocity() {
-    this.sampledVelocity.getVelocity();
-  }
-
-  public VelocityVector() {
-    return new Vector2()
-      .fromArray(this.sampledVelocity.getVelocity())
-      .divideScalar(window.innerWidth);
+    return this.sampledVelocity.getVelocity();
   }
 
   public VelocityAngle() {

@@ -1,12 +1,8 @@
-import { Vector2 } from 'three';
-
 export class MousePosition {
   private position: [number, number];
-  private positionVector: Vector2;
 
   constructor() {
     this.position = [0, 0];
-    this.positionVector = new Vector2().set(this.position[0], this.position[1]);
     this.addEventListeners();
   }
 
@@ -22,7 +18,6 @@ export class MousePosition {
 
   private handleMove(event: TouchEvent | MouseEvent) {
     this.position = this.getPosition(event);
-    this.positionVector = new Vector2().fromArray(this.position);
   }
 
   private getPosition(event: TouchEvent | MouseEvent): [number, number] {
@@ -36,10 +31,6 @@ export class MousePosition {
 
   Position() {
     return this.position;
-  }
-
-  PositionVector() {
-    return this.positionVector.clone();
   }
 
   Reset() {
