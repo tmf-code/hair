@@ -56,7 +56,7 @@ class Hairs {
     this.fallingHair.setRef(ref);
     this.updateLengths();
     this.updateStaticHairs();
-    this.updateCutHairs(this.razorContainsPoint);
+    this.updateCutHairs();
     this.updateSwirls(mouse, camera);
   }
 
@@ -86,8 +86,8 @@ class Hairs {
     });
   };
 
-  private updateCutHairs(razorContainsPoint: (mousePosition: [number, number]) => boolean) {
-    const cuts = this.calculateCuts(razorContainsPoint);
+  private updateCutHairs() {
+    const cuts = this.calculateCuts();
 
     this.fallingHair.update(
       this.hairLengths.getLengths(),
@@ -115,11 +115,11 @@ class Hairs {
 
   public instanceCount = () => this.hairPositions.getPositions().length + maxFallingHair;
 
-  private calculateCuts = (razorContainsPoint: (arg0: [number, number]) => boolean) => {
+  private calculateCuts = () => {
     if (!Mouse.isClicked()) return this.noCuts;
 
     const positions = this.hairPositions.getScreenPositions();
-    return positions.map(razorContainsPoint);
+    return positions.map(this.razorContainsPoint);
   };
 }
 
