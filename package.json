@@ -23,11 +23,11 @@
     "uuid": "^8.0.0"
   },
   "scripts": {
-    "watch:server-js": "cd ./backend && NODE_ENV=development nodemon ./dist/app.js",
-    "watch:server-ts": "cd ./backend && NODE_ENV=development tsc -w",
+    "watch:server-js": "cross-env NODE_ENV=development PWD=./ nodemon ./backend/dist/app.js",
+    "watch:server-ts": "cd ./backend && cross-env NODE_ENV=development PWD=./ tsc -w",
     "server": "concurrently \"npm:watch:server-js\" \"npm:watch:server-ts\"",
     "start:dev": "concurrently \"npm:server\" \"npm:frontend\"",
-    "start": "NODE_ENV=production node ./backend/dist/app.js",
+    "start": "cross-env NODE_ENV=production PWD=./ node ./backend/dist/app.js",
     "frontend": "react-scripts start",
     "build:frontend": "react-scripts build",
     "build:server": "cd ./backend && tsc",
@@ -35,7 +35,7 @@
     "eslint": "eslint \"./src/**/*.{js,jsx,ts,tsx}\"",
     "lint": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "load-test": "artillery run tests/load-tests/load-test.yml",
-    "test": "jest --watch --no-cache"
+    "test": "cross-env PWD=./ jest --watch --no-cache"
   },
   "husky": {
     "hooks": {
@@ -74,6 +74,7 @@
     "@typescript-eslint/parser": "^2.34.0",
     "artillery": "^1.6.0",
     "concurrently": "^5.2.0",
+    "cross-env": "^7.0.2",
     "nodemon": "^2.0.4",
     "supertest": "^4.0.2",
     "ts-jest": "^26.0.0"
