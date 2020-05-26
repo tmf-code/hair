@@ -1,67 +1,17 @@
 import { Vector2 } from 'three';
 import { SmoothlyCircularAverage } from '../utilities/SmoothlyCircularAverage';
-type MouseListener = (position: [number, number]) => void;
 
 export class Mouse {
+  private static readonly ZERO_VELOCITY = new Vector2(0, 0);
   static instance = new Mouse();
 
-  public listeners: Map<string, MouseListener> = new Map();
-  public position: [number, number];
-  public isClicked = false;
+  private readonly smoothedAngle = new SmoothlyCircularAverage(100, 0);
+  private isClicked = false;
   private isMoving = false;
+  private position: [number, number];
   private velocityVector: Vector2;
   private positionVector: Vector2;
   private timeout: number | undefined;
-
-  private smoothedAngle = new SmoothlyCircularAverage(50, 0);
-
-  private eventHandlers = {
-    mousemove: (event: MouseEvent) => {
-      const prevPosition = this.positionVector.clone();
-      this.position = [event.clientX, event.clientY];
-
-      this.positionVector = new Vector2().set(this.position[0], this.position[1]);
-
-      this.velocityVector = this.positionVector.clone().sub(prevPosition);
-
-      this.smoothedAngle.addSample(Math.atan2(this.velocityVector.x, this.velocityVector.y));
-
-      this.timeout && clearTimeout(this.timeout);
-      this.timeout = window.setTimeout(() => (this.isMoving = false), 20);
-      this.isMoving = true;
-    },
-
-    mousedown: () => {
-      this.isClicked = true;
-    },
-
-    mouseup: () => {
-      this.isClicked = false;
-    },
-
-    touchstart: () => {
-      this.isClicked = true;
-    },
-
-    touchend: () => {
-      this.isClicked = false;
-    },
-
-    touchmove: (event: TouchEvent) => {
-      const prevPosition = this.positionVector.clone();
-
-      this.position = [event.touches[0].clientX, event.touches[0].clientY];
-      this.positionVector = new Vector2().set(this.position[0], this.position[1]);
-
-      this.velocityVector = this.positionVector.clone().sub(prevPosition);
-
-      this.smoothedAngle.addSample(Math.atan2(this.velocityVector.y, this.velocityVector.x));
-
-      this.timeout && clearTimeout(this.timeout);
-      this.timeout = window.setTimeout(() => (this.isMoving = false), 20);
-      this.isMoving = true;
-    },
-  };
 
   private constructor() {
     this.position = [0, 0];
@@ -80,6 +30,65 @@ export class Mouse {
     document.addEventListener('touchmove', this.eventHandlers['touchmove']);
   }
 
+  private eventHandlers = {
+    mousemove: (event: MouseEvent) => this.handleMove(event),
+    touchmove: (event: TouchEvent) => this.handleMove(event),
+    mousedown: () => this.handleDragStart(),
+    touchstart: () => this.handleDragStart(),
+    mouseup: () => this.handleDragEnd(),
+    touchend: () => this.handleDragEnd(),
+  };
+
+  private handleMove(event: TouchEvent | MouseEvent) {
+    const prevPosition = this.positionVector.clone();
+    this.position = this.getPosition(event);
+    this.positionVector = new Vector2().fromArray(this.position);
+    this.velocityVector = this.positionVector.clone().sub(prevPosition);
+    this.smoothedAngle.addSample(Math.atan2(this.velocityVector.x, this.velocityVector.y));
+    this.timeout && clearTimeout(this.timeout);
+    this.timeout = window.setTimeout(() => (this.isMoving = false), 20);
+    this.isMoving = true;
+  }
+
+  private getPosition(event: TouchEvent | MouseEvent): [number, number] {
+    if (this.isTouchEvent(event)) return [event.touches[0].clientX, event.touches[0].clientY];
+
+    return [event.clientX, event.clientY];
+  }
+
+  private isTouchEvent = (event: TouchEvent | MouseEvent): event is TouchEvent =>
+    (event as TouchEvent).touches !== undefined;
+
+  private handleDragStart = () => (this.isClicked = true);
+  private handleDragEnd = () => (this.isClicked = false);
+
+  static Position() {
+    return this.instance.position;
+  }
+
+  static isClicked() {
+    return this.instance.isClicked;
+  }
+
+  static PositionVector() {
+    return this.instance.positionVector.clone();
+  }
+
+  static VelocityVector() {
+    if (!this.instance.isMoving) return this.ZERO_VELOCITY;
+
+    return this.instance.velocityVector.clone().divideScalar(window.innerWidth);
+  }
+
+  static SmoothedAngle() {
+    return this.instance.smoothedAngle.getSmoothed();
+  }
+
+  static Reset() {
+    this.instance.clearEventListeners();
+    this.instance = new Mouse();
+  }
+
   private clearEventListeners() {
     document.removeEventListener('mousemove', this.eventHandlers['mousemove']);
     document.removeEventListener('mousedown', this.eventHandlers['mousedown']);
@@ -87,34 +96,5 @@ export class Mouse {
     document.removeEventListener('touchstart', this.eventHandlers['touchstart']);
     document.removeEventListener('touchend', this.eventHandlers['touchend']);
     document.removeEventListener('touchmove', this.eventHandlers['touchmove']);
-  }
-
-  static Position(): [number, number] {
-    return this.instance.position;
-  }
-
-  static isClicked(): boolean {
-    return this.instance.isClicked;
-  }
-
-  static PositionVector(): Vector2 {
-    return this.instance.positionVector.clone();
-  }
-
-  static VelocityVector(): Vector2 {
-    if (!this.instance.isMoving) {
-      return new Vector2(0, 0);
-    }
-
-    return this.instance.velocityVector.clone().divideScalar(window.innerWidth);
-  }
-
-  static SmoothedAngle(): number {
-    return this.instance.smoothedAngle.getSmoothed();
-  }
-
-  static Reset(): void {
-    this.instance.clearEventListeners();
-    this.instance = new Mouse();
   }
 }
