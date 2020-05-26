@@ -32,7 +32,7 @@ export class SampledVelocity {
     this.velocity = [distance[0] / this.sampleInterval, distance[1] / this.sampleInterval];
   }
 
-  getVelocity = () => [...this.velocity];
+  getVelocity = () => [...this.velocity] as [number, number];
   clear = () => this.removeInterval();
 
   private removeInterval() {

@@ -1,3 +1,4 @@
+import { MouseVelocity } from './MouseVelocity';
 import { Vector3 } from 'three';
 import { Mouse } from './Mouse';
 import { swirlRadius } from '../utilities/constants';
@@ -38,7 +39,8 @@ class HairRotations {
   private noSwirl = (hairIndex: number) => this.rotationOffsets[hairIndex];
 
   calculateSwirls = (positions: number[][], mousePos: Vector3) => {
-    const isMousePerformingSwirl = !Mouse.isClicked() && Mouse.VelocityVector().length() > 0.001;
+    const isMousePerformingSwirl =
+      !Mouse.isClicked() && MouseVelocity.VelocityVector().length() > 0.001;
 
     const newRotationOffsets = positions.map(([xPos, yPos], hairIndex) => {
       if (!isMousePerformingSwirl) return this.noSwirl(hairIndex);
@@ -48,7 +50,7 @@ class HairRotations {
 
       if (!isHovering) return this.noSwirl(hairIndex);
 
-      const directionVector = Mouse.VelocityVector().normalize();
+      const directionVector = MouseVelocity.VelocityVector().normalize();
       const swirlAmount = directionVector.multiplyScalar(1 - distance / swirlRadius);
 
       const rotationDifference =
