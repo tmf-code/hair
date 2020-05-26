@@ -66,7 +66,7 @@ export class Razor {
     this.rotation = Mouse.SmoothedAngle();
 
     if (this.ref?.current) {
-      const cursorOnTipOffset = -(2.1 / 2) * 0.9 * this.aspect;
+      const cursorOnTipOffset = -(2.1 / 2) * 0.5;
       this.ref.current.matrixAutoUpdate = false;
       this.ref.current.matrix.identity();
       const mat4: Matrix4 = new Matrix4();
