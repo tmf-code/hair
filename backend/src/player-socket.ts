@@ -1,3 +1,4 @@
+import { MapState } from './map-state';
 import { IplayerData } from './i-player-data';
 import SocketIO from 'socket.io';
 
@@ -15,7 +16,7 @@ export class PlayerSocket {
   constructor(
     socket: SocketIO.Socket,
     callbacks: PlayerSocketCallbacks,
-    currentMapState: { grid: [number, number][]; rotations: number[]; lengths: number[] },
+    currentMapState: MapState,
   ) {
     this.id = socket.id;
     this.socket = socket;
@@ -48,16 +49,8 @@ export class PlayerSocket {
     });
   }
 
-  private emitOnce({
-    grid,
-    rotations,
-    lengths,
-  }: {
-    grid: [number, number][];
-    rotations: number[];
-    lengths: number[];
-  }) {
-    this.socket.emit('updateClientGrid', grid);
+  private emitOnce({ positions, rotations, lengths }: MapState) {
+    this.socket.emit('updateClientGrid', positions);
     this.socket.emit('updateClientRotations', rotations);
     this.socket.emit('updateClientLengths', lengths);
   }

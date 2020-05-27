@@ -1,5 +1,6 @@
 import { Vector2 } from './types';
 import { jitterRange, widthPoints, heightPoints, rotationStart, rotationEnd } from './constants';
+import { MapState } from './map-state';
 
 const randRange = (minimum: number, maximum: number) =>
   Math.random() * (maximum - minimum) + minimum;
@@ -28,29 +29,30 @@ export type CreateGridArgs = {
   minRotationAngle: number;
   maxRotationAngle: number;
 };
+
 const createGridWithInputs = ({
   horizontalDesity,
   verticalDensity,
   randomJitterRange,
   minRotationAngle,
   maxRotationAngle,
-}: CreateGridArgs) => {
-  const grid = [...new Array(horizontalDesity * verticalDensity)]
+}: CreateGridArgs): MapState => {
+  const positions = [...new Array(horizontalDesity * verticalDensity)]
     .fill(0)
     .map((_, index) => getArrayCoordinateIDs(index, horizontalDesity))
     .map(([xPosition, yPosition]) =>
       getXYPositions([xPosition, yPosition], horizontalDesity, verticalDensity),
     )
     .map(([xPos, yPos]) => jitter([xPos, yPos], randomJitterRange));
-  const lengths = grid.map(() => 0);
+  const lengths = positions.map(() => 0);
 
-  const rotations: number[] = grid.map(() => randRange(minRotationAngle, maxRotationAngle));
+  const rotations: number[] = positions.map(() => randRange(minRotationAngle, maxRotationAngle));
 
-  return { grid, lengths, rotations };
+  return { positions, lengths, rotations };
 };
 
 // Create grid
-const createGrid = () => {
+const createGrid = (): MapState => {
   return createGridWithInputs({
     horizontalDesity: widthPoints,
     verticalDensity: heightPoints,
