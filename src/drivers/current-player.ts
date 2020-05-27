@@ -52,13 +52,18 @@ export class CurrentPlayer {
   private updateRazorTriangles(mousePos: Vector3) {
     const offsets = [
       [-razorWidth * this.aspect, -razorHeight],
-      [-razorWidth * this.aspect, +razorHeight],
+      [-razorWidth * this.aspect, razorHeight],
       [+razorWidth * this.aspect, -razorHeight],
-      [+razorWidth * this.aspect, +razorHeight],
+      [+razorWidth * this.aspect, razorHeight],
     ];
 
+    const cursorOnTipOffset = new Vector2(0, razorHeight * 4.2);
+
     const offsetVector2 = offsets.map((offset) =>
-      new Vector2().fromArray(offset).rotateAround(new Vector2(0, 0), this.rotation),
+      new Vector2()
+        .fromArray(offset)
+        .add(cursorOnTipOffset)
+        .rotateAround(new Vector2(0, 0), this.smoothedRotation),
     );
 
     const absoluteVector2 = offsetVector2.map((vector) =>
