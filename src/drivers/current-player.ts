@@ -12,6 +12,8 @@ export class CurrentPlayer {
   private aspect = 1.0;
   private rotation = 0;
   private smoothedRotation = 0;
+
+  private smoothedPosition = new Vector2(0, 0);
   private position = new Vector2(0, 0);
 
   public updateFrame(
@@ -24,7 +26,8 @@ export class CurrentPlayer {
     this.aspect = aspect;
     if (this.shouldUpdate()) {
       this.position = mouse.clone();
-      const mousePos = mouseToWorld(mouse, camera);
+      this.smoothedPosition = this.smoothedPosition.lerp(this.position, 0.1);
+      const mousePos = mouseToWorld(this.smoothedPosition, camera);
       this.updateRazorTriangles(mousePos);
       this.updateRazorTransform(mousePos);
     } else {
