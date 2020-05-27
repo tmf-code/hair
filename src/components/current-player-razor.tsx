@@ -5,7 +5,7 @@ import { useSpring, a } from 'react-spring/three';
 import razorSVG from '../svgs/razor.svg';
 import { useThree, useFrame } from 'react-three-fiber';
 
-type RazorProps = {
+type CurrentPlayerRazorProps = {
   updateFrame: (
     ref: React.MutableRefObject<Mesh | undefined>,
     mouse: Vector2,
@@ -14,7 +14,7 @@ type RazorProps = {
   ) => void;
 };
 
-const Razor = ({ updateFrame }: RazorProps) => {
+const CurrentPlayerRazor = ({ updateFrame }: CurrentPlayerRazorProps) => {
   const { mouse, camera, aspect } = useThree();
   const texture = useMemo(() => new TextureLoader().load(razorSVG), []);
   const [mouseUp, setMouseUp] = useState(true);
@@ -57,4 +57,4 @@ const installUseEffects = (
   };
 };
 
-export { Razor };
+export { CurrentPlayerRazor };

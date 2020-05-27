@@ -10,8 +10,8 @@ import { Hairs as HairRenderable } from './components/hairs';
 import { HairPositions } from './drivers/hairs/hair-positions';
 import { HairRotations } from './drivers/hairs/hair-rotations';
 import { ClientSocket } from './drivers/client-socket';
-import { Razor as RazorRenderable } from './components/razor';
-import { Razor } from './drivers/razor';
+import { CurrentPlayerRazor as CurrentPlayerRazorRenderable } from './components/current-player-razor';
+import { CurrentPlayerRazor } from './drivers/current-player-razor';
 import { HairCuts } from './drivers/hairs/hair-cuts';
 import { HairLengths } from './drivers/hairs/hair-lengths';
 import { widthPoints, heightPoints } from './utilities/constants';
@@ -21,9 +21,9 @@ const hairRotations = new HairRotations(widthPoints * heightPoints);
 const hairPositions = new HairPositions(widthPoints * heightPoints);
 const hairLengths = new HairLengths(widthPoints * heightPoints);
 const hairCuts = new HairCuts(widthPoints * heightPoints);
-const razor = new Razor();
+const currentPlayerRazor = new CurrentPlayerRazor();
 const hairs = new Hairs(
-  razor.containsPoint.bind(razor),
+  currentPlayerRazor.containsPoint.bind(currentPlayerRazor),
   hairRotations,
   hairPositions,
   hairLengths,
@@ -41,7 +41,7 @@ const socketCallbacks = {
   setRemoteCuts: hairCuts.addFromServer.bind(hairCuts),
   sendLocalCuts: hairCuts.getClientCuts.bind(hairCuts),
   sentLocalCuts: hairCuts.clearClientCuts.bind(hairCuts),
-  sendLocation: razor.getLocation.bind(razor),
+  sendLocation: currentPlayerRazor.getLocation.bind(currentPlayerRazor),
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -51,7 +51,9 @@ const App = () => {
   return (
     <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
       <PlayersRenderable players={players} numPlayers={Object.keys(players.players).length} />
-      <RazorRenderable updateFrame={razor.updateFrame.bind(razor)} />
+      <CurrentPlayerRazorRenderable
+        updateFrame={currentPlayerRazor.updateFrame.bind(currentPlayerRazor)}
+      />
       <HairRenderable
         instanceCount={hairs.instanceCount()}
         updateFrame={hairs.updateFrame.bind(hairs)}
