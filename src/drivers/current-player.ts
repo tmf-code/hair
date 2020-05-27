@@ -16,6 +16,8 @@ export class CurrentPlayer {
   private smoothedPosition = new Vector2(0, 0);
   private position = new Vector2(0, 0);
 
+  private wasOffscreen = false;
+
   public updateFrame(
     ref: React.MutableRefObject<Mesh | undefined>,
     mouse: Vector2,
@@ -24,15 +26,32 @@ export class CurrentPlayer {
   ) {
     this.ref = ref;
     this.aspect = aspect;
+
     if (this.shouldUpdate()) {
-      this.position = mouse.clone();
-      this.smoothedPosition = this.smoothedPosition.lerp(this.position, 0.1);
-      const mousePos = mouseToWorld(this.smoothedPosition, camera);
+      const mousePos = this.getPosition(mouse, camera);
       this.updateRazorTriangles(mousePos);
       this.updateRazorTransform(mousePos);
     } else {
+      this.wasOffscreen = true;
       this.position = new Vector2().fromArray(offscreen);
+      this.smoothedPosition = this.position;
     }
+  }
+
+  private getPosition(mouse: Vector2, camera: Camera) {
+    this.position = mouse.clone();
+    let mousePos: Vector3;
+
+    if (this.wasOffscreen) {
+      mousePos = mouseToWorld(this.position, camera);
+      this.smoothedPosition = this.position;
+      this.wasOffscreen = false;
+    } else {
+      this.smoothedPosition = this.smoothedPosition.lerp(this.position, 0.1);
+      mousePos = mouseToWorld(this.smoothedPosition, camera);
+    }
+
+    return mousePos;
   }
 
   containsPoint([xPos, yPos]: [number, number]) {
