@@ -11,16 +11,16 @@ export class PlayerSocket {
   private position: [number, number];
   private rotation: number;
   private readonly socket: SocketIO.Socket;
-  private readonly playerSocketCallbacks: PlayerSocketCallbacks;
+  private readonly receiveCuts: (cuts: boolean[]) => void;
 
   constructor(
     socket: SocketIO.Socket,
-    callbacks: PlayerSocketCallbacks,
+    receiveCuts: (cuts: boolean[]) => void,
     currentMapState: MapState,
   ) {
     this.id = socket.id;
     this.socket = socket;
-    this.playerSocketCallbacks = callbacks;
+    this.receiveCuts = receiveCuts;
     this.position = [0, 0];
     this.rotation = 0;
 
@@ -30,23 +30,24 @@ export class PlayerSocket {
 
   private addHandlers() {
     const socketEventHandlers = {
-      updateServerCuts: this.playerSocketCallbacks.receiveCuts.bind(this),
-
-      updatePlayerLocation: ({
-        rotation,
-        position,
-      }: {
-        rotation: number;
-        position: [number, number];
-      }) => {
-        this.rotation = rotation;
-        this.position = position;
-      },
+      updateServerCuts: this.receiveCuts.bind(this),
+      updatePlayerLocation: this.updatePlayerLocation.bind(this),
     };
 
     Object.entries(socketEventHandlers).forEach(([name, handler]) => {
       this.socket.on(name, handler);
     });
+  }
+
+  private updatePlayerLocation({
+    rotation,
+    position,
+  }: {
+    rotation: number;
+    position: [number, number];
+  }) {
+    this.rotation = rotation;
+    this.position = position;
   }
 
   private emitOnce({ positions, rotations, lengths }: MapState) {

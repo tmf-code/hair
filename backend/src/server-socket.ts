@@ -29,16 +29,19 @@ export class ServerSocket {
 
   private attachSocketServerHandlers() {
     this.io.on('connect', (socket) => {
-      this.players[socket.id] = new PlayerSocket(
-        socket,
-        {
-          receiveCuts: this.recieveCuts.bind(this),
-        },
-        this.getMapState(),
-      );
-      socket.on('disconnect', () => {
-        delete this.players[socket.id];
-      });
+      this.addPlayer(socket);
+    });
+  }
+
+  private addPlayer(socket: SocketIO.Socket) {
+    this.players[socket.id] = new PlayerSocket(
+      socket,
+      this.recieveCuts.bind(this),
+      this.getMapState(),
+    );
+
+    socket.on('disconnect', () => {
+      delete this.players[socket.id];
     });
   }
 
@@ -46,6 +49,7 @@ export class ServerSocket {
     if (incomingCuts.length !== this.cuts.length) {
       return;
     }
+
     this.cuts = this.cuts.map((currentCut, cutIndex) => currentCut || incomingCuts[cutIndex]);
     this.lengths = this.lengths.map((length, lengthIndex) =>
       incomingCuts[lengthIndex] ? 0 : length,
