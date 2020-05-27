@@ -1,5 +1,6 @@
 import { growthSpeed, SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
+import { PlayerSocket } from './player-socket';
 
 export class ServerSocket {
   private io: SocketIO.Server;
@@ -8,6 +9,8 @@ export class ServerSocket {
   private grid: [number, number][];
   private cuts: boolean[];
   private playerLocations: Record<string, { position: [number, number]; rotation: number }>;
+
+  private players: Record<string, PlayerSocket>;
 
   constructor(
     server: import('http').Server,
@@ -25,6 +28,7 @@ export class ServerSocket {
     this.cuts = grid.map(() => false);
 
     this.playerLocations = {};
+    this.players = {};
 
     this.attachSocketServerHandlers();
     this.createSocketServerEmitters();
@@ -32,46 +36,27 @@ export class ServerSocket {
 
   private attachSocketServerHandlers() {
     this.io.on('connect', (socket) => {
-      this.attachSocketHandlers(socket);
-      this.createSocketEmitters(socket);
+      this.players[socket.id] = new PlayerSocket(
+        socket,
+        {
+          receiveCuts: (incomingCuts: boolean[]) => {
+            if (incomingCuts.length !== this.cuts.length) {
+              return;
+            }
+            this.cuts = this.cuts.map(
+              (currentCut, cutIndex) => currentCut || incomingCuts[cutIndex],
+            );
+            this.lengths = this.lengths.map((length, lengthIndex) =>
+              incomingCuts[lengthIndex] ? 0 : length,
+            );
+          },
+        },
+        { grid: this.grid, rotations: this.rotations, lengths: this.lengths },
+      );
+      socket.on('disconnect', () => {
+        delete this.players[socket.id];
+      });
     });
-  }
-
-  private attachSocketHandlers(socket: SocketIO.Socket) {
-    const socketEventHandlers = {
-      updateServerCuts: (incomingCuts: boolean[]) => {
-        if (incomingCuts.length !== this.cuts.length) {
-          return;
-        }
-        this.cuts = this.cuts.map((currentCut, cutIndex) => currentCut || incomingCuts[cutIndex]);
-        this.lengths = this.lengths.map((length, lengthIndex) =>
-          incomingCuts[lengthIndex] ? 0 : length,
-        );
-      },
-
-      updatePlayerLocation: ({
-        rotation,
-        position,
-      }: {
-        rotation: number;
-        position: [number, number];
-      }) => {
-        this.playerLocations[socket.id] = { rotation, position };
-      },
-      disconnect: () => {
-        delete this.playerLocations[socket.id];
-      },
-    };
-
-    Object.entries(socketEventHandlers).forEach(([name, handler]) => {
-      socket.on(name, handler);
-    });
-  }
-
-  private createSocketEmitters(socket: SocketIO.Socket) {
-    socket.emit('updateClientGrid', this.grid);
-    socket.emit('updateClientRotations', this.rotations);
-    socket.emit('updateClientLengths', this.lengths);
   }
 
   private createSocketServerEmitters() {
