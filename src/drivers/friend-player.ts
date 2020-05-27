@@ -3,7 +3,7 @@ import React from 'react';
 
 import { relativeToWorld } from '../utilities/utilities';
 
-export class FriendPlayerRazor {
+export class FriendPlayer {
   private ref: React.MutableRefObject<Mesh | undefined> | undefined;
   private rotation = 0;
   camera: Camera | undefined;
