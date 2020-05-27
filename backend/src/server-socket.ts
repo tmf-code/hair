@@ -24,7 +24,7 @@ export class ServerSocket {
     this.players = {};
 
     this.attachSocketServerHandlers();
-    this.createSocketServerEmitters();
+    this.startEmitting();
   }
 
   private attachSocketServerHandlers() {
@@ -64,30 +64,41 @@ export class ServerSocket {
     };
   }
 
+  private startEmitting() {
+    const emit = () => {
+      this.emitCuts();
+      this.emitGrowth();
+      this.emitPlayerLocations();
+
+      const thisWasDestroyed = this === undefined;
+      if (!thisWasDestroyed) {
+        setTimeout(emit, SERVER_EMIT_INTERVAL);
+      }
+    };
+
+    emit();
+  }
+
+  private emitCuts() {
+    if (this.cuts.some(Boolean)) {
+      this.io.emit('updateClientCuts', this.cuts);
+      this.cuts = this.positions.map(() => false);
+    }
+  }
+
+  private emitGrowth() {
+    this.lengths = this.lengths.map((length) => Math.min(length + growthSpeed, 1));
+    this.io.emit('updateClientGrowth', growthSpeed);
+  }
+
+  private emitPlayerLocations() {
+    this.io.emit('updateClientPlayerLocations', this.playerLocations());
+  }
+
   private playerLocations() {
     return Object.values(this.players).reduce((record, player) => {
       const playerData = player.getPlayerData();
       return { ...record, [playerData.id]: playerData };
     }, {} as Record<string, IplayerData>);
-  }
-
-  private createSocketServerEmitters() {
-    setInterval(() => {
-      if (this.cuts.some(Boolean)) {
-        this.io.emit('updateClientCuts', this.cuts);
-        this.cuts = this.positions.map(() => false);
-      }
-    }, SERVER_EMIT_INTERVAL);
-
-    // Grow
-    setInterval(() => {
-      this.lengths = this.lengths.map((length) => Math.min(length + growthSpeed, 1));
-      this.io.emit('updateClientGrowth', growthSpeed);
-    }, SERVER_EMIT_INTERVAL);
-
-    // Locations
-    setInterval(() => {
-      this.io.emit('updateClientPlayerLocations', this.playerLocations());
-    }, SERVER_EMIT_INTERVAL);
   }
 }
