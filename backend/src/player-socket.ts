@@ -1,3 +1,4 @@
+import { IplayerData } from './i-player-data';
 import SocketIO from 'socket.io';
 
 export type PlayerSocketCallbacks = {
@@ -61,11 +62,11 @@ export class PlayerSocket {
     this.socket.emit('updateClientLengths', lengths);
   }
 
-  getId = () => this.id;
-
-  setPosition = (position: [number, number]) => (this.position = position);
-  getPosition = () => this.position;
-
-  setRotation = (rotation: number) => (this.rotation = rotation);
-  getRotation = () => this.rotation;
+  getPlayerData(): IplayerData {
+    return {
+      id: this.id,
+      rotation: this.rotation,
+      position: this.position,
+    };
+  }
 }

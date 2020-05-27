@@ -1,3 +1,4 @@
+import { IplayerData } from './i-player-data';
 import { growthSpeed, SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
 import { PlayerSocket } from './player-socket';
@@ -8,7 +9,6 @@ export class ServerSocket {
   private rotations: number[];
   private grid: [number, number][];
   private cuts: boolean[];
-  private playerLocations: Record<string, { position: [number, number]; rotation: number }>;
 
   private players: Record<string, PlayerSocket>;
 
@@ -27,7 +27,6 @@ export class ServerSocket {
     this.rotations = rotations;
     this.cuts = grid.map(() => false);
 
-    this.playerLocations = {};
     this.players = {};
 
     this.attachSocketServerHandlers();
@@ -59,6 +58,13 @@ export class ServerSocket {
     });
   }
 
+  private playerLocations() {
+    return Object.values(this.players).reduce((record, player) => {
+      const playerData = player.getPlayerData();
+      return { ...record, [playerData.id]: playerData };
+    }, {} as Record<string, IplayerData>);
+  }
+
   private createSocketServerEmitters() {
     setInterval(() => {
       if (this.cuts.some(Boolean)) {
@@ -75,7 +81,7 @@ export class ServerSocket {
 
     // Locations
     setInterval(() => {
-      this.io.emit('updateClientPlayerLocations', this.playerLocations);
+      this.io.emit('updateClientPlayerLocations', this.playerLocations());
     }, SERVER_EMIT_INTERVAL);
   }
 }
