@@ -16,6 +16,7 @@ import { HairCuts } from './drivers/hairs/hair-cuts';
 import { HairLengths } from './drivers/hairs/hair-lengths';
 import { widthPoints, heightPoints } from './utilities/constants';
 import { Hairs } from './drivers/hairs/hairs';
+import { Colofon } from './components/colofon';
 
 const hairRotations = new HairRotations(widthPoints * heightPoints);
 const hairPositions = new HairPositions(widthPoints * heightPoints);
@@ -49,15 +50,18 @@ const socket = new ClientSocket(io, process.env.NODE_ENV, socketCallbacks);
 
 const App = () => {
   return (
-    <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
-      <PlayersRenderable players={players} numPlayers={Object.keys(players.players).length} />
-      <RazorRenderable updateFrame={razor.updateFrame.bind(razor)} />
-      <HairRenderable
-        instanceCount={hairs.instanceCount()}
-        updateFrame={hairs.updateFrame.bind(hairs)}
-        viewportChange={hairs.setViewport.bind(hairs)}
-      />
-    </Canvas>
+    <div>
+      <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
+        <PlayersRenderable players={players} numPlayers={Object.keys(players.players).length} />
+        <RazorRenderable updateFrame={razor.updateFrame.bind(razor)} />
+        <HairRenderable
+          instanceCount={hairs.instanceCount()}
+          updateFrame={hairs.updateFrame.bind(hairs)}
+          viewportChange={hairs.setViewport.bind(hairs)}
+        />
+      </Canvas>
+      <Colofon />
+    </div>
   );
 };
 
