@@ -1,68 +1,40 @@
-import { IplayerData } from './i-player-data';
-import { growthSpeed, SERVER_EMIT_INTERVAL } from './constants';
+import { IplayerData } from './players/i-player-data';
+import { SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
-import { PlayerSocket } from './player-socket';
-import { MapState } from './hair-map/map-state';
+
+export type ServerSocketCallbacks = {
+  onEmitGrowth: () => number;
+  onEmitCuts: { before: () => boolean[]; after: () => void };
+  onPlayerConnected: (socket: SocketIO.Socket) => void;
+  onPlayerDisconnected: (playerId: string) => void;
+  onEmitPlayerLocations: () => Record<string, IplayerData>;
+  onReceiveCuts: (cuts: boolean[]) => void;
+};
+
 export class ServerSocket {
   private io: SocketIO.Server;
-  private lengths: number[];
-  private rotations: number[];
-  private positions: [number, number][];
-  private cuts: boolean[];
+  private serverSocketCallbacks: ServerSocketCallbacks;
 
-  private players: Record<string, PlayerSocket>;
-
-  constructor(server: import('http').Server, { lengths, rotations, positions }: MapState) {
+  constructor(server: import('http').Server, serverSocketCallbacks: ServerSocketCallbacks) {
     this.io = SocketIO(server);
-
-    this.positions = positions;
-    this.lengths = lengths;
-    this.rotations = rotations;
-    this.cuts = positions.map(() => false);
-
-    this.players = {};
-
+    this.serverSocketCallbacks = serverSocketCallbacks;
     this.attachSocketServerHandlers();
     this.startEmitting();
   }
 
   private attachSocketServerHandlers() {
     this.io.on('connect', (socket) => {
-      this.addPlayer(socket);
+      this.serverSocketCallbacks.onPlayerConnected(socket);
+
+      socket.on('disconnect', () => {
+        this.serverSocketCallbacks.onPlayerDisconnected(socket.id);
+      });
     });
   }
 
-  private addPlayer(socket: SocketIO.Socket) {
-    this.players[socket.id] = new PlayerSocket(
-      socket,
-      this.recieveCuts.bind(this),
-      this.getMapState(),
-    );
-
-    socket.on('disconnect', () => {
-      delete this.players[socket.id];
-    });
+  public recieveCuts(incomingCuts: boolean[]) {
+    this.serverSocketCallbacks.onReceiveCuts(incomingCuts);
   }
-
-  private recieveCuts(incomingCuts: boolean[]) {
-    if (incomingCuts.length !== this.cuts.length) {
-      return;
-    }
-
-    this.cuts = this.cuts.map((currentCut, cutIndex) => currentCut || incomingCuts[cutIndex]);
-    this.lengths = this.lengths.map((length, lengthIndex) =>
-      incomingCuts[lengthIndex] ? 0 : length,
-    );
-  }
-
-  private getMapState(): MapState {
-    return {
-      positions: this.positions,
-      rotations: this.rotations,
-      lengths: this.lengths,
-    };
-  }
-
   private startEmitting() {
     const emit = () => {
       this.emitCuts();
@@ -74,30 +46,26 @@ export class ServerSocket {
         setTimeout(emit, SERVER_EMIT_INTERVAL);
       }
     };
-
     emit();
   }
 
   private emitCuts() {
-    if (this.cuts.some(Boolean)) {
-      this.io.emit('updateClientCuts', this.cuts);
-      this.cuts = this.positions.map(() => false);
+    const { before, after } = this.serverSocketCallbacks.onEmitCuts;
+
+    const cuts = before();
+    if (cuts.some(Boolean)) {
+      this.io.emit('updateClientCuts', cuts);
+      after();
     }
   }
 
   private emitGrowth() {
-    this.lengths = this.lengths.map((length) => Math.min(length + growthSpeed, 1));
+    const growthSpeed = this.serverSocketCallbacks.onEmitGrowth();
     this.io.emit('updateClientGrowth', growthSpeed);
   }
 
   private emitPlayerLocations() {
-    this.io.emit('updateClientPlayerLocations', this.playerLocations());
-  }
-
-  private playerLocations() {
-    return Object.values(this.players).reduce((record, player) => {
-      const playerData = player.getPlayerData();
-      return { ...record, [playerData.id]: playerData };
-    }, {} as Record<string, IplayerData>);
+    const playerLocations = this.serverSocketCallbacks.onEmitPlayerLocations();
+    this.io.emit('updateClientPlayerLocations', playerLocations);
   }
 }

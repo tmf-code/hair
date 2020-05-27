@@ -1,4 +1,3 @@
-import { MapState } from './hair-map/map-state';
 import { IplayerData } from './i-player-data';
 import SocketIO from 'socket.io';
 
@@ -16,7 +15,9 @@ export class PlayerSocket {
   constructor(
     socket: SocketIO.Socket,
     receiveCuts: (cuts: boolean[]) => void,
-    currentMapState: MapState,
+    positions: [number, number][],
+    rotations: number[],
+    lengths: number[],
   ) {
     this.id = socket.id;
     this.socket = socket;
@@ -25,7 +26,7 @@ export class PlayerSocket {
     this.rotation = 0;
 
     this.addHandlers();
-    this.emitOnce(currentMapState);
+    this.emitOnce(positions, rotations, lengths);
   }
 
   private addHandlers() {
@@ -50,7 +51,7 @@ export class PlayerSocket {
     this.position = position;
   }
 
-  private emitOnce({ positions, rotations, lengths }: MapState) {
+  private emitOnce(positions: [number, number][], rotations: number[], lengths: number[]) {
     this.socket.emit('updateClientGrid', positions);
     this.socket.emit('updateClientRotations', rotations);
     this.socket.emit('updateClientLengths', lengths);

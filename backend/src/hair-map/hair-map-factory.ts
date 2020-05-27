@@ -1,5 +1,4 @@
-import { Vector2 } from '../types';
-import { MapState } from './map-state';
+import { HairMap } from './hair-map';
 
 export type CreateGridArgs = {
   horizontalDesity: number;
@@ -26,7 +25,7 @@ export class HairMapFactory {
     randomJitterRange: number,
     minRotationAngle: number,
     maxRotationAngle: number,
-  ): MapState {
+  ) {
     this.horizontalDesity = horizontalDesity;
     this.verticalDensity = verticalDensity;
     this.randomJitterRange = randomJitterRange;
@@ -37,11 +36,7 @@ export class HairMapFactory {
     this.lengths = this.createLengths();
     this.rotations = this.createRotations();
 
-    return {
-      positions: this.positions,
-      lengths: this.lengths,
-      rotations: this.rotations,
-    };
+    return new HairMap(this.positions, this.rotations, this.lengths);
   }
 
   private static createPositions() {
@@ -60,16 +55,16 @@ export class HairMapFactory {
   ];
 
   private static getXYPositions = (
-    [indexX, indexY]: Vector2,
+    [indexX, indexY]: [number, number],
     horizontalDesity: number,
     verticalDensity: number,
-  ) => [indexX / horizontalDesity, indexY / verticalDensity] as Vector2;
+  ) => [indexX / horizontalDesity, indexY / verticalDensity] as [number, number];
 
-  private static jitter = ([xPosition, yPosition]: Vector2, jitterRange: number) =>
+  private static jitter = ([xPosition, yPosition]: [number, number], jitterRange: number) =>
     [
       xPosition + HairMapFactory.randRange(-jitterRange, jitterRange),
       yPosition + HairMapFactory.randRange(-jitterRange, jitterRange),
-    ] as Vector2;
+    ] as [number, number];
 
   private static createLengths() {
     return this.positions.map(() => 0);
