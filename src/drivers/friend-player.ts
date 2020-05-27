@@ -1,5 +1,5 @@
 import { offscreen } from './../utilities/constants';
-import { lerpTheta } from './../utilities/utilities';
+import { lerpTheta, lerp } from './../utilities/utilities';
 import { Vector3, Mesh, Camera, Matrix4 } from 'three';
 import React from 'react';
 
@@ -8,6 +8,7 @@ import { relativeToWorld } from '../utilities/utilities';
 export class FriendPlayer {
   private ref: React.MutableRefObject<Mesh | undefined> | undefined;
   private camera: Camera | undefined;
+  private aspect = 1.0;
 
   private rotation = 0;
   private targetRotation = 0;
@@ -16,10 +17,16 @@ export class FriendPlayer {
   private previousRelativeTargetPosition = [0, 0];
   private position: Vector3 = new Vector3(0, 0, 0);
   private targetPosition: Vector3 = new Vector3(0, 0, 0);
+  private scale = [1, 1, 1] as [number, number, number];
 
-  public updateFrame(ref: React.MutableRefObject<Mesh | undefined>, camera: Camera) {
+  public updateFrame(
+    ref: React.MutableRefObject<Mesh | undefined>,
+    camera: Camera,
+    aspect: number,
+  ) {
     this.ref = ref;
     this.camera = camera;
+    this.aspect = aspect;
 
     this.updateRotation();
     this.updatePosition();
@@ -32,6 +39,7 @@ export class FriendPlayer {
 
   private updatePosition() {
     if (this.isOffScreen()) {
+      this.scale = [1.1 * this.aspect, 1.1 * this.aspect, 1];
       this.position = new Vector3(-100, -100, 0);
       return;
     }
@@ -41,6 +49,11 @@ export class FriendPlayer {
       return;
     }
 
+    this.scale = this.scale.map((scale) => lerp(scale, 1.0 * this.aspect, 0.1)) as [
+      number,
+      number,
+      number,
+    ];
     this.position = this.position.lerp(this.targetPosition, 0.1);
   }
 
@@ -78,6 +91,7 @@ export class FriendPlayer {
       this.ref.current.matrix.multiply(
         mat4.makeTranslation(this.position.x, this.position.y, this.position.z),
       );
+      this.ref.current.matrix.multiply(mat4.makeScale(...this.scale));
       this.ref.current.matrix.multiply(mat4.makeRotationZ(this.rotation));
       this.ref.current.matrix.multiply(mat4.makeTranslation(0, cursorOnTipOffset, 0));
 

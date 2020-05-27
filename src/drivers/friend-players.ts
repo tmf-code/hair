@@ -18,9 +18,9 @@ export class FriendPlayers {
     });
   }
 
-  updateFrame(ref: React.MutableRefObject<Mesh | undefined>, camera: Camera) {
+  updateFrame(ref: React.MutableRefObject<Mesh | undefined>, camera: Camera, aspect: number) {
     Object.values(this.players).forEach((player) => {
-      player.razor.updateFrame(ref, camera);
+      player.razor.updateFrame(ref, camera, aspect);
     });
   }
 }

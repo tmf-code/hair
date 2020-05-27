@@ -1,3 +1,4 @@
+import { lerp } from './../utilities/utilities';
 import { offscreen } from './../utilities/constants';
 import { Vector3, Mesh, Vector2, Camera, Triangle, Matrix4 } from 'three';
 import React from 'react';
@@ -15,6 +16,7 @@ export class CurrentPlayer {
 
   private smoothedPosition = new Vector2(0, 0);
   private position = new Vector2(0, 0);
+  private scale = [1, 1, 1] as [number, number, number];
 
   private wasOffscreen = false;
 
@@ -32,6 +34,7 @@ export class CurrentPlayer {
       this.updateRazorTriangles(mousePos);
       this.updateRazorTransform(mousePos);
     } else {
+      this.scale = [1.1 * this.aspect, 1.1 * this.aspect, 1];
       this.wasOffscreen = true;
       this.position = new Vector2().fromArray(offscreen);
       this.smoothedPosition = this.position;
@@ -51,6 +54,11 @@ export class CurrentPlayer {
       mousePos = mouseToWorld(this.smoothedPosition, camera);
     }
 
+    this.scale = this.scale.map((scale) => lerp(scale, 1.0 * this.aspect, 0.1)) as [
+      number,
+      number,
+      number,
+    ];
     return mousePos;
   }
 
@@ -79,7 +87,7 @@ export class CurrentPlayer {
       [+razorWidth * this.aspect, razorHeight],
     ];
 
-    const cursorOnTipOffset = new Vector2(0, razorHeight * 4.2);
+    const cursorOnTipOffset = new Vector2(0, razorHeight * 4.2 * this.aspect);
 
     const offsetVector2 = offsets.map((offset) =>
       new Vector2()
@@ -113,6 +121,7 @@ export class CurrentPlayer {
       const mat4: Matrix4 = new Matrix4();
 
       this.ref.current.matrix.multiply(mat4.makeTranslation(mousePos.x, mousePos.y, mousePos.z));
+      this.ref.current.matrix.multiply(mat4.makeScale(...this.scale));
       this.ref.current.matrix.multiply(mat4.makeRotationZ(this.smoothedRotation));
       this.ref.current.matrix.multiply(mat4.makeTranslation(0, cursorOnTipOffset, 0));
 

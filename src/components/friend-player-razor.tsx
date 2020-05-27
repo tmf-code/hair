@@ -5,15 +5,19 @@ import razorSVG from '../svgs/razor.svg';
 import { useThree, useFrame } from 'react-three-fiber';
 
 type FriendPlayerRazorProps = {
-  updateFrame: (ref: React.MutableRefObject<Mesh | undefined>, camera: Camera) => void;
+  updateFrame: (
+    ref: React.MutableRefObject<Mesh | undefined>,
+    camera: Camera,
+    aspect: number,
+  ) => void;
 };
 
 const FriendPlayerRazor = ({ updateFrame }: FriendPlayerRazorProps) => {
-  const { camera } = useThree();
+  const { camera, aspect } = useThree();
   const texture = useMemo(() => new TextureLoader().load(razorSVG), []);
 
   const ref = useRef<Mesh>();
-  useFrame(() => updateFrame(ref, camera));
+  useFrame(() => updateFrame(ref, camera, aspect));
 
   return (
     <mesh ref={ref} scale={[1, 1, 1]}>
