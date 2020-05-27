@@ -16,6 +16,7 @@ import { HairCuts } from './drivers/hairs/hair-cuts';
 import { HairLengths } from './drivers/hairs/hair-lengths';
 import { widthPoints, heightPoints } from './utilities/constants';
 import { Hairs } from './drivers/hairs/hairs';
+import { Colofon } from './components/colofon';
 
 const hairRotations = new HairRotations(widthPoints * heightPoints);
 const hairPositions = new HairPositions(widthPoints * heightPoints);

@@ -36,7 +36,7 @@ export class ClientSocket {
   }
 
   private connectSocket(io: SocketIOClientStatic, mode: 'production' | 'development') {
-    return mode === 'production' ? io() : io('http://192.168.178.41:3001');
+    return mode === 'production' ? io() : io('http://localhost:3001');
   }
 
   private attachSocketHandlers() {

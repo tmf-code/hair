@@ -1,10 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { ColofonText } from './colofon-text';
 
-const Colofon = (): React.ReactElement => (
-  <div className="container">
-    <h1>Colofon</h1>
-    <p> colofon text </p>
-  </div>
-);
+const Colofon = (): React.ReactElement => {
+  const [display, showColofon] = useState(false);
+  // react hook useState
+  const ToggleColofonState = () => showColofon(!display);
+  return (
+    <div>
+      {display && <ColofonText />}
+      <button id="colofonButton" onClick={ToggleColofonState}>
+        i
+      </button>
+    </div>
+  );
+};
 
 export { Colofon };
