@@ -9,7 +9,7 @@ import { Players as PlayersRenderable } from './components/players';
 import { Hairs as HairRenderable } from './components/hairs';
 import { HairPositions } from './drivers/hairs/hair-positions';
 import { HairRotations } from './drivers/hairs/hair-rotations';
-import { ClientSocket, SocketCallbacks } from './drivers/client-socket';
+import { ClientSocket } from './drivers/client-socket';
 import { Razor as RazorRenderable } from './components/razor';
 import { Razor } from './drivers/razor';
 import { HairCuts } from './drivers/hairs/hair-cuts';
@@ -32,7 +32,7 @@ const hairs = new Hairs(
 
 const players = new Players();
 
-const socketCallbacks: SocketCallbacks = {
+const socketCallbacks = {
   setPositions: hairPositions.setPositions.bind(hairPositions),
   setRotations: hairRotations.setInitialRotations.bind(hairRotations),
   setPlayers: players.updatePlayers.bind(players),
