@@ -32,6 +32,7 @@ const serverSocketCallbacks: ServerSocketCallbacks = {
   onEmitPlayerLocations: () => players.getPlayerLocations(),
   onReceiveCuts: (cuts: boolean[]) => hairMap.recieveCuts(cuts),
 };
+
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const socket = new ServerSocket(server, serverSocketCallbacks);
 

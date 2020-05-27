@@ -4,11 +4,11 @@ import React from 'react';
 import razorSVG from '../svgs/razor.svg';
 import { useThree, useFrame } from 'react-three-fiber';
 
-type RazorProps = {
+type FriendPlayerRazorProps = {
   updateFrame: (ref: React.MutableRefObject<Mesh | undefined>, camera: Camera) => void;
 };
 
-const Player = ({ updateFrame }: RazorProps) => {
+const FriendPlayerRazor = ({ updateFrame }: FriendPlayerRazorProps) => {
   const { camera } = useThree();
   const texture = useMemo(() => new TextureLoader().load(razorSVG), []);
 
@@ -25,4 +25,4 @@ const Player = ({ updateFrame }: RazorProps) => {
   );
 };
 
-export { Player };
+export { FriendPlayerRazor };

@@ -4,8 +4,8 @@ import { Canvas } from 'react-three-fiber';
 import io from 'socket.io-client';
 
 import './styles/App.css';
-import { Players } from './drivers/players';
-import { Players as PlayersRenderable } from './components/players';
+import { FriendPlayers } from './drivers/friend-players';
+import { FriendPlayers as FriendPlayersRenderable } from './components/friend-players';
 import { Hairs as HairRenderable } from './components/hairs';
 import { HairPositions } from './drivers/hairs/hair-positions';
 import { HairRotations } from './drivers/hairs/hair-rotations';
@@ -30,7 +30,7 @@ const hairs = new Hairs(
   hairCuts,
 );
 
-const players = new Players();
+const players = new FriendPlayers();
 
 const socketCallbacks = {
   setPositions: hairPositions.setPositions.bind(hairPositions),
@@ -50,7 +50,7 @@ const socket = new ClientSocket(io, process.env.NODE_ENV, socketCallbacks);
 const App = () => {
   return (
     <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
-      <PlayersRenderable players={players} numPlayers={Object.keys(players.players).length} />
+      <FriendPlayersRenderable players={players} />
       <CurrentPlayerRazorRenderable
         updateFrame={currentPlayerRazor.updateFrame.bind(currentPlayerRazor)}
       />
