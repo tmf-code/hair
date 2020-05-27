@@ -1,4 +1,4 @@
-import { MapState } from './map-state';
+import { MapState } from './hair-map/map-state';
 import { IplayerData } from './i-player-data';
 import SocketIO from 'socket.io';
 

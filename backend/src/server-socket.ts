@@ -2,8 +2,7 @@ import { IplayerData } from './i-player-data';
 import { growthSpeed, SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
 import { PlayerSocket } from './player-socket';
-import { MapState } from './map-state';
-
+import { MapState } from './hair-map/map-state';
 export class ServerSocket {
   private io: SocketIO.Server;
   private lengths: number[];
