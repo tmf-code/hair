@@ -5,7 +5,7 @@ import { razorWidth, razorHeight } from '../utilities/constants';
 import { mouseToWorld } from '../utilities/utilities';
 import { Mouse } from './mouse/mouse';
 
-export class CurrentPlayerRazor {
+export class CurrentPlayer {
   private ref: React.MutableRefObject<Mesh | undefined> | undefined;
   private razorTriangles: [Triangle, Triangle] = [new Triangle(), new Triangle()];
   private aspect = 1.0;

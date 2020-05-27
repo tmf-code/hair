@@ -11,7 +11,7 @@ import { HairPositions } from './drivers/hairs/hair-positions';
 import { HairRotations } from './drivers/hairs/hair-rotations';
 import { ClientSocket } from './drivers/client-socket';
 import { CurrentPlayerRazor as CurrentPlayerRazorRenderable } from './components/current-player-razor';
-import { CurrentPlayerRazor } from './drivers/current-player-razor';
+import { CurrentPlayer } from './drivers/current-player';
 import { HairCuts } from './drivers/hairs/hair-cuts';
 import { HairLengths } from './drivers/hairs/hair-lengths';
 import { widthPoints, heightPoints } from './utilities/constants';
@@ -21,7 +21,7 @@ const hairRotations = new HairRotations(widthPoints * heightPoints);
 const hairPositions = new HairPositions(widthPoints * heightPoints);
 const hairLengths = new HairLengths(widthPoints * heightPoints);
 const hairCuts = new HairCuts(widthPoints * heightPoints);
-const currentPlayerRazor = new CurrentPlayerRazor();
+const currentPlayerRazor = new CurrentPlayer();
 const hairs = new Hairs(
   currentPlayerRazor.containsPoint.bind(currentPlayerRazor),
   hairRotations,
