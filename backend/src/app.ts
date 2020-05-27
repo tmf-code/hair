@@ -1,5 +1,6 @@
+import { ServerSocket } from './server-socket';
 import { makeProductionServer, makeDevelopmentServer } from './server';
-import { createSocket } from './create-socket';
+import { createGrid } from './create-grid';
 
 let server;
 
@@ -11,4 +12,5 @@ if (process.env.NODE_ENV === 'production') {
   console.log(process.env.NODE_ENV);
 }
 
-createSocket(server);
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const socket = new ServerSocket(server, createGrid());
