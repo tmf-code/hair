@@ -1,3 +1,4 @@
+import { offscreen } from './../utilities/constants';
 import { Vector3, Mesh, Vector2, Camera, Triangle, Matrix4 } from 'three';
 import React from 'react';
 
@@ -27,7 +28,7 @@ export class CurrentPlayer {
       this.updateRazorTriangles(mousePos);
       this.updateRazorTransform(mousePos);
     } else {
-      this.position = new Vector2(-100, -100);
+      this.position = new Vector2().fromArray(offscreen);
     }
   }
 
