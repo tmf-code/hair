@@ -10,7 +10,7 @@ const FriendPlayers = ({ players: playerData }: RazorProps) => {
   const [players, setPlayers] = useState<FriendPlayersManager['players']>({});
 
   useEffect(() => {
-    const interval = setInterval(() => setPlayers(playerData.players), 1000);
+    const interval = setInterval(() => setPlayers({ ...playerData.players }), 1000);
     return () => {
       clearInterval(interval);
     };
