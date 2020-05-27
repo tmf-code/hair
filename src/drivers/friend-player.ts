@@ -1,3 +1,4 @@
+import { lerpTheta } from './../utilities/utilities';
 import { Vector3, Mesh, Camera, Matrix4 } from 'three';
 import React from 'react';
 
@@ -5,20 +6,26 @@ import { relativeToWorld } from '../utilities/utilities';
 
 export class FriendPlayer {
   private ref: React.MutableRefObject<Mesh | undefined> | undefined;
+  private camera: Camera | undefined;
+
   private rotation = 0;
-  camera: Camera | undefined;
-  position: Vector3 = new Vector3(0, 0, 0);
+  private targetRotation = 0;
+  private position: Vector3 = new Vector3(0, 0, 0);
+  private targetPosition: Vector3 = new Vector3(0, 0, 0);
 
   public updateFrame(ref: React.MutableRefObject<Mesh | undefined>, camera: Camera) {
     this.ref = ref;
     this.camera = camera;
+
+    this.rotation = lerpTheta(this.rotation, this.targetRotation, 0.1, Math.PI * 2);
+    this.position = this.position.lerp(this.targetPosition, 0.1);
     this.updateRazorTransform();
   }
 
   public serverUpdate(relativePosition: [number, number], rotation: number) {
     if (this.camera) {
-      this.position = relativeToWorld(relativePosition, this.camera);
-      this.rotation = rotation;
+      this.targetRotation = rotation;
+      this.targetPosition = relativeToWorld(relativePosition, this.camera);
     }
   }
 
