@@ -37,6 +37,10 @@ export class Mouse {
     return this.instance.velocity.getVelocity();
   }
 
+  static getSmoothedDirection() {
+    return this.instance.direction.getSmoothedDirection();
+  }
+
   static getDirection() {
     return this.instance.direction.getDirection();
   }

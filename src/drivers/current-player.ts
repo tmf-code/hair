@@ -10,6 +10,7 @@ export class CurrentPlayer {
   private razorTriangles: [Triangle, Triangle] = [new Triangle(), new Triangle()];
   private aspect = 1.0;
   private rotation = 0;
+  private smoothedRotation = 0;
   private position = new Vector2(0, 0);
 
   public updateFrame(
@@ -74,6 +75,7 @@ export class CurrentPlayer {
   }
 
   private updateRazorTransform(mousePos: Vector3) {
+    this.smoothedRotation = Mouse.getSmoothedDirection();
     this.rotation = Mouse.getDirection();
 
     if (this.ref?.current) {
@@ -83,7 +85,7 @@ export class CurrentPlayer {
       const mat4: Matrix4 = new Matrix4();
 
       this.ref.current.matrix.multiply(mat4.makeTranslation(mousePos.x, mousePos.y, mousePos.z));
-      this.ref.current.matrix.multiply(mat4.makeRotationZ(this.rotation));
+      this.ref.current.matrix.multiply(mat4.makeRotationZ(this.smoothedRotation));
       this.ref.current.matrix.multiply(mat4.makeTranslation(0, cursorOnTipOffset, 0));
 
       this.ref.current.matrixWorldNeedsUpdate = true;

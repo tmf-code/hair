@@ -65,5 +65,6 @@ export class MouseDirection {
     this.interval && clearInterval(this.interval);
   }
 
-  getDirection = () => this.currentDirection;
+  getDirection = () => this.targetDirection;
+  getSmoothedDirection = () => this.currentDirection;
 }
