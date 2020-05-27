@@ -12,7 +12,7 @@ export type SocketCallbacks = {
   sendLocation: () => { rotation: number; position: [number, number] };
 };
 
-export class Socket {
+export class ClientSocket {
   private static readonly EMIT_INTERVAL = 100;
   private socket: SocketIOClient.Socket;
   private socketCallbacks: SocketCallbacks;
@@ -83,7 +83,7 @@ export class Socket {
 
       const location = this.socketCallbacks.sendLocation();
       this.updatePlayerLocation(location);
-    }, Socket.EMIT_INTERVAL);
+    }, ClientSocket.EMIT_INTERVAL);
   }
 
   private updateServerCuts(cuts: boolean[]) {

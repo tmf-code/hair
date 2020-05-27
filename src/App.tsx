@@ -9,7 +9,7 @@ import { Players as PlayersRenderable } from './components/players';
 import { Hairs as HairRenderable } from './components/hairs';
 import { HairPositions } from './drivers/hairs/hair-positions';
 import { HairRotations } from './drivers/hairs/hair-rotations';
-import { Socket, SocketCallbacks } from './drivers/socket';
+import { ClientSocket } from './drivers/client-socket';
 import { Razor as RazorRenderable } from './components/razor';
 import { Razor } from './drivers/razor';
 import { HairCuts } from './drivers/hairs/hair-cuts';
@@ -32,7 +32,7 @@ const hairs = new Hairs(
 
 const players = new Players();
 
-const socketCallbacks: SocketCallbacks = {
+const socketCallbacks = {
   setPositions: hairPositions.setPositions.bind(hairPositions),
   setRotations: hairRotations.setInitialRotations.bind(hairRotations),
   setPlayers: players.updatePlayers.bind(players),
@@ -45,7 +45,7 @@ const socketCallbacks: SocketCallbacks = {
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const socket = new Socket(io, process.env.NODE_ENV, socketCallbacks);
+const socket = new ClientSocket(io, process.env.NODE_ENV, socketCallbacks);
 
 const App = () => {
   return (
