@@ -1,7 +1,6 @@
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { TextureLoader, Mesh, Vector2, Camera } from 'three';
 import React from 'react';
-import { useSpring, a } from 'react-spring/three';
 import razorSVG from '../svgs/razor.svg';
 import { useThree, useFrame } from 'react-three-fiber';
 
@@ -23,18 +22,13 @@ const CurrentPlayerRazor = ({ updateFrame }: CurrentPlayerRazorProps) => {
   const ref = useRef<Mesh>();
   useFrame(() => updateFrame(ref, mouse, aspect, camera));
 
-  const { scaleFactor } = useSpring({ scaleFactor: mouseUp ? 1.1 : 1 });
-
   return (
-    <a.mesh
-      ref={ref}
-      scale={scaleFactor.interpolate((amount: number) => [aspect * amount, aspect * amount, 1])}
-    >
+    <mesh ref={ref}>
       <planeBufferGeometry attach="geometry" args={[1, 2.1]} />
       <meshBasicMaterial attach="material" transparent opacity={mouseUp ? 0 : 1}>
         <primitive attach="map" object={texture} />
       </meshBasicMaterial>
-    </a.mesh>
+    </mesh>
   );
 };
 
