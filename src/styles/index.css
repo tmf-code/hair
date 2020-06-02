@@ -46,8 +46,8 @@ button {
   position: absolute;
   display: block;
   z-index: 99;
-  bottom: 10%;
-  right: 10%;
+  bottom: 5%;
+  right: 5%;
   background-color: #00000000;
   color: black;
   border: 2px solid rgb(0, 0, 0);
@@ -64,8 +64,8 @@ button {
   position: absolute;
   display: block;
   z-index: 99;
-  right: 10%;
-  bottom: 10%;
+  right: 5%;
+  bottom: 5%;
   -webkit-user-select: none; /* Safari */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE10+/Edge */
@@ -73,7 +73,7 @@ button {
 }
 @media (max-width: 1000px) {
   .colofon-text {
-    left: 10%;
+    left: 5%;
   }
 }
 

@@ -3,8 +3,8 @@ import React from 'react';
 const ColofonText = (): React.ReactElement => {
   return (
     <div className="colofon-text">
-      <h1>Colofon</h1>
-      <p> _title_ is a project by</p>
+      <h1>_title_</h1>
+      <p>A project by</p>
       <ul>
         <li>Alexandra Barancová</li>
         <li>Jae Perris</li>

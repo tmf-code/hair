@@ -50,17 +50,20 @@ const socket = new ClientSocket(io, process.env.NODE_ENV, socketCallbacks);
 
 const App = () => {
   return (
-    <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
-      <FriendPlayersRenderable players={players} />
-      <CurrentPlayerRazorRenderable
-        updateFrame={currentPlayerRazor.updateFrame.bind(currentPlayerRazor)}
-      />
-      <HairRenderable
-        instanceCount={hairs.instanceCount()}
-        updateFrame={hairs.updateFrame.bind(hairs)}
-        viewportChange={hairs.setViewport.bind(hairs)}
-      />
-    </Canvas>
+    <div>
+      <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
+        <FriendPlayersRenderable players={players} />
+        <CurrentPlayerRazorRenderable
+          updateFrame={currentPlayerRazor.updateFrame.bind(currentPlayerRazor)}
+        />
+        <HairRenderable
+          instanceCount={hairs.instanceCount()}
+          updateFrame={hairs.updateFrame.bind(hairs)}
+          viewportChange={hairs.setViewport.bind(hairs)}
+        />
+      </Canvas>
+      <Colofon />
+    </div>
   );
 };
 
