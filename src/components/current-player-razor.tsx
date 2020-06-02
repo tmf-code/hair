@@ -3,7 +3,6 @@ import { TextureLoader, Mesh, Vector2, Camera } from 'three';
 import React from 'react';
 import razorSVG from '../svgs/razor.svg';
 import { useThree, useFrame } from 'react-three-fiber';
-import { unzipSync } from 'zlib';
 
 type CurrentPlayerRazorProps = {
   updateFrame: (
