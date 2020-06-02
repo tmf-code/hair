@@ -90,14 +90,15 @@ export class CurrentPlayer {
   }
 
   private updateRazorTriangles(mousePos: Vector3) {
+    const [widthScale, heightScale] = this.scale;
     const offsets = [
-      [-razorWidth * this.aspect, -razorHeight],
-      [-razorWidth * this.aspect, razorHeight],
-      [+razorWidth * this.aspect, -razorHeight],
-      [+razorWidth * this.aspect, razorHeight],
+      [-razorWidth * widthScale, -razorHeight],
+      [-razorWidth * widthScale, razorHeight],
+      [+razorWidth * heightScale, -razorHeight],
+      [+razorWidth * heightScale, razorHeight],
     ];
 
-    const cursorOnTipOffset = new Vector2(0, razorHeight * 4.2 * this.aspect);
+    const cursorOnTipOffset = new Vector2(0, razorHeight * 4.2 * heightScale);
 
     const offsetVector2 = offsets.map((offset) =>
       new Vector2()
