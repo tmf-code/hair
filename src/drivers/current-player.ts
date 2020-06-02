@@ -7,14 +7,9 @@ import { razorWidth, razorHeight } from '../utilities/constants';
 import { mouseToWorld } from '../utilities/utilities';
 import { Mouse } from './mouse/mouse';
 
-export class CurrentPlayer {
-  private static readonly PLAYER_STATE = {
-    NOT_CUTTING: 'NOT_CUTTING',
-    START_CUTTING: 'START_CUTTING',
-    CUTTING: 'CUTTING',
-    STOP_CUTTING: 'STOP_CUTTING',
-  };
+type CurrentPlayerState = 'NOT_CUTTING' | 'START_CUTTING' | 'CUTTING' | 'STOP_CUTTING';
 
+export class CurrentPlayer {
   private ref: React.MutableRefObject<Mesh | undefined> | undefined;
   private razorTriangles: [Triangle, Triangle] = [new Triangle(), new Triangle()];
   private aspect = 1.0;
@@ -26,7 +21,7 @@ export class CurrentPlayer {
   private worldPosition = new Vector3();
   private scale = [1, 1, 1] as [number, number, number];
 
-  private playerState: keyof typeof CurrentPlayer.PLAYER_STATE = 'NOT_CUTTING';
+  private playerState: CurrentPlayerState = 'NOT_CUTTING';
 
   public updateFrame(
     ref: React.MutableRefObject<Mesh | undefined>,
