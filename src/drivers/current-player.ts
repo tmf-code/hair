@@ -8,6 +8,13 @@ import { mouseToWorld } from '../utilities/utilities';
 import { Mouse } from './mouse/mouse';
 
 export class CurrentPlayer {
+  private static readonly PLAYER_STATE = {
+    NOT_CUTTING: 'NOT_CUTTING',
+    START_CUTTING: 'START_CUTTING',
+    CUTTING: 'CUTTING',
+    STOP_CUTTING: 'STOP_CUTTING',
+  };
+
   private ref: React.MutableRefObject<Mesh | undefined> | undefined;
   private razorTriangles: [Triangle, Triangle] = [new Triangle(), new Triangle()];
   private aspect = 1.0;
@@ -16,9 +23,10 @@ export class CurrentPlayer {
 
   private smoothedPosition = new Vector2(0, 0);
   private position = new Vector2(0, 0);
+  private worldPosition = new Vector3();
   private scale = [1, 1, 1] as [number, number, number];
 
-  private wasOffscreen = false;
+  private playerState: keyof typeof CurrentPlayer.PLAYER_STATE = 'NOT_CUTTING';
 
   public updateFrame(
     ref: React.MutableRefObject<Mesh | undefined>,
@@ -29,33 +37,61 @@ export class CurrentPlayer {
     this.ref = ref;
     this.aspect = aspect;
 
-    if (this.shouldUpdate()) {
-      const mousePos = this.getPosition(mouse, camera);
-      this.updateRazorTriangles(mousePos);
-      this.updateRazorTransform(mousePos);
-      this.updateScaleDown();
-    } else {
-      this.updateScaleUp();
-      this.wasOffscreen = true;
-      this.position = new Vector2().fromArray(offscreen);
-      this.smoothedPosition = this.position;
+    switch (this.playerState) {
+      case 'NOT_CUTTING':
+        this.updateNotCutting();
+        break;
+      case 'START_CUTTING':
+        this.updateStartCutting(mouse);
+        break;
+      case 'CUTTING':
+        this.updateCutting(mouse, camera);
+        break;
+      case 'STOP_CUTTING':
+        this.updateStopCutting(camera);
+        break;
     }
   }
 
-  private getPosition(mouse: Vector2, camera: Camera) {
+  private updateNotCutting() {
+    this.updateScaleUp();
+    if (Mouse.isClicked()) this.playerState = 'START_CUTTING';
+  }
+
+  private updateStartCutting(mouse: Vector2) {
+    this.smoothedPosition = mouse.clone();
+    this.updateRazorTriangles();
+    this.updateRazorTransform();
+
+    this.playerState = 'CUTTING';
+  }
+
+  private updateCutting(mouse: Vector2, camera: Camera) {
+    this.updateScaleDown();
     this.position = mouse.clone();
-    let mousePos: Vector3;
+    this.smoothedPosition = this.smoothedPosition.lerp(this.position, 0.1);
+    this.worldPosition = mouseToWorld(this.smoothedPosition, camera);
 
-    if (this.wasOffscreen) {
-      mousePos = mouseToWorld(this.position, camera);
-      this.smoothedPosition = this.position;
-      this.wasOffscreen = false;
-    } else {
-      this.smoothedPosition = this.smoothedPosition.lerp(this.position, 0.1);
-      mousePos = mouseToWorld(this.smoothedPosition, camera);
+    this.updateRazorTriangles();
+    this.updateRazorTransform();
+
+    if (!Mouse.isClicked()) {
+      this.playerState = 'STOP_CUTTING';
     }
+  }
 
-    return mousePos;
+  private updateStopCutting(camera: Camera) {
+    this.setPositionOffscreen();
+    this.worldPosition = mouseToWorld(this.smoothedPosition, camera);
+    this.updateRazorTriangles();
+    this.updateRazorTransform();
+
+    this.playerState = 'NOT_CUTTING';
+  }
+
+  private setPositionOffscreen() {
+    this.position = new Vector2().fromArray(offscreen);
+    this.smoothedPosition = this.position;
   }
 
   private updateScaleUp() {
@@ -89,7 +125,7 @@ export class CurrentPlayer {
     };
   }
 
-  private updateRazorTriangles(mousePos: Vector3) {
+  private updateRazorTriangles() {
     const [widthScale, heightScale] = this.scale;
     const offsets = [
       [-razorWidth * widthScale, -razorHeight],
@@ -108,7 +144,7 @@ export class CurrentPlayer {
     );
 
     const absoluteVector2 = offsetVector2.map((vector) =>
-      vector.add(new Vector2(mousePos.x, mousePos.y)),
+      vector.add(new Vector2(this.worldPosition.x, this.worldPosition.y)),
     );
 
     const absoluteVector3 = absoluteVector2.map((vector) => {
@@ -121,7 +157,7 @@ export class CurrentPlayer {
     this.razorTriangles = [triangleLeft, triangleRight];
   }
 
-  private updateRazorTransform(mousePos: Vector3) {
+  private updateRazorTransform() {
     this.smoothedRotation = Mouse.getSmoothedDirection();
     this.rotation = Mouse.getDirection();
 
@@ -131,7 +167,9 @@ export class CurrentPlayer {
       this.ref.current.matrix.identity();
       const mat4: Matrix4 = new Matrix4();
 
-      this.ref.current.matrix.multiply(mat4.makeTranslation(mousePos.x, mousePos.y, mousePos.z));
+      this.ref.current.matrix.multiply(
+        mat4.makeTranslation(this.worldPosition.x, this.worldPosition.y, this.worldPosition.z),
+      );
       this.ref.current.matrix.multiply(mat4.makeScale(...this.scale));
       this.ref.current.matrix.multiply(mat4.makeRotationZ(this.smoothedRotation));
       this.ref.current.matrix.multiply(mat4.makeTranslation(0, cursorOnTipOffset, 0));
