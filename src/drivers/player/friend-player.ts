@@ -1,5 +1,5 @@
 import { AbstractPlayer } from './abstract-player';
-import { offscreen } from '../utilities/constants';
+import { offscreen } from '../../utilities/constants';
 
 export class FriendPlayer extends AbstractPlayer {
   updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {

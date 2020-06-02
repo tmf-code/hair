@@ -1,7 +1,7 @@
 import { Vector3, Vector2, Triangle } from 'three';
 
-import { razorWidth, razorHeight } from '../utilities/constants';
-import { Mouse } from './mouse/mouse';
+import { razorWidth, razorHeight } from '../../utilities/constants';
+import { Mouse } from '../mouse/mouse';
 import { AbstractPlayer } from './abstract-player';
 
 export class CurrentPlayer extends AbstractPlayer {

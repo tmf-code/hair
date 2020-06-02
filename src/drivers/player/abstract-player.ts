@@ -1,5 +1,5 @@
-import { lerpTuple3, lerpTuple2, lerpTheta, relativeToWorld } from '../utilities/utilities';
-import { offscreen } from '../utilities/constants';
+import { lerpTuple3, lerpTuple2, lerpTheta, relativeToWorld } from '../../utilities/utilities';
+import { offscreen } from '../../utilities/constants';
 import { Mesh, Vector2, Camera, Matrix4 } from 'three';
 import React from 'react';
 

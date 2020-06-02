@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { FriendPlayerRazor } from './friend-player-razor';
-import { FriendPlayers as FriendPlayersManager } from '../drivers/friend-players';
+import { FriendPlayers as FriendPlayersManager } from '../drivers/player/friend-players';
 
 type RazorProps = {
   players: FriendPlayersManager;
