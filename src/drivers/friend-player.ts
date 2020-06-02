@@ -1,101 +1,58 @@
-import { offscreen } from './../utilities/constants';
-import { lerpTheta, lerp } from './../utilities/utilities';
-import { Vector3, Mesh, Camera, Matrix4 } from 'three';
-import React from 'react';
+import { AbstractPlayer } from './abstract-player';
+import { offscreen } from '../utilities/constants';
 
-import { relativeToWorld } from '../utilities/utilities';
-
-export class FriendPlayer {
-  private ref: React.MutableRefObject<Mesh | undefined> | undefined;
-  private camera: Camera | undefined;
-  private aspect = 1.0;
-
-  private rotation = 0;
-  private targetRotation = 0;
-
-  private relativeTargetPosition = [0, 0];
-  private previousRelativeTargetPosition = [0, 0];
-  private position: Vector3 = new Vector3(0, 0, 0);
-  private targetPosition: Vector3 = new Vector3(0, 0, 0);
-  private scale = [1, 1, 1] as [number, number, number];
-
-  public updateFrame(
-    ref: React.MutableRefObject<Mesh | undefined>,
-    camera: Camera,
-    aspect: number,
-  ) {
-    this.ref = ref;
-    this.camera = camera;
-    this.aspect = aspect;
-
-    this.updateRotation();
+export class FriendPlayer extends AbstractPlayer {
+  updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {
+    this.updateScaleUp();
     this.updatePosition();
-    this.updateRazorTransform();
+    this.updateRotation();
+
+    if (!this.isOffScreen()) {
+      return 'START_CUTTING';
+    }
+
+    return 'NOT_CUTTING';
   }
 
-  private updateRotation() {
-    this.rotation = lerpTheta(this.rotation, this.targetRotation, 0.1, Math.PI * 2);
+  updateStartCutting(): 'START_CUTTING' | 'CUTTING' {
+    this.smoothedPosition = this.position;
+    this.updateScaleDown();
+    this.updatePosition();
+    this.updateRotation();
+    this.setRazorTransform();
+
+    return 'CUTTING';
   }
 
-  private updatePosition() {
+  updateCutting(): 'CUTTING' | 'STOP_CUTTING' {
+    this.updateScaleDown();
+    this.updatePosition();
+    this.updateRotation();
+    this.setRazorTransform();
+
     if (this.isOffScreen()) {
-      this.scale = [1.1 * this.aspect, 1.1 * this.aspect, 1];
-      this.position = new Vector3(-100, -100, 0);
-      return;
+      return 'STOP_CUTTING';
     }
 
-    if (this.wasOffscreen()) {
-      this.position = this.targetPosition;
-      return;
-    }
-
-    this.scale = this.scale.map((scale) => lerp(scale, 1.0 * this.aspect, 0.1)) as [
-      number,
-      number,
-      number,
-    ];
-    this.position = this.position.lerp(this.targetPosition, 0.1);
+    return 'CUTTING';
   }
 
-  public serverUpdate(relativePosition: [number, number], rotation: number) {
-    this.targetRotation = rotation;
-    this.previousRelativeTargetPosition = this.relativeTargetPosition;
-    this.relativeTargetPosition = relativePosition;
+  updateStopCutting(): 'NOT_CUTTING' | 'STOP_CUTTING' {
+    this.setPositionOffscreen();
+    this.updateScaleUp();
+    this.updatePosition();
+    this.updateRotation();
+    this.setRazorTransform();
 
-    if (this.camera) {
-      this.targetPosition = relativeToWorld(relativePosition, this.camera);
-    }
-  }
-
-  private wasOffscreen() {
-    return (
-      this.previousRelativeTargetPosition[0] === offscreen[0] &&
-      this.previousRelativeTargetPosition[0] === offscreen[1]
-    );
+    return 'NOT_CUTTING';
   }
 
   private isOffScreen() {
-    return (
-      this.relativeTargetPosition[0] === offscreen[0] &&
-      this.relativeTargetPosition[0] === offscreen[1]
-    );
+    return this.position[0] === offscreen[0] && this.position[0] === offscreen[1];
   }
 
-  private updateRazorTransform() {
-    if (this.ref?.current) {
-      const cursorOnTipOffset = -(2.1 / 2) * 0.5;
-      this.ref.current.matrixAutoUpdate = false;
-      this.ref.current.matrix.identity();
-      const mat4: Matrix4 = new Matrix4();
-
-      this.ref.current.matrix.multiply(
-        mat4.makeTranslation(this.position.x, this.position.y, this.position.z),
-      );
-      this.ref.current.matrix.multiply(mat4.makeScale(...this.scale));
-      this.ref.current.matrix.multiply(mat4.makeRotationZ(this.rotation));
-      this.ref.current.matrix.multiply(mat4.makeTranslation(0, cursorOnTipOffset, 0));
-
-      this.ref.current.matrixWorldNeedsUpdate = true;
-    }
+  public serverUpdate(position: [number, number], rotation: number) {
+    this.rotation = rotation;
+    this.position = position;
   }
 }

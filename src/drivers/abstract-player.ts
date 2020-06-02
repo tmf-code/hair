@@ -13,12 +13,12 @@ export abstract class AbstractPlayer {
   protected camera: Camera | undefined;
   protected mouse: Vector2 | undefined;
 
-  protected smoothedPosition: [number, number] = [0, 0];
+  protected smoothedPosition: [number, number] = offscreen;
   protected worldPosition: [number, number, number] = [0, 0, 0];
-  protected position: [number, number] = [0, 0];
+  protected position: [number, number] = offscreen;
   protected scale: [number, number, number] = [1, 1, 1];
 
-  protected playerState: PlayerState = 'NOT_CUTTING';
+  protected playerState: PlayerState = 'STOP_CUTTING';
 
   updateFrame(
     ref: React.MutableRefObject<Mesh | undefined>,
@@ -34,6 +34,7 @@ export abstract class AbstractPlayer {
     switch (this.playerState) {
       case 'NOT_CUTTING':
         this.playerState = this.updateNotCutting();
+
         break;
       case 'START_CUTTING':
         this.playerState = this.updateStartCutting();
