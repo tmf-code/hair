@@ -10,7 +10,7 @@ export class CurrentPlayer extends AbstractPlayer {
   updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {
     this.setPositionOffscreen();
     this.updateScaleUp();
-    if (Mouse.isClicked()) return 'START_CUTTING';
+    if (Mouse.isClicked() || Mouse.isSingleTouched()) return 'START_CUTTING';
 
     return 'NOT_CUTTING';
   }
@@ -54,10 +54,6 @@ export class CurrentPlayer extends AbstractPlayer {
     return this.razorTriangles.some((triangle) =>
       triangle.containsPoint(new Vector3(xPos, yPos, 0)),
     );
-  }
-
-  shouldUpdate(): boolean {
-    return Mouse.isClicked() || Mouse.isSingleTouched();
   }
 
   getLocation(): { rotation: number; position: [number, number] } {
