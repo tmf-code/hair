@@ -1,9 +1,10 @@
 import { lerp } from '../../utilities/utilities';
+import { desiredAspectRatio } from '../../utilities/constants';
 
 class HairPositions {
   private positions: [number, number][];
   private screenPositions: [number, number][];
-  private viewportWidth = 1.0;
+  private viewportWidth = desiredAspectRatio;
   private viewportHeight = 1.0;
 
   constructor(size: number) {
@@ -32,12 +33,16 @@ class HairPositions {
   }
 
   private convertRelativeToScreen() {
+    const desiredViewportWidth = desiredAspectRatio * this.viewportHeight;
+
     this.screenPositions = this.positions.map(
       ([xPos, yPos]) =>
-        this.convertPointRelativeToScreen(xPos, yPos, this.viewportWidth, this.viewportHeight) as [
-          number,
-          number,
-        ],
+        this.convertPointRelativeToScreen(
+          xPos,
+          yPos,
+          desiredViewportWidth,
+          this.viewportHeight,
+        ) as [number, number],
     );
   }
 

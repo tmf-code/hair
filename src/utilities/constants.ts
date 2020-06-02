@@ -14,3 +14,5 @@ export const mouseVelocitySampleInterval = 50;
 export const mouseDirectionSampleInterval = 50;
 export const mouseDirectionSmoothing = 0.01;
 export const offscreen = [-100, -100];
+
+export const desiredAspectRatio = 4 / 3;
