@@ -101,7 +101,7 @@ class FallingHairs {
     const heightBuckets = new Buckets(10, -this.viewport.width / 2.0, this.viewport.width / 2.0);
 
     const getBucketHeight = (xPos: number) =>
-      (heightBuckets.getCountOfBcuketAtValue(xPos) * this.viewport.height) /
+      (heightBuckets.getCountOfBucketAtValue(xPos) * this.viewport.height) /
       this.maxFallingHair /
       heightBuckets.numBuckets;
 

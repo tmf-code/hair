@@ -18,7 +18,7 @@ export class Buckets {
     return Math.floor(((value - this.min) / (this.max - this.min)) * this.numBuckets);
   }
 
-  getCountOfBcuketAtValue(value: number) {
+  getCountOfBucketAtValue(value: number) {
     const bucket = this.getBucket(value);
     return this.getCountOfBucket(bucket);
   }
