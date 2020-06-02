@@ -26,13 +26,14 @@ export class CurrentPlayer extends AbstractPlayer {
   updateCutting(): 'CUTTING' | 'STOP_CUTTING' {
     this.position = this.mouse?.toArray() as [number, number];
     this.smoothedRotation = Mouse.getSmoothedDirection();
+    this.rotation = this.smoothedRotation;
 
     this.updateScaleDown();
     this.updatePosition();
     this.updateRazorTriangles();
     this.setRazorTransform();
 
-    if (!Mouse.isClicked()) {
+    if (!Mouse.isClicked() && !Mouse.isSingleTouched()) {
       return 'STOP_CUTTING';
     }
 
