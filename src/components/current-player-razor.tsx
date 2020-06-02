@@ -3,6 +3,7 @@ import { TextureLoader, Mesh, Vector2, Camera } from 'three';
 import React from 'react';
 import razorSVG from '../svgs/razor.svg';
 import { useThree, useFrame } from 'react-three-fiber';
+import { unzipSync } from 'zlib';
 
 type CurrentPlayerRazorProps = {
   updateFrame: (
@@ -37,17 +38,34 @@ const installUseEffects = (
 ): React.EffectCallback => () => {
   const down = () => setMouseUp(false);
   const up = () => setMouseUp(true);
+  let touchCount = 0;
+  const handleTouchStart = (touchEvent: TouchEvent) => {
+    touchCount = touchEvent.touches.length;
+    if (touchCount === 1) {
+      down();
+    } else {
+      up();
+    }
+  };
+  const handleTouchEnd = (touchEvent: TouchEvent) => {
+    touchCount = touchEvent.touches.length;
+    if (touchCount === 1) {
+      down();
+    } else {
+      up();
+    }
+  };
 
   document.addEventListener('mousedown', down);
-  document.addEventListener('touchstart', down);
-  document.addEventListener('mouseup', () => setMouseUp(true));
-  document.addEventListener('touchend', () => setMouseUp(true));
+  document.addEventListener('mouseup', up);
+  document.addEventListener('touchstart', handleTouchStart);
+  document.addEventListener('touchend', handleTouchEnd);
 
   return () => {
     document.removeEventListener('mousedown', down);
-    document.removeEventListener('touchstart', down);
+    document.removeEventListener('touchstart', handleTouchStart);
     document.removeEventListener('mouseup', up);
-    document.removeEventListener('touchend', up);
+    document.removeEventListener('touchend', handleTouchEnd);
   };
 };
 

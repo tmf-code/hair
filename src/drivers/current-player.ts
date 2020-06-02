@@ -69,7 +69,7 @@ export class CurrentPlayer {
   }
 
   shouldUpdate(): boolean {
-    return Mouse.isClicked();
+    return Mouse.isClicked() || Mouse.isSingleTouched();
   }
 
   getLocation(): { rotation: number; position: [number, number] } {

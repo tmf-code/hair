@@ -6,6 +6,7 @@ import {
 
 import { MouseVelocity } from './mouse-velocity';
 import { MouseClickState } from './mouse-click-state';
+import { MouseTouchState } from './mouse-touch-state';
 import { MousePosition } from './mouse-position';
 import { MouseDirection } from './mouse-direction';
 
@@ -14,6 +15,7 @@ export class Mouse {
 
   private position: MousePosition = new MousePosition();
   private clickState: MouseClickState = new MouseClickState();
+  private touchState: MouseTouchState = new MouseTouchState();
   private velocity: MouseVelocity = new MouseVelocity(
     mouseVelocitySampleInterval,
     this.position.getPosition.bind(this.position),
@@ -31,6 +33,14 @@ export class Mouse {
 
   static isClicked() {
     return this.instance.clickState.getIsClicked();
+  }
+
+  static isSingleTouched() {
+    return this.instance.touchState.getIsSingleTouched();
+  }
+
+  static isDoubleTouched() {
+    return this.instance.touchState.getIsDoubleTouched();
   }
 
   static getVelocity() {

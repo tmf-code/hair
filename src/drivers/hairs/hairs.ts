@@ -116,10 +116,10 @@ class Hairs {
   public instanceCount = () => this.hairPositions.getPositions().length + maxFallingHair;
 
   private calculateCuts = () => {
-    if (!Mouse.isClicked()) return this.noCuts;
-
-    const positions = this.hairPositions.getScreenPositions();
-    return positions.map(this.razorContainsPoint);
+    if (Mouse.isClicked() || Mouse.isSingleTouched()) {
+      const positions = this.hairPositions.getScreenPositions();
+      return positions.map(this.razorContainsPoint);
+    } else return this.noCuts;
   };
 }
 
