@@ -19,7 +19,11 @@ class HairLengths {
 
   cutHairs(cuts: boolean[]) {
     if (cuts.length !== this.getLengths().length)
-      throw new RangeError('cuts.length should be the same size as this.lengths');
+      throw new RangeError(
+        `cuts.length should be the same size as this.lengths. Got ${cuts.length}, expected ${
+          this.getLengths().length
+        }`,
+      );
 
     for (let lengthIndex = 0; lengthIndex < this.lengths.length; lengthIndex++) {
       const length = this.lengths[lengthIndex];

@@ -7,8 +7,8 @@ export const razorHeight = 0.1;
 export const swirlRadius = 2;
 export const maxFallingHair = 1500;
 export const animationDuration = 800;
-export const widthPoints = 60;
-export const heightPoints = 60;
+export const widthPoints = 10;
+export const heightPoints = 10;
 
 export const mouseVelocitySampleInterval = 50;
 export const mouseDirectionSampleInterval = 50;
