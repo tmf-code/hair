@@ -54,8 +54,26 @@ export class FallingHair implements IfallingHair {
   private calculateAnimationProgression = () =>
     Math.min((this.frameTime - this.timeStamp) / this.animationDuration, 1.0);
 
-  private calculateDestinationHeight = () =>
-    -this.viewportHeight / 2.0 + Math.abs(this.yPos / 8.0) + this.bucketHeight;
+  private calculateDestinationHeight = () => {
+    const requestedHeight = this.getStackedDestinationHeight();
+    const shouldStack = requestedHeight < this.yPos;
+
+    if (shouldStack) {
+      return requestedHeight;
+    }
+
+    const bottomOfWindow = -this.viewportHeight / 2.0;
+    return bottomOfWindow;
+  };
+
+  private getStackedDestinationHeight() {
+    const bottomOfWindow = -this.viewportHeight / 2.0;
+    const useRotationAsPseudoRandomOffset = this.rotation / 10;
+    const heightFromBottom =
+      ((this.bucketHeight + useRotationAsPseudoRandomOffset) / this.viewportHeight) * 15;
+
+    return bottomOfWindow + heightFromBottom;
+  }
 
   private calculateDistanceToDestination = () =>
     (this.yPos - this.destinationHeight) * EasingFunctions.easeInQuad(this.animationProgression);

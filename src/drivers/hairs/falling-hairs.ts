@@ -1,4 +1,4 @@
-import { InstancedMesh, Object3D } from 'three';
+import { InstancedMesh, Object3D, CubeUVReflectionMapping } from 'three';
 import { Buckets } from '../../utilities/buckets';
 import { FIFO } from '../../utilities/fifo';
 import { animationDuration } from '../../utilities/constants';
@@ -52,12 +52,12 @@ class FallingHairs {
     this.hairPositions = positions;
     this.hairLengths = lengths;
     this.hairCuts = cutEffect;
-    const cuts = this.createFallingHair();
-    this.addUniqueToFIFO(cuts);
+    const cutHairs = this.createCutHairs();
+    this.addUniqueToFIFO(cutHairs);
     this.makeHairFall();
   }
 
-  private createFallingHair() {
+  private createCutHairs() {
     const timeStamp = Date.now();
     const type = 'useful';
     const fallingHair: IfallingHair[] = [];
@@ -100,28 +100,36 @@ class FallingHairs {
     const frameTime = Date.now();
     const heightBuckets = new Buckets(10, -this.viewport.width / 2.0, this.viewport.width / 2.0);
 
-    const getBucketHeight = (xPos: number) =>
-      (heightBuckets.getCountOfBcuketAtValue(xPos) * this.viewport.height) /
-      this.maxFallingHair /
-      heightBuckets.numBuckets;
+    this.createFallingHair(heightBuckets, frameTime);
+  }
 
-    this.cutHairFIFO.getStack().forEach((transform, index) => {
+  private getBucketHeight = (heightBuckets: Buckets, xPos: number) =>
+    (heightBuckets.getCountOfBucketAtValue(xPos) * this.viewport.height) /
+    this.maxFallingHair /
+    heightBuckets.numBuckets;
+
+  private createFallingHair = (heightBuckets: Buckets, frameTime: number) => {
+    const hairs = this.cutHairFIFO.getStack();
+
+    for (let hairIndex = hairs.length - 1; hairIndex >= 0; hairIndex--) {
+      const transform = hairs[hairIndex];
       const { xPos, type } = transform;
+      if (type === 'empty') continue;
 
-      if (type === 'empty') return;
       heightBuckets.add(xPos);
 
+      const bucketHeight = this.getBucketHeight(heightBuckets, xPos);
       const fallingHair = new FallingHair(
         transform,
         this.animationDuration,
         frameTime,
         this.viewport.height,
-        getBucketHeight(xPos),
+        bucketHeight,
       );
 
-      this.setTransform(fallingHair, index);
-    });
-  }
+      this.setTransform(fallingHair, hairIndex);
+    }
+  };
 
   private addUniqueToFIFO(cuts: IfallingHair[]) {
     cuts.forEach((cut) => this.cutHairFIFO.addIfUnique(cut));
