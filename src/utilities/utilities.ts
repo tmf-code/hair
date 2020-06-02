@@ -6,6 +6,26 @@ export const lerp = function (value1: number, value2: number, amount: number) {
   return value1 + (value2 - value1) * amount;
 };
 
+export const lerpTuple2 = function (
+  from: [number, number],
+  to: [number, number],
+  amount: number,
+): [number, number] {
+  return mapOnZipped(from, to, (fromElement, toElement) =>
+    lerp(fromElement, toElement, amount),
+  ) as [number, number];
+};
+
+export const lerpTuple3 = function (
+  from: [number, number, number],
+  to: [number, number, number],
+  amount: number,
+): [number, number, number] {
+  return mapOnZipped(from, to, (fromElement, toElement) =>
+    lerp(fromElement, toElement, amount),
+  ) as [number, number, number];
+};
+
 export const arrayEqual = (array1: number[], array2: number[]) => {
   return array2.every((element, index) => array1[index] === element);
 };
