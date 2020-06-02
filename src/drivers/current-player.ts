@@ -33,8 +33,9 @@ export class CurrentPlayer {
       const mousePos = this.getPosition(mouse, camera);
       this.updateRazorTriangles(mousePos);
       this.updateRazorTransform(mousePos);
+      this.updateScaleDown();
     } else {
-      this.scale = [1.1 * this.aspect, 1.1 * this.aspect, 1];
+      this.updateScaleUp();
       this.wasOffscreen = true;
       this.position = new Vector2().fromArray(offscreen);
       this.smoothedPosition = this.position;
@@ -54,12 +55,21 @@ export class CurrentPlayer {
       mousePos = mouseToWorld(this.smoothedPosition, camera);
     }
 
-    this.scale = this.scale.map((scale) => lerp(scale, 1.0 * this.aspect, 0.1)) as [
-      number,
-      number,
-      number,
-    ];
     return mousePos;
+  }
+
+  private updateScaleUp() {
+    const targetScale = 1.1 * this.aspect;
+    this.scale = [targetScale, targetScale, 1];
+  }
+
+  private updateScaleDown() {
+    const [widthCurrent, heightCurrent] = this.scale;
+    const targetScale = 1.0 * this.aspect;
+    const lerpRate = 0.1;
+
+    const lerpTo = (dimension: number) => lerp(dimension, targetScale, lerpRate);
+    this.scale = [lerpTo(widthCurrent), lerpTo(heightCurrent), 1.0];
   }
 
   containsPoint([xPos, yPos]: [number, number]) {
