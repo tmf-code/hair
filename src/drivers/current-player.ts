@@ -155,21 +155,20 @@ export class CurrentPlayer {
   private updateRazorTransform() {
     this.smoothedRotation = Mouse.getSmoothedDirection();
     this.rotation = Mouse.getDirection();
+    if (!this.ref?.current) return;
 
-    if (this.ref?.current) {
-      const cursorOnTipOffset = -(2.1 / 2) * 0.5;
-      this.ref.current.matrixAutoUpdate = false;
-      this.ref.current.matrix.identity();
-      const mat4: Matrix4 = new Matrix4();
+    const cursorOnTipOffset = -(2.1 / 2) * 0.5;
+    this.ref.current.matrixAutoUpdate = false;
+    this.ref.current.matrix.identity();
+    const mat4: Matrix4 = new Matrix4();
 
-      this.ref.current.matrix.multiply(
-        mat4.makeTranslation(this.worldPosition.x, this.worldPosition.y, this.worldPosition.z),
-      );
-      this.ref.current.matrix.multiply(mat4.makeScale(...this.scale));
-      this.ref.current.matrix.multiply(mat4.makeRotationZ(this.smoothedRotation));
-      this.ref.current.matrix.multiply(mat4.makeTranslation(0, cursorOnTipOffset, 0));
+    this.ref.current.matrix.multiply(
+      mat4.makeTranslation(this.worldPosition.x, this.worldPosition.y, this.worldPosition.z),
+    );
+    this.ref.current.matrix.multiply(mat4.makeScale(...this.scale));
+    this.ref.current.matrix.multiply(mat4.makeRotationZ(this.smoothedRotation));
+    this.ref.current.matrix.multiply(mat4.makeTranslation(0, cursorOnTipOffset, 0));
 
-      this.ref.current.matrixWorldNeedsUpdate = true;
-    }
+    this.ref.current.matrixWorldNeedsUpdate = true;
   }
 }
