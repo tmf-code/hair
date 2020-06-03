@@ -68,14 +68,24 @@ class Hairs {
       const length = lengths[hairIndex];
       const rotation = rotations[hairIndex];
 
-      this.transformHolder.position.set(xPos, yPos, 0);
-      this.transformHolder.rotation.set(0, 0, rotation);
-      this.transformHolder.scale.set(1, length, 1);
-      this.transformHolder.updateMatrix();
-
-      this.ref?.current?.setMatrixAt(hairIndex, this.transformHolder.matrix);
+      this.updateStaticHair(xPos, yPos, length, rotation, hairIndex);
     });
   };
+
+  private updateStaticHair(
+    xPos: number,
+    yPos: number,
+    length: number,
+    rotation: number,
+    hairIndex: number,
+  ) {
+    this.transformHolder.position.set(xPos, yPos, 0);
+    this.transformHolder.rotation.set(0, 0, rotation);
+    this.transformHolder.scale.set(1, length, 1);
+    this.transformHolder.updateMatrix();
+
+    this.ref?.current?.setMatrixAt(hairIndex, this.transformHolder.matrix);
+  }
 
   private updateCutHairs() {
     const cuts = this.calculateCuts();
