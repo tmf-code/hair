@@ -1,5 +1,4 @@
 import { AbstractPlayer } from './abstract-player';
-import { offscreen } from '../../utilities/constants';
 
 export class FriendPlayer extends AbstractPlayer {
   updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {
@@ -16,19 +15,18 @@ export class FriendPlayer extends AbstractPlayer {
 
   updateStartCutting(): 'START_CUTTING' | 'CUTTING' {
     this.smoothedPosition = this.position;
-    this.updateScaleDown();
-    this.updatePosition();
-    this.updateRotation();
     this.setRazorTransform();
+    this.updateScaleDown();
+    this.updateRotation();
 
     return 'CUTTING';
   }
 
   updateCutting(): 'CUTTING' | 'STOP_CUTTING' {
+    this.setRazorTransform();
     this.updateScaleDown();
     this.updatePosition();
     this.updateRotation();
-    this.setRazorTransform();
 
     if (this.isOffScreen()) {
       return 'STOP_CUTTING';
@@ -48,7 +46,7 @@ export class FriendPlayer extends AbstractPlayer {
   }
 
   private isOffScreen() {
-    return this.position[0] === offscreen[0] && this.position[0] === offscreen[1];
+    return this.position[0] < -20 && this.position[1] < -20;
   }
 
   public serverUpdate(position: [number, number], rotation: number) {
