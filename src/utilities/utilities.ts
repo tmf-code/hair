@@ -114,3 +114,23 @@ export const zipTo = <T>(arrayB: T[]) => (elementFromA: T, indexOnA: number, arr
 };
 
 export type WorldLimits = ReturnType<typeof getWorldLimits>;
+
+export const coverFit = (
+  currentAspectRatio: number,
+  desiredAspectRatio: number,
+  width: number,
+  height: number,
+) => {
+  const isThinner = currentAspectRatio < desiredAspectRatio;
+  if (isThinner) {
+    const outputWidth = height * desiredAspectRatio;
+    const outputHeight = height;
+
+    return [outputWidth, outputHeight];
+  }
+
+  const outputWidth = width;
+  const outputHeight = width / desiredAspectRatio;
+
+  return [outputWidth, outputHeight];
+};
