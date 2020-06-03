@@ -19,6 +19,7 @@ class Hairs {
   private hairPositions: HairPositions;
   private hairRotations: HairRotations;
   private fallingHair: FallingHairs;
+  private aspect = 1.0;
   private razorContainsPoint: (arg0: [number, number]) => boolean;
 
   constructor(
@@ -39,6 +40,7 @@ class Hairs {
   }
 
   setViewport({ width, height, factor }: Viewport) {
+    this.aspect = width / height;
     this.hairPositions.setViewport(width, height);
     this.fallingHair.setViewport({ width, height, factor });
   }
@@ -56,6 +58,8 @@ class Hairs {
   }
 
   private updateStaticHairs = () => {
+    const shouldSkip = this.aspect < 1.0;
+
     if (!this.ref?.current) return;
 
     this.ref.current.instanceMatrix.needsUpdate = true;
@@ -64,13 +68,41 @@ class Hairs {
     const positions = this.hairPositions.getScreenPositions();
     const lengths = this.hairLengths.getLengths();
 
+    if (shouldSkip) {
+      this.updateNotSkippedStaticHairs(positions, lengths, rotations);
+    } else {
+      this.updateAllStaticHairs(positions, lengths, rotations);
+    }
+  };
+
+  private updateNotSkippedStaticHairs(
+    positions: [number, number][],
+    lengths: number[],
+    rotations: number[],
+  ) {
+    const skipFrequency = 1 / this.aspect;
+    const hairWidth = 1 / this.aspect;
     positions.forEach(([xPos, yPos], hairIndex) => {
+      const shouldSkip = hairIndex % skipFrequency > 1;
+      if (shouldSkip) return;
       const length = lengths[hairIndex];
       const rotation = rotations[hairIndex];
 
+      this.updateStaticHair(xPos, yPos, length, rotation, hairIndex, hairWidth);
+    });
+  }
+
+  private updateAllStaticHairs(
+    positions: [number, number][],
+    lengths: number[],
+    rotations: number[],
+  ) {
+    positions.forEach(([xPos, yPos], hairIndex) => {
+      const length = lengths[hairIndex];
+      const rotation = rotations[hairIndex];
       this.updateStaticHair(xPos, yPos, length, rotation, hairIndex);
     });
-  };
+  }
 
   private updateStaticHair(
     xPos: number,
@@ -78,10 +110,11 @@ class Hairs {
     length: number,
     rotation: number,
     hairIndex: number,
+    hairWidth = 1,
   ) {
     this.transformHolder.position.set(xPos, yPos, 0);
     this.transformHolder.rotation.set(0, 0, rotation);
-    this.transformHolder.scale.set(1, length, 1);
+    this.transformHolder.scale.set(hairWidth, length, 1);
     this.transformHolder.updateMatrix();
 
     this.ref?.current?.setMatrixAt(hairIndex, this.transformHolder.matrix);
