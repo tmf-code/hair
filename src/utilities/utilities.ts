@@ -30,21 +30,22 @@ export const arrayEqual = (array1: number[], array2: number[]) => {
   return array2.every((element, index) => array1[index] === element);
 };
 
+export const getWorldPosFromPixels = (camera: Camera, xPos: number, yPos: number) => {
+  const pos = new Vector3();
+  const vec = new Vector3();
+  vec.set((xPos / window.innerWidth) * 2 - 1, -(yPos / window.innerHeight) * 2 + 1, 0);
+  vec.unproject(camera);
+  vec.sub(camera.position).normalize();
+  const distance = -camera.position.z / vec.z;
+  return pos.copy(camera.position).add(vec.multiplyScalar(distance));
+};
+
 export const getWorldLimits = (camera: Camera | undefined) => {
   if (!camera) return { leftTop: new Vector3(0, 0, 0), rightBottom: new Vector3(1, 1, 0) };
-  const getWorldPos = (xPos: number, yPos: number) => {
-    const pos = new Vector3();
-    const vec = new Vector3();
-    vec.set((xPos / window.innerWidth) * 2 - 1, -(yPos / window.innerHeight) * 2 + 1, 0);
-    vec.unproject(camera);
-    vec.sub(camera.position).normalize();
-    const distance = -camera.position.z / vec.z;
-    return pos.copy(camera.position).add(vec.multiplyScalar(distance));
-  };
 
   return {
-    leftTop: getWorldPos(0, 0),
-    rightBottom: getWorldPos(window.innerWidth, window.innerHeight),
+    leftTop: getWorldPosFromPixels(camera, 0, 0),
+    rightBottom: getWorldPosFromPixels(camera, window.innerWidth, window.innerHeight),
   };
 };
 
@@ -122,6 +123,26 @@ export const coverFit = (
   height: number,
 ) => {
   const isThinner = currentAspectRatio < desiredAspectRatio;
+  if (isThinner) {
+    const outputWidth = height * desiredAspectRatio;
+    const outputHeight = height;
+
+    return [outputWidth, outputHeight];
+  }
+
+  const outputWidth = width;
+  const outputHeight = width / desiredAspectRatio;
+
+  return [outputWidth, outputHeight];
+};
+
+export const coverFit2 = (
+  currentAspectRatio: number,
+  desiredAspectRatio: number,
+  width: number,
+  height: number,
+) => {
+  const isThinner = currentAspectRatio > desiredAspectRatio;
   if (isThinner) {
     const outputWidth = height * desiredAspectRatio;
     const outputHeight = height;
