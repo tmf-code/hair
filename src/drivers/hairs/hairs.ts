@@ -81,11 +81,12 @@ class Hairs {
     rotations: number[],
   ) {
     const skipFrequency = 1 / this.aspect;
-    const hairWidth = 1 / this.aspect;
+    const hairWidth = 2 / this.aspect;
+    const hairLengthScale = 2 / this.aspect;
     positions.forEach(([xPos, yPos], hairIndex) => {
       const shouldSkip = hairIndex % skipFrequency > 1;
       if (shouldSkip) return;
-      const length = lengths[hairIndex];
+      const length = lengths[hairIndex] * hairLengthScale;
       const rotation = rotations[hairIndex];
 
       this.updateStaticHair(xPos, yPos, length, rotation, hairIndex, hairWidth);
