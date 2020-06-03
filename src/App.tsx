@@ -17,6 +17,7 @@ import { HairLengths } from './drivers/hairs/hair-lengths';
 import { widthPoints, heightPoints } from './utilities/constants';
 import { Hairs } from './drivers/hairs/hairs';
 import { Colofon } from './components/colofon';
+import { CameraController } from './components/camera-controller';
 
 const hairRotations = new HairRotations(widthPoints * heightPoints);
 const hairPositions = new HairPositions(widthPoints * heightPoints);
@@ -52,6 +53,7 @@ const App = () => {
   return (
     <div>
       <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
+        <CameraController></CameraController>
         <FriendPlayersRenderable players={players} />
         <CurrentPlayerRazorRenderable
           updateFrame={currentPlayerRazor.updateFrame.bind(currentPlayerRazor)}

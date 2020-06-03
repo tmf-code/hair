@@ -1,4 +1,5 @@
-import { lerp } from '../../utilities/utilities';
+import { lerp, coverFit } from '../../utilities/utilities';
+import { mapAspectRatio } from '../../utilities/constants';
 
 class HairPositions {
   private positions: [number, number][];
@@ -32,12 +33,16 @@ class HairPositions {
   }
 
   private convertRelativeToScreen() {
+    const [mapWidth, mapHeight] = coverFit(
+      this.viewportWidth / this.viewportHeight,
+      mapAspectRatio,
+      this.viewportWidth,
+      this.viewportHeight,
+    );
+
     this.screenPositions = this.positions.map(
       ([xPos, yPos]) =>
-        this.convertPointRelativeToScreen(xPos, yPos, this.viewportWidth, this.viewportHeight) as [
-          number,
-          number,
-        ],
+        this.convertPointRelativeToScreen(xPos, yPos, mapWidth, mapHeight) as [number, number],
     );
   }
 
