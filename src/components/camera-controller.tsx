@@ -22,7 +22,6 @@ const clampInLimits = (
   camera: PerspectiveCamera,
   limits: { left: number; right: number; top: number; bottom: number },
 ) => {
-  console.log('camera aspect: ' + camera.aspect);
   const [wNear, hNear] = coverFit2(1.0, camera.aspect, 2, 2);
   const cameraLeft = +wNear / 2.0;
   const cameraRight = -wNear / 2.0;
