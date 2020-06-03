@@ -1,4 +1,4 @@
-import { Camera, Mesh } from 'three';
+import { Camera, Mesh, Vector2 } from 'three';
 import { FriendPlayer } from './friend-player';
 
 export class FriendPlayers {
@@ -18,9 +18,14 @@ export class FriendPlayers {
     });
   }
 
-  updateFrame(ref: React.MutableRefObject<Mesh | undefined>, camera: Camera, aspect: number) {
+  updateFrame(
+    ref: React.MutableRefObject<Mesh | undefined>,
+    mouse: Vector2,
+    aspect: number,
+    camera: Camera,
+  ) {
     Object.values(this.players).forEach((player) => {
-      player.razor.updateFrame(ref, camera, aspect);
+      player.razor.updateFrame(ref, mouse, aspect, camera);
     });
   }
 }

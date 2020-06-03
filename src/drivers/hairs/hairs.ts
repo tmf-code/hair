@@ -13,7 +13,6 @@ import { Viewport } from '../../types/viewport';
 class Hairs {
   private readonly noCuts: false[];
   private readonly transformHolder = new Object3D();
-  private lastLengths: number[] = [];
   private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
   private hairCuts: HairCuts;
   private hairLengths: HairLengths;
@@ -34,9 +33,6 @@ class Hairs {
     this.hairPositions = hairPositions;
     this.hairLengths = hairLengths;
     this.hairCuts = hairCuts;
-
-    this.lastLengths = hairLengths.getLengths();
-
     this.fallingHair = new FallingHairs(widthPoints * heightPoints, maxFallingHair);
 
     this.noCuts = [...new Array(widthPoints * heightPoints)].fill(false);
@@ -54,15 +50,10 @@ class Hairs {
   ) {
     this.ref = ref;
     this.fallingHair.setRef(ref);
-    this.updateLengths();
     this.updateStaticHairs();
     this.updateCutHairs();
     this.updateSwirls(mouse, camera);
   }
-
-  private updateLengths = () => {
-    this.lastLengths = this.hairLengths.getLengths();
-  };
 
   private updateStaticHairs = () => {
     if (!this.ref?.current) return;

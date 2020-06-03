@@ -1,4 +1,4 @@
-import { InstancedMesh, Object3D, CubeUVReflectionMapping } from 'three';
+import { InstancedMesh, Object3D } from 'three';
 import { Buckets } from '../../utilities/buckets';
 import { FIFO } from '../../utilities/fifo';
 import { animationDuration } from '../../utilities/constants';

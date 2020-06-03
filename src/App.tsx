@@ -4,14 +4,14 @@ import { Canvas } from 'react-three-fiber';
 import io from 'socket.io-client';
 
 import './styles/App.css';
-import { FriendPlayers } from './drivers/friend-players';
+import { FriendPlayers } from './drivers/player/friend-players';
 import { FriendPlayers as FriendPlayersRenderable } from './components/friend-players';
 import { Hairs as HairRenderable } from './components/hairs';
 import { HairPositions } from './drivers/hairs/hair-positions';
 import { HairRotations } from './drivers/hairs/hair-rotations';
 import { ClientSocket } from './drivers/client-socket';
 import { CurrentPlayerRazor as CurrentPlayerRazorRenderable } from './components/current-player-razor';
-import { CurrentPlayer } from './drivers/current-player';
+import { CurrentPlayer } from './drivers/player/current-player';
 import { HairCuts } from './drivers/hairs/hair-cuts';
 import { HairLengths } from './drivers/hairs/hair-lengths';
 import { widthPoints, heightPoints } from './utilities/constants';
