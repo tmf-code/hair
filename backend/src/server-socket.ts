@@ -1,12 +1,11 @@
 import { IplayerData } from './players/i-player-data';
-import { SERVER_EMIT_INTERVAL, SERVER_LENGTH_SYNC_INTERVAL } from './constants';
+import { SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
 
 export type ServerSocketCallbacks = {
   onPlayerConnected: (socket: SocketIO.Socket) => void;
   onPlayerDisconnected: (playerId: string) => void;
   onEmitPlayerLocations: () => Record<string, IplayerData>;
-  onEmitHairLengths: () => number[];
   onReceiveCuts: (cuts: boolean[]) => void;
 };
 
@@ -34,27 +33,16 @@ export class ServerSocket {
   public recieveCuts(incomingCuts: boolean[]) {
     this.serverSocketCallbacks.onReceiveCuts(incomingCuts);
   }
-
   private startEmitting() {
-    this.startInterval(this.emitPlayerLocations.bind(this), SERVER_EMIT_INTERVAL);
-    this.startInterval(this.emitHairLengths.bind(this), SERVER_LENGTH_SYNC_INTERVAL);
-  }
-
-  private startInterval(callback: Function, millis: number) {
     const emit = () => {
-      callback();
+      this.emitPlayerLocations();
 
       const thisWasDestroyed = this === undefined;
       if (!thisWasDestroyed) {
-        setTimeout(emit, millis);
+        setTimeout(emit, SERVER_EMIT_INTERVAL);
       }
     };
     emit();
-  }
-
-  private emitHairLengths() {
-    const lengths = this.serverSocketCallbacks.onEmitHairLengths();
-    this.io.emit('updateClientLengths', lengths);
   }
 
   private emitPlayerLocations() {
