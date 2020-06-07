@@ -3,7 +3,7 @@ import React from 'react';
 const ColofonText = (): React.ReactElement => {
   return (
     <div className="colofon-text">
-      <h1>_title_</h1>
+      <h1>come shave with me</h1>
       <p>A project by</p>
       <ul>
         <li>Alexandra Barancová</li>
