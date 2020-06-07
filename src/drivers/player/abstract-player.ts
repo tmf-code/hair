@@ -1,6 +1,6 @@
 import { lerpTuple3, lerpTuple2, lerpTheta, relativeToWorld } from '../../utilities/utilities';
-import { offscreen } from '../../utilities/constants';
-import { Mesh, Vector2, Camera, Matrix4 } from 'three';
+import { offscreen, razorWidth, razorHeight } from '../../utilities/constants';
+import { Mesh, Vector2, Camera, Matrix4, Triangle, Vector3 } from 'three';
 import React from 'react';
 
 type PlayerState = 'NOT_CUTTING' | 'START_CUTTING' | 'CUTTING' | 'STOP_CUTTING';
@@ -19,6 +19,8 @@ export abstract class AbstractPlayer {
   protected scale: [number, number, number] = [1, 1, 1];
 
   protected playerState: PlayerState = 'STOP_CUTTING';
+
+  protected razorTriangles: [Triangle, Triangle] = [new Triangle(), new Triangle()];
 
   updateFrame(
     ref: React.MutableRefObject<Mesh | undefined>,
@@ -84,6 +86,44 @@ export abstract class AbstractPlayer {
 
   protected updateRotation() {
     this.smoothedRotation = lerpTheta(this.smoothedRotation, this.rotation, 0.1, Math.PI * 2);
+  }
+
+  containsPoint([xPos, yPos]: [number, number]) {
+    return this.razorTriangles.some((triangle) =>
+      triangle.containsPoint(new Vector3(xPos, yPos, 0)),
+    );
+  }
+
+  protected updateRazorTriangles() {
+    const [widthScale, heightScale] = this.scale;
+    const offsets = [
+      [-razorWidth * widthScale, -razorHeight],
+      [-razorWidth * widthScale, razorHeight],
+      [+razorWidth * heightScale, -razorHeight],
+      [+razorWidth * heightScale, razorHeight],
+    ];
+
+    const cursorOnTipOffset = new Vector2(0, razorHeight * 4.2 * heightScale);
+
+    const offsetVector2 = offsets.map((offset) =>
+      new Vector2()
+        .fromArray(offset)
+        .add(cursorOnTipOffset)
+        .rotateAround(new Vector2(0, 0), this.smoothedRotation),
+    );
+
+    const absoluteVector2 = offsetVector2.map((vector) =>
+      vector.add(new Vector2(this.worldPosition[0], this.worldPosition[1])),
+    );
+
+    const absoluteVector3 = absoluteVector2.map((vector) => {
+      return new Vector3().fromArray([...vector.toArray(), 0]);
+    });
+
+    const triangleLeft = new Triangle().setFromPointsAndIndices(absoluteVector3, 0, 1, 2);
+    const triangleRight = new Triangle().setFromPointsAndIndices(absoluteVector3, 3, 1, 2);
+
+    this.razorTriangles = [triangleLeft, triangleRight];
   }
 
   protected setRazorTransform() {

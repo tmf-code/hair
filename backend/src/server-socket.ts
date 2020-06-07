@@ -4,7 +4,6 @@ import SocketIO from 'socket.io';
 
 export type ServerSocketCallbacks = {
   onEmitGrowth: () => number;
-  onEmitCuts: { before: () => boolean[]; after: () => void };
   onPlayerConnected: (socket: SocketIO.Socket) => void;
   onPlayerDisconnected: (playerId: string) => void;
   onEmitPlayerLocations: () => Record<string, IplayerData>;
@@ -37,7 +36,6 @@ export class ServerSocket {
   }
   private startEmitting() {
     const emit = () => {
-      this.emitCuts();
       this.emitGrowth();
       this.emitPlayerLocations();
 
@@ -47,16 +45,6 @@ export class ServerSocket {
       }
     };
     emit();
-  }
-
-  private emitCuts() {
-    const { before, after } = this.serverSocketCallbacks.onEmitCuts;
-
-    const cuts = before();
-    if (cuts.some(Boolean)) {
-      this.io.emit('updateClientCuts', cuts);
-      after();
-    }
   }
 
   private emitGrowth() {

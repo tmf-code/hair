@@ -20,22 +20,25 @@ class Hairs {
   private hairRotations: HairRotations;
   private fallingHair: FallingHairs;
   private aspect = 1.0;
-  private razorContainsPoint: (arg0: [number, number]) => boolean;
+  private currentPlayerContainsPoint: (arg0: [number, number]) => boolean;
+  private friendPlayersContainPoint: (arg0: [number, number]) => boolean;
 
   constructor(
-    razorContainsPoint: (arg0: [number, number]) => boolean,
+    currentPlayerContainsPoint: (arg0: [number, number]) => boolean,
+    friendPlayersContainPoint: (arg0: [number, number]) => boolean,
     hairRotations: HairRotations,
     hairPositions: HairPositions,
     hairLengths: HairLengths,
     hairCuts: HairCuts,
   ) {
-    this.razorContainsPoint = razorContainsPoint;
+    this.currentPlayerContainsPoint = currentPlayerContainsPoint;
+    this.currentPlayerContainsPoint = currentPlayerContainsPoint;
+    this.friendPlayersContainPoint = friendPlayersContainPoint;
     this.hairRotations = hairRotations;
     this.hairPositions = hairPositions;
     this.hairLengths = hairLengths;
     this.hairCuts = hairCuts;
     this.fallingHair = new FallingHairs(widthPoints * heightPoints, maxFallingHair);
-
     this.noCuts = [...new Array(widthPoints * heightPoints)].fill(false);
   }
 
@@ -122,17 +125,17 @@ class Hairs {
   }
 
   private updateCutHairs() {
-    const cuts = this.calculateCuts();
+    const { currentPlayerCuts, combinedCuts } = this.calculateCuts();
 
     this.fallingHair.update(
       this.hairLengths.getLengths(),
-      cuts,
+      combinedCuts,
       this.hairRotations.getRotations(),
       this.hairPositions.getScreenPositions(),
     );
 
-    this.hairCuts.addFromClient(cuts);
-    this.hairLengths.cutHairs(this.hairCuts.getNewCuts());
+    this.hairCuts.addFromClient(currentPlayerCuts);
+    this.hairLengths.cutHairs(combinedCuts);
     this.hairCuts.clearNewCuts();
   }
 
@@ -150,12 +153,49 @@ class Hairs {
 
   public instanceCount = () => this.hairPositions.getPositions().length + maxFallingHair;
 
-  private calculateCuts = () => {
-    if (Mouse.isClicked() || Mouse.isSingleTouched()) {
-      const positions = this.hairPositions.getScreenPositions();
-      return positions.map(this.razorContainsPoint);
-    } else return this.noCuts;
+  private calculateCuts = (): {
+    currentPlayerCuts: boolean[];
+    combinedCuts: boolean[];
+  } => {
+    const positions = this.hairPositions.getScreenPositions();
+
+    const currentPlayerCuts = this.currentPlayerCuts(positions);
+    const friendPlayerCuts = this.friendPlayerCuts(positions);
+
+    const playerWantsToCut = Mouse.isClicked() || Mouse.isSingleTouched();
+    if (playerWantsToCut) {
+      return {
+        currentPlayerCuts,
+        combinedCuts: this.combineCuts(currentPlayerCuts, friendPlayerCuts),
+      };
+    }
+
+    return {
+      currentPlayerCuts: this.noCuts,
+      combinedCuts: friendPlayerCuts,
+    };
   };
+
+  private currentPlayerCuts(positions: [number, number][]) {
+    return positions.map(this.currentPlayerContainsPoint);
+  }
+
+  private friendPlayerCuts(positions: [number, number][]) {
+    return positions.map(this.friendPlayersContainPoint);
+  }
+
+  private combineCuts(playerCuts: boolean[], friendsCuts: boolean[]) {
+    const combinedCuts = [];
+
+    for (let index = 0; index < playerCuts.length; index++) {
+      const playerCut = playerCuts[index];
+      const friendsCut = friendsCuts[index];
+
+      combinedCuts.push(playerCut || friendsCut);
+    }
+
+    return combinedCuts;
+  }
 }
 
 export { Hairs };

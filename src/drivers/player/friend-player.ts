@@ -15,6 +15,7 @@ export class FriendPlayer extends AbstractPlayer {
 
   updateStartCutting(): 'START_CUTTING' | 'CUTTING' {
     this.smoothedPosition = this.position;
+    this.updateRazorTriangles();
     this.setRazorTransform();
     this.updateScaleDown();
     this.updateRotation();
@@ -23,6 +24,7 @@ export class FriendPlayer extends AbstractPlayer {
   }
 
   updateCutting(): 'CUTTING' | 'STOP_CUTTING' {
+    this.updateRazorTriangles();
     this.setRazorTransform();
     this.updateScaleDown();
     this.updatePosition();
@@ -40,6 +42,7 @@ export class FriendPlayer extends AbstractPlayer {
     this.updateScaleUp();
     this.updatePosition();
     this.updateRotation();
+    this.updateRazorTriangles();
     this.setRazorTransform();
 
     return 'NOT_CUTTING';

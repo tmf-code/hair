@@ -23,15 +23,15 @@ const hairPositions = new HairPositions(widthPoints * heightPoints);
 const hairLengths = new HairLengths(widthPoints * heightPoints);
 const hairCuts = new HairCuts(widthPoints * heightPoints);
 const currentPlayerRazor = new CurrentPlayer();
+const players = new FriendPlayers();
 const hairs = new Hairs(
   currentPlayerRazor.containsPoint.bind(currentPlayerRazor),
+  players.containsPoint.bind(players),
   hairRotations,
   hairPositions,
   hairLengths,
   hairCuts,
 );
-
-const players = new FriendPlayers();
 
 const socketCallbacks = {
   setPositions: hairPositions.setPositions.bind(hairPositions),
