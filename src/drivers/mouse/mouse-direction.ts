@@ -29,7 +29,15 @@ export class MouseDirection {
   }
 
   private takeSample() {
-    this.targetDirection = Math.atan2(...this.getMouseVelocity());
+    const mouseVelocity = this.getMouseVelocity();
+
+    if (this.velocityIsZero(mouseVelocity)) return;
+
+    this.targetDirection = Math.atan2(...mouseVelocity);
+  }
+
+  private velocityIsZero(velocity: [number, number]) {
+    return velocity[0] === 0 && velocity[1] === 0;
   }
 
   private startAnimating() {
