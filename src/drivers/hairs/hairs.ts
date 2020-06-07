@@ -11,7 +11,6 @@ import { HairRotations } from './hair-rotations';
 import { Viewport } from '../../types/viewport';
 
 class Hairs {
-  private readonly noCuts: false[];
   private readonly transformHolder = new Object3D();
   private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
   private hairCuts: HairCuts;
@@ -39,7 +38,6 @@ class Hairs {
     this.hairLengths = hairLengths;
     this.hairCuts = hairCuts;
     this.fallingHair = new FallingHairs(widthPoints * heightPoints, maxFallingHair);
-    this.noCuts = [...new Array(widthPoints * heightPoints)].fill(false);
   }
 
   setViewport({ width, height, factor }: Viewport) {
@@ -134,7 +132,8 @@ class Hairs {
       this.hairPositions.getScreenPositions(),
     );
 
-    this.hairCuts.addFromClient(currentPlayerCuts);
+    if (currentPlayerCuts !== undefined) this.hairCuts.addFromClient(currentPlayerCuts);
+
     this.hairLengths.cutHairs(combinedCuts);
     this.hairCuts.clearNewCuts();
   }
@@ -154,16 +153,15 @@ class Hairs {
   public instanceCount = () => this.hairPositions.getPositions().length + maxFallingHair;
 
   private calculateCuts = (): {
-    currentPlayerCuts: boolean[];
+    currentPlayerCuts: boolean[] | undefined;
     combinedCuts: boolean[];
   } => {
     const positions = this.hairPositions.getScreenPositions();
-
-    const currentPlayerCuts = this.currentPlayerCuts(positions);
     const friendPlayerCuts = this.friendPlayerCuts(positions);
 
     const playerWantsToCut = Mouse.isClicked() || Mouse.isSingleTouched();
     if (playerWantsToCut) {
+      const currentPlayerCuts = this.currentPlayerCuts(positions);
       return {
         currentPlayerCuts,
         combinedCuts: this.combineCuts(currentPlayerCuts, friendPlayerCuts),
@@ -171,7 +169,7 @@ class Hairs {
     }
 
     return {
-      currentPlayerCuts: this.noCuts,
+      currentPlayerCuts: undefined,
       combinedCuts: friendPlayerCuts,
     };
   };
