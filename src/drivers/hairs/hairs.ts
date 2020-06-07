@@ -11,6 +11,7 @@ import { HairRotations } from './hair-rotations';
 import { Viewport } from '../../types/viewport';
 
 class Hairs {
+  private readonly noCuts: false[];
   private readonly transformHolder = new Object3D();
   private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
   private hairCuts: HairCuts;
@@ -38,6 +39,7 @@ class Hairs {
     this.hairLengths = hairLengths;
     this.hairCuts = hairCuts;
     this.fallingHair = new FallingHairs(widthPoints * heightPoints, maxFallingHair);
+    this.noCuts = [...new Array(widthPoints * heightPoints)].fill(false);
   }
 
   setViewport({ width, height, factor }: Viewport) {
@@ -123,17 +125,17 @@ class Hairs {
   }
 
   private updateCutHairs() {
-    const cuts = this.calculateCuts();
+    const { currentPlayerCuts, combinedCuts } = this.calculateCuts();
 
     this.fallingHair.update(
       this.hairLengths.getLengths(),
-      cuts,
+      combinedCuts,
       this.hairRotations.getRotations(),
       this.hairPositions.getScreenPositions(),
     );
 
-    this.hairCuts.addFromClient(cuts);
-    this.hairLengths.cutHairs(this.hairCuts.getNewCuts());
+    this.hairCuts.addFromClient(currentPlayerCuts);
+    this.hairLengths.cutHairs(combinedCuts);
     this.hairCuts.clearNewCuts();
   }
 
@@ -151,26 +153,48 @@ class Hairs {
 
   public instanceCount = () => this.hairPositions.getPositions().length + maxFallingHair;
 
-  private calculateCuts = () => {
+  private calculateCuts = (): {
+    currentPlayerCuts: boolean[];
+    combinedCuts: boolean[];
+  } => {
     const positions = this.hairPositions.getScreenPositions();
+
+    const currentPlayerCuts = this.currentPlayerCuts(positions);
+    const friendPlayerCuts = this.friendPlayerCuts(positions);
 
     const playerWantsToCut = Mouse.isClicked() || Mouse.isSingleTouched();
     if (playerWantsToCut) {
-      return this.currentAndFriendPlayerCuts(positions);
-    } else {
-      return this.friendPlayerCuts(positions);
+      return {
+        currentPlayerCuts,
+        combinedCuts: this.combineCuts(currentPlayerCuts, friendPlayerCuts),
+      };
     }
+
+    return {
+      currentPlayerCuts: this.noCuts,
+      combinedCuts: friendPlayerCuts,
+    };
   };
 
-  private currentAndFriendPlayerCuts(positions: [number, number][]) {
-    return positions.map(
-      (position) =>
-        this.currentPlayerContainsPoint(position) || this.friendPlayersContainPoint(position),
-    );
+  private currentPlayerCuts(positions: [number, number][]) {
+    return positions.map(this.currentPlayerContainsPoint);
   }
 
   private friendPlayerCuts(positions: [number, number][]) {
     return positions.map(this.friendPlayersContainPoint);
+  }
+
+  private combineCuts(playerCuts: boolean[], friendsCuts: boolean[]) {
+    const combinedCuts = [];
+
+    for (let index = 0; index < playerCuts.length; index++) {
+      const playerCut = playerCuts[index];
+      const friendsCut = friendsCuts[index];
+
+      combinedCuts.push(playerCut || friendsCut);
+    }
+
+    return combinedCuts;
   }
 }
 
