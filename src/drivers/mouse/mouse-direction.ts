@@ -60,6 +60,11 @@ export class MouseDirection {
     }
   }
 
+  setToVertical() {
+    this.currentDirection = 0;
+    this.targetDirection = 0;
+  }
+
   reset = () => {
     this.stopAnimating();
     this.removeInterval();

@@ -55,6 +55,10 @@ export class Mouse {
     return this.instance.direction.getDirection();
   }
 
+  static setDirectionToVertical() {
+    this.instance.direction.setToVertical();
+  }
+
   static reset() {
     this.instance = new Mouse();
   }

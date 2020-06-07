@@ -5,6 +5,7 @@ export class CurrentPlayer extends AbstractPlayer {
   updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {
     this.setPositionOffscreen();
     this.updateScaleUp();
+    this.setRotationToVertical();
     if (Mouse.isClicked() || Mouse.isSingleTouched()) return 'START_CUTTING';
 
     return 'NOT_CUTTING';
@@ -14,16 +15,17 @@ export class CurrentPlayer extends AbstractPlayer {
     this.smoothedPosition = this.mouse?.toArray() as [number, number];
     this.updateRazorTriangles();
     this.setRazorTransform();
+    this.updateRotation();
 
     return 'CUTTING';
   }
 
   updateCutting(): 'CUTTING' | 'STOP_CUTTING' {
     this.position = this.mouse?.toArray() as [number, number];
-    this.smoothedRotation = Mouse.getSmoothedDirection();
-    this.rotation = this.smoothedRotation;
+    this.rotation = Mouse.getDirection();
 
     this.updateScaleDown();
+    this.updateRotation();
     this.updatePosition();
     this.updateRazorTriangles();
     this.setRazorTransform();
@@ -36,6 +38,7 @@ export class CurrentPlayer extends AbstractPlayer {
   }
 
   updateStopCutting(): 'STOP_CUTTING' | 'NOT_CUTTING' {
+    this.setRotationToVertical();
     this.setPositionOffscreen();
     this.updateScaleUp();
     this.updatePosition();
@@ -46,9 +49,15 @@ export class CurrentPlayer extends AbstractPlayer {
     return 'NOT_CUTTING';
   }
 
+  private setRotationToVertical() {
+    Mouse.setDirectionToVertical();
+    this.rotation = Mouse.getDirection();
+    this.smoothedRotation = this.rotation;
+  }
+
   getLocation(): { rotation: number; position: [number, number] } {
     return {
-      rotation: Mouse.getDirection(),
+      rotation: this.rotation,
       position: this.position,
     };
   }
