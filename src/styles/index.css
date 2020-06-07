@@ -46,6 +46,10 @@ button {
   user-select: none; /* Standard */
 }
 
+button:focus {
+  outline: none !important;
+}
+
 .colofon-text {
   position: absolute;
   display: block;
