@@ -1,5 +1,3 @@
-import { Vector3 } from 'three';
-
 import { Mouse } from '../mouse/mouse';
 import { AbstractPlayer } from './abstract-player';
 
@@ -46,12 +44,6 @@ export class CurrentPlayer extends AbstractPlayer {
     this.setRazorTransform();
 
     return 'NOT_CUTTING';
-  }
-
-  containsPoint([xPos, yPos]: [number, number]) {
-    return this.razorTriangles.some((triangle) =>
-      triangle.containsPoint(new Vector3(xPos, yPos, 0)),
-    );
   }
 
   getLocation(): { rotation: number; position: [number, number] } {
