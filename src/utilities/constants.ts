@@ -14,3 +14,6 @@ export const mouseVelocitySampleInterval = 50;
 export const mouseDirectionSampleInterval = 50;
 export const mouseDirectionSmoothing = 0.01;
 export const offscreen = [-100, -100] as [number, number];
+
+export const growthPerTick = 0.001;
+export const growthTickInterval = 100;

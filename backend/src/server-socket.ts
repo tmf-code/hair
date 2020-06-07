@@ -3,7 +3,6 @@ import { SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
 
 export type ServerSocketCallbacks = {
-  onEmitGrowth: () => number;
   onPlayerConnected: (socket: SocketIO.Socket) => void;
   onPlayerDisconnected: (playerId: string) => void;
   onEmitPlayerLocations: () => Record<string, IplayerData>;
@@ -36,7 +35,6 @@ export class ServerSocket {
   }
   private startEmitting() {
     const emit = () => {
-      this.emitGrowth();
       this.emitPlayerLocations();
 
       const thisWasDestroyed = this === undefined;
@@ -45,11 +43,6 @@ export class ServerSocket {
       }
     };
     emit();
-  }
-
-  private emitGrowth() {
-    const growthSpeed = this.serverSocketCallbacks.onEmitGrowth();
-    this.io.emit('updateClientGrowth', growthSpeed);
   }
 
   private emitPlayerLocations() {

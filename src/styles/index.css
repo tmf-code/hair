@@ -28,20 +28,6 @@ canvas {
   height: 100vh;
 }
 
-.Cursor {
-  position: absolute;
-  transition: transform 0.1s ease-in;
-  transform: translate(-50%, -15%);
-  width: 205px;
-  height: 420px;
-  z-index: 10;
-  background: url('../svgs/razor.svg') top center no-repeat;
-}
-
-.Cursor:active {
-  transform: scale(0.9, 0.9) translate(-55%, -25%);
-}
-
 button {
   position: absolute;
   display: block;

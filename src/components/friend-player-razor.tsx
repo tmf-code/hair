@@ -1,7 +1,7 @@
 import { useMemo, useRef } from 'react';
 import { TextureLoader, Mesh, Camera, Vector2 } from 'three';
 import React from 'react';
-import razorSVG from '../svgs/razor.svg';
+import razorSVG from '../images/razor.png';
 import { useThree, useFrame } from 'react-three-fiber';
 
 type FriendPlayerRazorProps = {
