@@ -1,12 +1,9 @@
-import { Vector3, Vector2, Triangle } from 'three';
+import { Vector3 } from 'three';
 
-import { razorWidth, razorHeight } from '../../utilities/constants';
 import { Mouse } from '../mouse/mouse';
 import { AbstractPlayer } from './abstract-player';
 
 export class CurrentPlayer extends AbstractPlayer {
-  private razorTriangles: [Triangle, Triangle] = [new Triangle(), new Triangle()];
-
   updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {
     this.setPositionOffscreen();
     this.updateScaleUp();
@@ -62,37 +59,5 @@ export class CurrentPlayer extends AbstractPlayer {
       rotation: this.rotation,
       position: this.position,
     };
-  }
-
-  private updateRazorTriangles() {
-    const [widthScale, heightScale] = this.scale;
-    const offsets = [
-      [-razorWidth * widthScale, -razorHeight],
-      [-razorWidth * widthScale, razorHeight],
-      [+razorWidth * heightScale, -razorHeight],
-      [+razorWidth * heightScale, razorHeight],
-    ];
-
-    const cursorOnTipOffset = new Vector2(0, razorHeight * 4.2 * heightScale);
-
-    const offsetVector2 = offsets.map((offset) =>
-      new Vector2()
-        .fromArray(offset)
-        .add(cursorOnTipOffset)
-        .rotateAround(new Vector2(0, 0), this.smoothedRotation),
-    );
-
-    const absoluteVector2 = offsetVector2.map((vector) =>
-      vector.add(new Vector2(this.worldPosition[0], this.worldPosition[1])),
-    );
-
-    const absoluteVector3 = absoluteVector2.map((vector) => {
-      return new Vector3().fromArray([...vector.toArray(), 0]);
-    });
-
-    const triangleLeft = new Triangle().setFromPointsAndIndices(absoluteVector3, 0, 1, 2);
-    const triangleRight = new Triangle().setFromPointsAndIndices(absoluteVector3, 3, 1, 2);
-
-    this.razorTriangles = [triangleLeft, triangleRight];
   }
 }

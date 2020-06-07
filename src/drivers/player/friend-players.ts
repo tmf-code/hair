@@ -28,4 +28,8 @@ export class FriendPlayers {
       player.razor.updateFrame(ref, mouse, aspect, camera);
     });
   }
+
+  containsPoint([xPos, yPos]: [number, number]) {
+    return Object.values(this.players).some((player) => player.razor.containsPoint([xPos, yPos]));
+  }
 }
