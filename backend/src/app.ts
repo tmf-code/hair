@@ -28,6 +28,7 @@ const serverSocketCallbacks: ServerSocketCallbacks = {
   onPlayerConnected: (socket: SocketIO.Socket) => players.addPlayer(socket),
   onPlayerDisconnected: (playerId: string) => players.removePlayer(playerId),
   onEmitPlayerLocations: () => players.getPlayerLocations(),
+  onEmitHairLengths: () => hairMap.getMapState().lengths,
   onReceiveCuts: (cuts: boolean[]) => hairMap.recieveCuts(cuts),
 };
 

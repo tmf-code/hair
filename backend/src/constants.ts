@@ -6,3 +6,4 @@ export const rotationEnd = (-10 * Math.PI) / 180;
 
 export const growthSpeed = 0.001;
 export const SERVER_EMIT_INTERVAL = 100;
+export const SERVER_LENGTH_SYNC_INTERVAL = 1000;
