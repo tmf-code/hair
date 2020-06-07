@@ -21,15 +21,6 @@ export class HairMap {
     this.addCuts(cuts);
   }
 
-  sendCuts() {
-    this.applyCutsToLengths();
-    return this.cuts;
-  }
-
-  sentCuts() {
-    this.clearCuts();
-  }
-
   private addCuts(cuts: boolean[]) {
     if (cuts.length !== this.cuts.length) {
       return;
@@ -37,17 +28,19 @@ export class HairMap {
     this.cuts = this.cuts.map((currentCut, cutIndex) => currentCut || cuts[cutIndex]);
   }
 
-  private clearCuts() {
-    this.cuts = this.positions.map(() => false);
+  growLengths() {
+    this.applyCutsToLengths();
+    this.clearCuts();
+    this.lengths = this.lengths.map((length) => Math.min(length + growthSpeed, 1));
+    return growthSpeed;
   }
 
   private applyCutsToLengths() {
     this.lengths = this.lengths.map((length, lengthIndex) => (this.cuts[lengthIndex] ? 0 : length));
   }
 
-  growLengths() {
-    this.lengths = this.lengths.map((length) => Math.min(length + growthSpeed, 1));
-    return growthSpeed;
+  private clearCuts() {
+    this.cuts = this.positions.map(() => false);
   }
 
   getMapState() {
