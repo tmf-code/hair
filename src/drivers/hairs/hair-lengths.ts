@@ -1,9 +1,18 @@
+import { growthTickInterval, growthPerTick } from './../../utilities/constants';
 class HairLengths {
   private lengths: number[];
-
+  private growthIntervalId: number;
   constructor(size: number) {
     const allZeros = [...new Array(size)].fill(0);
     this.lengths = allZeros;
+
+    this.growthIntervalId = window.setInterval(() => {
+      requestAnimationFrame(() => this.grow(growthPerTick));
+    }, growthTickInterval);
+  }
+
+  destroy() {
+    clearInterval(this.growthIntervalId);
   }
 
   size() {
