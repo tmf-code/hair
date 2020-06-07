@@ -48,7 +48,7 @@ export class CurrentPlayer extends AbstractPlayer {
 
   getLocation(): { rotation: number; position: [number, number] } {
     return {
-      rotation: this.rotation,
+      rotation: Mouse.getDirection(),
       position: this.position,
     };
   }
