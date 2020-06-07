@@ -18,8 +18,11 @@ const FriendPlayers = ({ players: playerData }: RazorProps) => {
 
   return (
     <>
-      {Object.values(players).map((player) => (
-        <FriendPlayerRazor updateFrame={player.razor.updateFrame.bind(player.razor)} />
+      {Object.values(players).map((player, playerIndex) => (
+        <FriendPlayerRazor
+          key={playerIndex}
+          updateFrame={player.razor.updateFrame.bind(player.razor)}
+        />
       ))}
     </>
   );
