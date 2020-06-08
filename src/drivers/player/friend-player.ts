@@ -1,5 +1,5 @@
 import { AbstractPlayer } from './abstract-player';
-import { cachedMovementCount, sampleInterval } from '../../utilities/constants';
+import { sampleInterval } from '../../utilities/constants';
 type PlayerLocation = { rotation: number; position: [number, number] };
 
 export class FriendPlayer extends AbstractPlayer {

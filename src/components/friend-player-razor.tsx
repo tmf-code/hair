@@ -1,7 +1,6 @@
-import { useMemo, useRef } from 'react';
-import { TextureLoader, Mesh, Camera, Vector2 } from 'three';
+import { useRef } from 'react';
+import { Mesh, Camera, Vector2, Texture } from 'three';
 import React from 'react';
-import razorSVG from '../images/friend-razor.png';
 import { useThree, useFrame } from 'react-three-fiber';
 
 type FriendPlayerRazorProps = {
@@ -11,11 +10,11 @@ type FriendPlayerRazorProps = {
     aspect: number,
     camera: Camera,
   ) => void;
+  texture: Texture;
 };
 
-const FriendPlayerRazor = ({ updateFrame }: FriendPlayerRazorProps) => {
+const FriendPlayerRazor = ({ updateFrame, texture }: FriendPlayerRazorProps) => {
   const { camera, aspect, mouse } = useThree();
-  const texture = useMemo(() => new TextureLoader().load(razorSVG), []);
 
   const ref = useRef<Mesh>();
   useFrame(() => updateFrame(ref, mouse, aspect, camera));
