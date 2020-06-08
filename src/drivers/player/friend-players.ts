@@ -6,11 +6,33 @@ export class FriendPlayers {
   players: Record<string, { razor: FriendPlayer }> = {};
 
   updatePlayers(playerData: Record<string, PlayerLocation[]>) {
-    Object.entries(playerData).forEach(([id, playerLocations]) => {
-      if (this.players[id] === undefined) {
+    this.removeDisconnectedPlayers(playerData);
+
+    const playerDataList = Object.entries(playerData);
+    this.addNewPlayers(playerDataList);
+    this.updatePlayerLocations(playerDataList);
+  }
+
+  private addNewPlayers(playerData: [string, PlayerLocation[]][]) {
+    playerData.forEach(([id]) => {
+      const playerHasConnected = this.players[id] === undefined;
+      if (playerHasConnected) {
         this.players[id] = { razor: new FriendPlayer() };
       }
+    });
+  }
 
+  private removeDisconnectedPlayers(playerData: Record<string, PlayerLocation[]>) {
+    Object.entries(this.players).forEach(([id]) => {
+      const playerHasDisconnected = !playerData.hasOwnProperty(id);
+      if (playerHasDisconnected) {
+        delete this.players[id];
+      }
+    });
+  }
+
+  private updatePlayerLocations(playerData: [string, PlayerLocation[]][]) {
+    playerData.forEach(([id, playerLocations]) => {
       const razor: FriendPlayer = this.players[id].razor;
       razor.serverUpdate(playerLocations);
     });
