@@ -1,7 +1,28 @@
+import { sampleInterval } from './../../utilities/constants';
 import { Mouse } from '../mouse/mouse';
 import { AbstractPlayer } from './abstract-player';
+import { cachedMovementCount } from '../../utilities/constants';
 
+type PlayerLocation = { rotation: number; position: [number, number] };
+
+let ids = 0;
 export class CurrentPlayer extends AbstractPlayer {
+  private bufferedLocations: PlayerLocation[] = [];
+  id: number;
+
+  constructor() {
+    super();
+    this.id = ids++;
+
+    this.startBufferingLocations();
+  }
+
+  startBufferingLocations() {
+    setInterval(() => {
+      return requestAnimationFrame(() => this.recordBufferedLocations());
+    }, sampleInterval);
+  }
+
   updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {
     this.setPositionOffscreen();
     this.updateScaleUp();
@@ -55,10 +76,16 @@ export class CurrentPlayer extends AbstractPlayer {
     this.smoothedRotation = this.rotation;
   }
 
-  getLocation(): { rotation: number; position: [number, number] } {
-    return {
-      rotation: this.rotation,
-      position: this.position,
-    };
+  private recordBufferedLocations() {
+    const newLocation = { rotation: this.rotation, position: this.position };
+    this.bufferedLocations.unshift(newLocation);
+    const bufferIsFull = this.bufferedLocations.length > cachedMovementCount;
+    if (bufferIsFull) {
+      this.bufferedLocations.pop();
+    }
+  }
+
+  getLocation(): PlayerLocation[] {
+    return this.bufferedLocations;
   }
 }

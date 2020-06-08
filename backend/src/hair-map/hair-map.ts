@@ -1,4 +1,4 @@
-import { growthSpeed, SERVER_EMIT_INTERVAL } from './../constants';
+import { growthAmount, growthInterval } from './../constants';
 export class HairMap {
   private positions: [number, number][];
   private rotations: number[];
@@ -35,7 +35,7 @@ export class HairMap {
 
       const thisWasDestroyed = this === undefined;
       if (!thisWasDestroyed) {
-        setTimeout(grow, SERVER_EMIT_INTERVAL);
+        setTimeout(grow, growthInterval);
       }
     };
     grow();
@@ -44,8 +44,8 @@ export class HairMap {
   private growLengths() {
     this.applyCutsToLengths();
     this.clearCuts();
-    this.lengths = this.lengths.map((length) => Math.min(length + growthSpeed, 1));
-    return growthSpeed;
+    this.lengths = this.lengths.map((length) => Math.min(length + growthAmount, 1));
+    return growthAmount;
   }
 
   private applyCutsToLengths() {

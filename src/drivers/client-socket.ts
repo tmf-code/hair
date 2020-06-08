@@ -1,19 +1,19 @@
+import { emitInterval } from './../utilities/constants';
 export type SocketCallbacks = {
   setPositions: (positions: [number, number][]) => void;
   setRotations: (rotations: number[]) => void;
   setPlayers: (
-    playerData: Record<number, { rotation: number; position: [number, number] }>,
+    playerData: Record<number, { rotation: number; position: [number, number] }[]>,
   ) => void;
   setLengths: (lengths: number[]) => void;
   tickGrowth: (growthSpeed: number) => void;
   setRemoteCuts: (cuts: boolean[]) => void;
   sendLocalCuts: () => boolean[];
   sentLocalCuts: () => void;
-  sendLocation: () => { rotation: number; position: [number, number] };
+  sendLocation: () => { rotation: number; position: [number, number] }[];
 };
 
 export class ClientSocket {
-  private static readonly EMIT_INTERVAL = 100;
   private socket: SocketIOClient.Socket;
   private socketCallbacks: SocketCallbacks;
   private clientID = '';
@@ -55,7 +55,7 @@ export class ClientSocket {
       updateClientCuts: (cuts: boolean[]) => this.socketCallbacks.setRemoteCuts(cuts),
 
       updateClientPlayerLocations: (
-        playerData: Record<string, { rotation: number; position: [number, number] }>,
+        playerData: Record<string, { rotation: number; position: [number, number] }[]>,
       ) => {
         if (playerData !== null) {
           if (playerData[this.clientID] !== undefined) {
@@ -83,7 +83,7 @@ export class ClientSocket {
 
       const location = this.socketCallbacks.sendLocation();
       this.updatePlayerLocation(location);
-    }, ClientSocket.EMIT_INTERVAL);
+    }, emitInterval);
   }
 
   private updateServerCuts(cuts: boolean[]) {
@@ -91,7 +91,7 @@ export class ClientSocket {
     this.socketCallbacks.sentLocalCuts();
   }
 
-  private updatePlayerLocation(location: { rotation: number; position: [number, number] }) {
+  private updatePlayerLocation(location: { rotation: number; position: [number, number] }[]) {
     this.socket.emit('updatePlayerLocation', location);
   }
 }

@@ -17,3 +17,7 @@ export const offscreen = [-100, -100] as [number, number];
 
 export const growthPerTick = 0.001;
 export const growthTickInterval = 100;
+
+export const cachedMovementCount = 10;
+export const emitInterval = 1000;
+export const sampleInterval = Math.floor(emitInterval / cachedMovementCount);
