@@ -37,9 +37,18 @@ export class Players {
   }
 
   getPlayerLocations() {
-    return Object.values(this.players).reduce((record, player) => {
-      const playerData = player.getPlayerData();
-      return { ...record, [playerData.id]: playerData };
-    }, {} as Record<string, IplayerData>);
+    return Object.values(this.players).reduce(
+      (record, player) => {
+        const playerData = player.getPlayerData();
+        return { ...record, [playerData.id]: playerData.playerLocations };
+      },
+      {} as Record<
+        string,
+        {
+          rotation: number;
+          position: [number, number];
+        }[]
+      >,
+    );
   }
 }

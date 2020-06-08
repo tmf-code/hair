@@ -1,11 +1,16 @@
-import { IplayerData } from './players/i-player-data';
 import { SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
 
 export type ServerSocketCallbacks = {
   onPlayerConnected: (socket: SocketIO.Socket) => void;
   onPlayerDisconnected: (playerId: string) => void;
-  onEmitPlayerLocations: () => Record<string, IplayerData>;
+  onEmitPlayerLocations: () => Record<
+    string,
+    {
+      rotation: number;
+      position: [number, number];
+    }[]
+  >;
   onReceiveCuts: (cuts: boolean[]) => void;
 };
 

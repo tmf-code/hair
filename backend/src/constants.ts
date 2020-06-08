@@ -4,5 +4,6 @@ export const heightPoints = 60;
 export const rotationStart = (45 * Math.PI) / 180;
 export const rotationEnd = (-10 * Math.PI) / 180;
 
-export const growthSpeed = 0.001;
-export const SERVER_EMIT_INTERVAL = 100;
+export const growthAmount = 0.001;
+export const SERVER_EMIT_INTERVAL = 1000;
+export const growthInterval = 100;

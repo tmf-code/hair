@@ -1,5 +1,7 @@
 export interface IplayerData {
   id: string;
-  rotation: number;
-  position: [number, number];
+  playerLocations: {
+    rotation: number;
+    position: [number, number];
+  }[];
 }

@@ -1,20 +1,18 @@
 import { Camera, Mesh, Vector2 } from 'three';
 import { FriendPlayer } from './friend-player';
 
+type PlayerLocation = { rotation: number; position: [number, number] };
 export class FriendPlayers {
-  players: Record<
-    string,
-    { rotation: number; position: [number, number]; razor: FriendPlayer }
-  > = {};
+  players: Record<string, { razor: FriendPlayer }> = {};
 
-  updatePlayers(playerData: Record<string, { rotation: number; position: [number, number] }>) {
-    Object.entries(playerData).forEach(([id, { rotation, position }]) => {
+  updatePlayers(playerData: Record<string, PlayerLocation[]>) {
+    Object.entries(playerData).forEach(([id, playerLocations]) => {
       if (this.players[id] === undefined) {
-        this.players[id] = { rotation, position, razor: new FriendPlayer() };
+        this.players[id] = { razor: new FriendPlayer() };
       }
 
       const razor: FriendPlayer = this.players[id].razor;
-      razor.serverUpdate(position, rotation);
+      razor.serverUpdate(playerLocations);
     });
   }
 

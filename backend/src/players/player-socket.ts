@@ -5,10 +5,11 @@ export type PlayerSocketCallbacks = {
   receiveCuts: (cuts: boolean[]) => void;
 };
 
+type PlayerLocations = { position: [number, number]; rotation: number }[];
+
 export class PlayerSocket {
   private readonly id: string;
-  private position: [number, number];
-  private rotation: number;
+  private playerLocations: PlayerLocations = [];
   private readonly socket: SocketIO.Socket;
   private readonly receiveCuts: (cuts: boolean[]) => void;
 
@@ -22,8 +23,6 @@ export class PlayerSocket {
     this.id = socket.id;
     this.socket = socket;
     this.receiveCuts = receiveCuts;
-    this.position = [0, 0];
-    this.rotation = 0;
 
     this.addHandlers();
     this.emitOnce(positions, rotations, lengths);
@@ -40,15 +39,8 @@ export class PlayerSocket {
     });
   }
 
-  private updatePlayerLocation({
-    rotation,
-    position,
-  }: {
-    rotation: number;
-    position: [number, number];
-  }) {
-    this.rotation = rotation;
-    this.position = position;
+  private updatePlayerLocation(playerLocations: PlayerLocations) {
+    this.playerLocations = playerLocations;
   }
 
   private emitOnce(positions: [number, number][], rotations: number[], lengths: number[]) {
@@ -60,8 +52,7 @@ export class PlayerSocket {
   getPlayerData(): IplayerData {
     return {
       id: this.id,
-      rotation: this.rotation,
-      position: this.position,
+      playerLocations: this.playerLocations,
     };
   }
 }

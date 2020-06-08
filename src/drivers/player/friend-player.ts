@@ -1,6 +1,23 @@
 import { AbstractPlayer } from './abstract-player';
+import { cachedMovementCount, sampleInterval } from '../../utilities/constants';
+type PlayerLocation = { rotation: number; position: [number, number] };
 
 export class FriendPlayer extends AbstractPlayer {
+  private bufferedLocations: PlayerLocation[] = [];
+
+  constructor() {
+    super();
+
+    this.startPlayingBackLocations();
+  }
+
+  startPlayingBackLocations() {
+    setInterval(
+      () => requestAnimationFrame(this.playbackBufferedLocations.bind(this)),
+      sampleInterval,
+    );
+  }
+
   updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {
     this.updateScaleUp();
     this.updatePosition();
@@ -48,12 +65,18 @@ export class FriendPlayer extends AbstractPlayer {
     return 'NOT_CUTTING';
   }
 
+  private playbackBufferedLocations() {
+    const playerLocation = this.bufferedLocations.pop();
+    if (playerLocation === undefined) return;
+
+    ({ position: this.position, rotation: this.rotation } = playerLocation);
+  }
+
   private isOffScreen() {
     return this.position[0] < -20 && this.position[1] < -20;
   }
 
-  public serverUpdate(position: [number, number], rotation: number) {
-    this.rotation = rotation;
-    this.position = position;
+  public serverUpdate(playerLocations: PlayerLocation[]) {
+    this.bufferedLocations = playerLocations;
   }
 }
