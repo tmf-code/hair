@@ -8,9 +8,8 @@ const Colofon = (): React.ReactElement => {
   return (
     <div>
       {display && <ColofonText />}
-      <button id="colofonButton" onClick={ToggleColofonState}>
-        i
-      </button>
+      <div className="clickableButtonArea" onClick={ToggleColofonState}></div>
+      <button id="colofonButton">i</button>
     </div>
   );
 };
