@@ -3,7 +3,7 @@ import { Buckets } from '../../utilities/buckets';
 import { FIFO } from '../../utilities/fifo';
 import { animationDuration } from '../../utilities/constants';
 import { FallingHair, IfallingHair } from './falling-hair';
-import { transformObject3D } from '../../utilities/utilities';
+import { transformObject3D } from '../../utilities/transform-object-3d';
 
 class FallingHairs {
   private static readonly emptyCutHair: IfallingHair = {

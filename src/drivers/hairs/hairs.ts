@@ -1,5 +1,6 @@
 import { Object3D, InstancedMesh, Camera, Vector2 } from 'three';
-import { mouseToWorld, transformObject3D } from '../../utilities/utilities';
+import { mouseToWorld } from '../../utilities/utilities';
+import { transformObject3D } from '../../utilities/transform-object-3d';
 import { maxFallingHair, widthPoints, heightPoints } from '../../utilities/constants';
 import { Mouse } from '../mouse/mouse';
 
