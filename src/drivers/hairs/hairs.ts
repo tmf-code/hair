@@ -1,5 +1,5 @@
 import { Object3D, InstancedMesh, Camera, Vector2 } from 'three';
-import { mouseToWorld } from '../../utilities/utilities';
+import { mouseToWorld, transformObject3D } from '../../utilities/utilities';
 import { maxFallingHair, widthPoints, heightPoints } from '../../utilities/constants';
 import { Mouse } from '../mouse/mouse';
 
@@ -114,12 +114,14 @@ class Hairs {
     hairIndex: number,
     hairWidth = 1,
   ) {
-    this.transformHolder.position.set(xPos, yPos, 0);
-    this.transformHolder.rotation.set(0, 0, rotation);
-    this.transformHolder.scale.set(hairWidth, length, 1);
-    this.transformHolder.updateMatrix();
+    const matrix = transformObject3D(
+      this.transformHolder,
+      [xPos, yPos, 0],
+      [0, 0, rotation],
+      [hairWidth, length, 1],
+    );
 
-    this.ref?.current?.setMatrixAt(hairIndex, this.transformHolder.matrix);
+    this.ref?.current?.setMatrixAt(hairIndex, matrix);
   }
 
   private updateCutHairs() {

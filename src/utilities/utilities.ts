@@ -1,4 +1,4 @@
-import { Camera, Vector3, Vector2 } from 'three';
+import { Camera, Vector3, Vector2, Object3D } from 'three';
 
 export const lerp = function (value1: number, value2: number, amount: number) {
   amount = amount < 0 ? 0 : amount;
@@ -114,3 +114,18 @@ export const zipTo = <T>(arrayB: T[]) => (elementFromA: T, indexOnA: number, arr
 };
 
 export type WorldLimits = ReturnType<typeof getWorldLimits>;
+
+export const transformObject3D = (
+  object: Object3D,
+  position: [number, number, number],
+  rotation: [number, number, number],
+  scale: [number, number, number],
+) => {
+  object.matrixAutoUpdate = false;
+  object.position.set(...position);
+  object.rotation.set(...rotation);
+  object.scale.set(...scale);
+  object.updateMatrix();
+
+  return object.matrix;
+};
