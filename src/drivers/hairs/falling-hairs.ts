@@ -1,4 +1,4 @@
-import { InstancedMesh, Object3D } from 'three';
+import { InstancedMesh } from 'three';
 import { Buckets } from '../../utilities/buckets';
 import { FIFO } from '../../utilities/fifo';
 import { animationDuration } from '../../utilities/constants';
@@ -22,7 +22,6 @@ class FallingHairs {
   private cutHairFIFO: FIFO<IfallingHair, 'hairIndex'>;
 
   private readonly animationDuration: number;
-  private readonly transformHolder: Object3D = new Object3D();
   private hairRotations: number[];
   private hairPositions: [number, number][];
   private hairLengths: number[];
@@ -41,8 +40,6 @@ class FallingHairs {
     this.hairPositions = allZeros;
     this.hairLengths = allZeros;
     this.hairCuts = [...new Array(totalHairCount)].fill(false);
-
-    this.transformHolder.matrixAutoUpdate = false;
   }
 
   public update(
@@ -93,7 +90,6 @@ class FallingHairs {
     index: number,
   ) => {
     const matrix = transformObject3D(
-      this.transformHolder,
       [xPos, yPos - distanceToDestination, 0],
       [0, 0, rotation],
       [1, length, 1],

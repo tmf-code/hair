@@ -1,4 +1,4 @@
-import { Object3D, InstancedMesh, Camera, Vector2 } from 'three';
+import { InstancedMesh, Camera, Vector2 } from 'three';
 import { mouseToWorld } from '../../utilities/utilities';
 import { transformObject3D } from '../../utilities/transform-object-3d';
 import { maxFallingHair, widthPoints, heightPoints } from '../../utilities/constants';
@@ -12,7 +12,6 @@ import { HairRotations } from './hair-rotations';
 import { Viewport } from '../../types/viewport';
 
 class Hairs {
-  private readonly transformHolder = new Object3D();
   private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
   private hairCuts: HairCuts;
   private hairLengths: HairLengths;
@@ -39,8 +38,6 @@ class Hairs {
     this.hairLengths = hairLengths;
     this.hairCuts = hairCuts;
     this.fallingHair = new FallingHairs(widthPoints * heightPoints, maxFallingHair);
-
-    this.transformHolder.matrixAutoUpdate = false;
   }
 
   setViewport({ width, height, factor }: Viewport) {
@@ -117,12 +114,7 @@ class Hairs {
     hairIndex: number,
     hairWidth = 1,
   ) {
-    const matrix = transformObject3D(
-      this.transformHolder,
-      [xPos, yPos, 0],
-      [0, 0, rotation],
-      [hairWidth, length, 1],
-    );
+    const matrix = transformObject3D([xPos, yPos, 0], [0, 0, rotation], [hairWidth, length, 1]);
 
     this.ref?.current?.setMatrixAt(hairIndex, matrix);
   }
