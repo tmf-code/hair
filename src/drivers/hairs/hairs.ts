@@ -32,7 +32,6 @@ class Hairs {
     hairCuts: HairCuts,
   ) {
     this.currentPlayerContainsPoint = currentPlayerContainsPoint;
-    this.currentPlayerContainsPoint = currentPlayerContainsPoint;
     this.friendPlayersContainPoint = friendPlayersContainPoint;
     this.hairRotations = hairRotations;
     this.hairPositions = hairPositions;
