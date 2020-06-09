@@ -1,4 +1,5 @@
-import { Object3D, InstancedMesh, Camera, Vector2 } from 'three';
+import { Memoize } from './../../utilities/Memoize';
+import { InstancedMesh, Camera, Vector2 } from 'three';
 import { mouseToWorld } from '../../utilities/utilities';
 import { maxFallingHair, widthPoints, heightPoints } from '../../utilities/constants';
 import { Mouse } from '../mouse/mouse';
@@ -9,9 +10,9 @@ import { FallingHairs } from './falling-hairs';
 import { HairPositions } from './hair-positions';
 import { HairRotations } from './hair-rotations';
 import { Viewport } from '../../types/viewport';
+import { HairRenderer } from './hair-renderer';
 
 class Hairs {
-  private readonly transformHolder = new Object3D();
   private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
   private hairCuts: HairCuts;
   private hairLengths: HairLengths;
@@ -59,8 +60,6 @@ class Hairs {
   }
 
   private updateStaticHairs = () => {
-    const shouldSkip = this.aspect < 1.0;
-
     if (!this.ref?.current) return;
 
     this.ref.current.instanceMatrix.needsUpdate = true;
@@ -69,11 +68,18 @@ class Hairs {
     const positions = this.hairPositions.getScreenPositions();
     const lengths = this.hairLengths.getLengths();
 
-    if (shouldSkip) {
-      this.updateNotSkippedStaticHairs(positions, lengths, rotations);
-    } else {
-      this.updateAllStaticHairs(positions, lengths, rotations);
+    this.updateNotSkippedStaticHairs(positions, lengths, rotations);
+  };
+
+  private static getHairIndicesToDraw = (maxSize: number, skipFrequency: number) => {
+    const indices = [];
+
+    for (let index = 0; index < maxSize; index++) {
+      const shouldSkip = index % skipFrequency > 1;
+      if (shouldSkip) continue;
+      indices.push(index);
     }
+    return indices;
   };
 
   private updateNotSkippedStaticHairs(
@@ -82,26 +88,12 @@ class Hairs {
     rotations: number[],
   ) {
     const skipFrequency = 1 / this.aspect;
-    const hairWidth = 2 / this.aspect;
-    const hairLengthScale = 2 / this.aspect;
-    positions.forEach(([xPos, yPos], hairIndex) => {
-      const shouldSkip = hairIndex % skipFrequency > 1;
-      if (shouldSkip) return;
-      const length = lengths[hairIndex] * hairLengthScale;
-      const rotation = rotations[hairIndex];
-
-      this.updateStaticHair(xPos, yPos, length, rotation, hairIndex, hairWidth);
-    });
-  }
-
-  private updateAllStaticHairs(
-    positions: [number, number][],
-    lengths: number[],
-    rotations: number[],
-  ) {
-    positions.forEach(([xPos, yPos], hairIndex) => {
+    const indices = Memoize.memoize(Hairs.getHairIndicesToDraw, positions.length, skipFrequency);
+    indices.forEach((hairIndex) => {
+      const [xPos, yPos] = positions[hairIndex];
       const length = lengths[hairIndex];
       const rotation = rotations[hairIndex];
+
       this.updateStaticHair(xPos, yPos, length, rotation, hairIndex);
     });
   }
@@ -112,14 +104,11 @@ class Hairs {
     length: number,
     rotation: number,
     hairIndex: number,
-    hairWidth = 1,
   ) {
-    this.transformHolder.position.set(xPos, yPos, 0);
-    this.transformHolder.rotation.set(0, 0, rotation);
-    this.transformHolder.scale.set(hairWidth, length, 1);
-    this.transformHolder.updateMatrix();
+    const mesh = this.ref?.current;
+    if (!mesh) return;
 
-    this.ref?.current?.setMatrixAt(hairIndex, this.transformHolder.matrix);
+    HairRenderer.render(mesh, hairIndex, xPos, yPos, rotation, 1, length, this.aspect);
   }
 
   private updateCutHairs() {

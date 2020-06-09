@@ -26,7 +26,7 @@ export const lerpTuple3 = function (
   ) as [number, number, number];
 };
 
-export const arrayEqual = (array1: number[], array2: number[]) => {
+export const arrayEqual = <T extends number | string | boolean>(array1: T[], array2: T[]) => {
   return array2.every((element, index) => array1[index] === element);
 };
 

@@ -1,4 +1,5 @@
-import { InstancedMesh, Object3D } from 'three';
+import { HairRenderer } from './hair-renderer';
+import { InstancedMesh } from 'three';
 import { Buckets } from '../../utilities/buckets';
 import { FIFO } from '../../utilities/fifo';
 import { animationDuration } from '../../utilities/constants';
@@ -21,7 +22,6 @@ class FallingHairs {
   private cutHairFIFO: FIFO<IfallingHair, 'hairIndex'>;
 
   private readonly animationDuration: number;
-  private readonly transformHolder: Object3D = new Object3D();
   private hairRotations: number[];
   private hairPositions: [number, number][];
   private hairLengths: number[];
@@ -89,11 +89,19 @@ class FallingHairs {
     { xPos, yPos, distanceToDestination, rotation, length }: FallingHair,
     index: number,
   ) => {
-    this.transformHolder.position.set(xPos, yPos - distanceToDestination, 0);
-    this.transformHolder.rotation.set(0, 0, rotation);
-    this.transformHolder.scale.set(1, length, 1);
-    this.transformHolder.updateMatrix();
-    this.ref?.current?.setMatrixAt(this.hairPositions.length + index, this.transformHolder.matrix);
+    const mesh = this.ref?.current;
+    if (!mesh) return;
+
+    HairRenderer.render(
+      mesh,
+      this.hairPositions.length + index,
+      xPos,
+      yPos - distanceToDestination,
+      rotation,
+      1,
+      length,
+      this.viewport.width / this.viewport.height,
+    );
   };
 
   private makeHairFall() {
