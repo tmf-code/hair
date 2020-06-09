@@ -76,12 +76,17 @@ export abstract class AbstractPlayer {
     const lerpRate = 0.1;
     this.smoothedPosition = lerpTuple2(this.smoothedPosition, this.position, lerpRate);
 
-    if (this.camera)
-      this.worldPosition = relativeToWorld(this.smoothedPosition, this.camera).toArray() as [
-        number,
-        number,
-        number,
-      ];
+    if (!this.camera) return;
+
+    const [xPos, yPos] = relativeToWorld(this.smoothedPosition, this.camera).toArray() as [
+      number,
+      number,
+      number,
+    ];
+
+    const zPos = this.worldPosition[2];
+
+    this.worldPosition = [xPos, yPos, zPos];
   }
 
   protected updateRotation() {
@@ -124,6 +129,10 @@ export abstract class AbstractPlayer {
     const triangleRight = new Triangle().setFromPointsAndIndices(absoluteVector3, 3, 1, 2);
 
     this.razorTriangles = [triangleLeft, triangleRight];
+  }
+
+  protected setZ(zPos: number) {
+    this.worldPosition[2] = zPos;
   }
 
   protected setRazorTransform() {

@@ -7,7 +7,7 @@ export class FriendPlayer extends AbstractPlayer {
 
   constructor() {
     super();
-
+    this.setZ(-0.1);
     this.startPlayingBackLocations();
   }
 
