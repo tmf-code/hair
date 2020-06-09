@@ -1,3 +1,4 @@
+import { Memoize } from './../../utilities/Memoize';
 import { InstancedMesh, Camera, Vector2 } from 'three';
 import { mouseToWorld } from '../../utilities/utilities';
 import { maxFallingHair, widthPoints, heightPoints } from '../../utilities/constants';
@@ -70,15 +71,26 @@ class Hairs {
     this.updateNotSkippedStaticHairs(positions, lengths, rotations);
   };
 
+  private static getHairIndicesToDraw = (maxSize: number, skipFrequency: number) => {
+    const indices = [];
+
+    for (let index = 0; index < maxSize; index++) {
+      const shouldSkip = index % skipFrequency > 1;
+      if (shouldSkip) continue;
+      indices.push(index);
+    }
+    return indices;
+  };
+
   private updateNotSkippedStaticHairs(
     positions: [number, number][],
     lengths: number[],
     rotations: number[],
   ) {
     const skipFrequency = 1 / this.aspect;
-    positions.forEach(([xPos, yPos], hairIndex) => {
-      const shouldSkip = hairIndex % skipFrequency > 1;
-      if (shouldSkip) return;
+    const indices = Memoize.memoize(Hairs.getHairIndicesToDraw, positions.length, skipFrequency);
+    indices.forEach((hairIndex) => {
+      const [xPos, yPos] = positions[hairIndex];
       const length = lengths[hairIndex];
       const rotation = rotations[hairIndex];
 
