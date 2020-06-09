@@ -38,6 +38,8 @@ class Hairs {
     this.hairLengths = hairLengths;
     this.hairCuts = hairCuts;
     this.fallingHair = new FallingHairs(widthPoints * heightPoints, maxFallingHair);
+
+    this.transformHolder.matrixAutoUpdate = false;
   }
 
   setViewport({ width, height, factor }: Viewport) {

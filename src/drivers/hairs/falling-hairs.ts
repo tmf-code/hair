@@ -41,6 +41,8 @@ class FallingHairs {
     this.hairPositions = allZeros;
     this.hairLengths = allZeros;
     this.hairCuts = [...new Array(totalHairCount)].fill(false);
+
+    this.transformHolder.matrixAutoUpdate = false;
   }
 
   public update(

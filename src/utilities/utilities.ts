@@ -121,7 +121,6 @@ export const transformObject3D = (
   rotation: [number, number, number],
   scale: [number, number, number],
 ) => {
-  object.matrixAutoUpdate = false;
   object.position.set(...position);
   object.rotation.set(...rotation);
   object.scale.set(...scale);
