@@ -63,6 +63,7 @@ class Hairs {
     if (maybeMesh === undefined) return;
 
     maybeMesh.instanceMatrix.needsUpdate = true;
+    maybeMesh.matrixAutoUpdate = false;
     const rotations = this.hairRotations.getRotations();
     const positions = this.hairPositions.getScreenPositions();
     const lengths = this.hairLengths.getLengths();
