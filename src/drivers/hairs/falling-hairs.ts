@@ -100,6 +100,7 @@ class FallingHairs {
       rotation,
       1,
       length,
+      this.viewport.width / this.viewport.height,
     );
   };
 

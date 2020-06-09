@@ -82,15 +82,13 @@ class Hairs {
     rotations: number[],
   ) {
     const skipFrequency = 1 / this.aspect;
-    const hairWidth = 2 / this.aspect;
-    const hairLengthScale = 2 / this.aspect;
     positions.forEach(([xPos, yPos], hairIndex) => {
       const shouldSkip = hairIndex % skipFrequency > 1;
       if (shouldSkip) return;
-      const length = lengths[hairIndex] * hairLengthScale;
+      const length = lengths[hairIndex];
       const rotation = rotations[hairIndex];
 
-      this.updateStaticHair(xPos, yPos, length, rotation, hairIndex, hairWidth);
+      this.updateStaticHair(xPos, yPos, length, rotation, hairIndex);
     });
   }
 
@@ -112,12 +110,11 @@ class Hairs {
     length: number,
     rotation: number,
     hairIndex: number,
-    hairWidth = 1,
   ) {
     const mesh = this.ref?.current;
     if (!mesh) return;
 
-    HairRenderer.render(mesh, hairIndex, xPos, yPos, rotation, 1, length);
+    HairRenderer.render(mesh, hairIndex, xPos, yPos, rotation, 1, length, this.aspect);
   }
 
   private updateCutHairs() {
