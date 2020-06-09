@@ -59,8 +59,6 @@ class Hairs {
   }
 
   private updateStaticHairs = () => {
-    const shouldSkip = this.aspect < 1.0;
-
     if (!this.ref?.current) return;
 
     this.ref.current.instanceMatrix.needsUpdate = true;
@@ -69,11 +67,7 @@ class Hairs {
     const positions = this.hairPositions.getScreenPositions();
     const lengths = this.hairLengths.getLengths();
 
-    if (shouldSkip) {
-      this.updateNotSkippedStaticHairs(positions, lengths, rotations);
-    } else {
-      this.updateAllStaticHairs(positions, lengths, rotations);
-    }
+    this.updateNotSkippedStaticHairs(positions, lengths, rotations);
   };
 
   private updateNotSkippedStaticHairs(
@@ -88,18 +82,6 @@ class Hairs {
       const length = lengths[hairIndex];
       const rotation = rotations[hairIndex];
 
-      this.updateStaticHair(xPos, yPos, length, rotation, hairIndex);
-    });
-  }
-
-  private updateAllStaticHairs(
-    positions: [number, number][],
-    lengths: number[],
-    rotations: number[],
-  ) {
-    positions.forEach(([xPos, yPos], hairIndex) => {
-      const length = lengths[hairIndex];
-      const rotation = rotations[hairIndex];
       this.updateStaticHair(xPos, yPos, length, rotation, hairIndex);
     });
   }
