@@ -3,6 +3,7 @@ import { Buckets } from '../../utilities/buckets';
 import { FIFO } from '../../utilities/fifo';
 import { animationDuration } from '../../utilities/constants';
 import { FallingHair, IfallingHair } from './falling-hair';
+import { transformObject3D } from '../../utilities/utilities';
 
 class FallingHairs {
   private static readonly emptyCutHair: IfallingHair = {
@@ -89,11 +90,13 @@ class FallingHairs {
     { xPos, yPos, distanceToDestination, rotation, length }: FallingHair,
     index: number,
   ) => {
-    this.transformHolder.position.set(xPos, yPos - distanceToDestination, 0);
-    this.transformHolder.rotation.set(0, 0, rotation);
-    this.transformHolder.scale.set(1, length, 1);
-    this.transformHolder.updateMatrix();
-    this.ref?.current?.setMatrixAt(this.hairPositions.length + index, this.transformHolder.matrix);
+    const matrix = transformObject3D(
+      this.transformHolder,
+      [xPos, yPos - distanceToDestination, 0],
+      [0, 0, rotation],
+      [1, length, 1],
+    );
+    this.ref?.current?.setMatrixAt(this.hairPositions.length + index, matrix);
   };
 
   private makeHairFall() {
