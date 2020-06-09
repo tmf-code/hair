@@ -86,12 +86,10 @@ class FallingHairs {
   }
 
   private setTransform = (
+    mesh: InstancedMesh,
     { xPos, yPos, distanceToDestination, rotation, length }: FallingHair,
     index: number,
   ) => {
-    const mesh = this.ref?.current;
-    if (!mesh) return;
-
     HairRenderer.render(
       mesh,
       this.hairPositions.length + index,
@@ -117,6 +115,9 @@ class FallingHairs {
     heightBuckets.numBuckets;
 
   private createFallingHair = (heightBuckets: Buckets, frameTime: number) => {
+    const maybeMesh = this.ref?.current;
+    if (maybeMesh === undefined) return;
+
     const hairs = this.cutHairFIFO.getStack();
 
     for (let hairIndex = hairs.length - 1; hairIndex >= 0; hairIndex--) {
@@ -135,7 +136,7 @@ class FallingHairs {
         bucketHeight,
       );
 
-      this.setTransform(fallingHair, hairIndex);
+      this.setTransform(maybeMesh, fallingHair, hairIndex);
     }
   };
 
