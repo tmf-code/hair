@@ -59,29 +59,19 @@ class Hairs {
   }
 
   private updateStaticHairs = () => {
-    if (!this.ref?.current) return;
+    const maybeMesh = this.ref?.current;
+    if (maybeMesh === undefined) return;
 
-    this.ref.current.instanceMatrix.needsUpdate = true;
-
+    maybeMesh.instanceMatrix.needsUpdate = true;
     const rotations = this.hairRotations.getRotations();
     const positions = this.hairPositions.getScreenPositions();
     const lengths = this.hairLengths.getLengths();
 
-    this.updateNotSkippedStaticHairs(positions, lengths, rotations);
+    this.updateStaticHair(maybeMesh, positions, lengths, rotations);
   };
 
-  private static getHairIndicesToDraw = (maxSize: number, skipFrequency: number) => {
-    const indices = [];
-
-    for (let index = 0; index < maxSize; index++) {
-      const shouldSkip = index % skipFrequency > 1;
-      if (shouldSkip) continue;
-      indices.push(index);
-    }
-    return indices;
-  };
-
-  private updateNotSkippedStaticHairs(
+  private updateStaticHair(
+    mesh: InstancedMesh,
     positions: [number, number][],
     lengths: number[],
     rotations: number[],
@@ -93,22 +83,20 @@ class Hairs {
       const length = lengths[hairIndex];
       const rotation = rotations[hairIndex];
 
-      this.updateStaticHair(xPos, yPos, length, rotation, hairIndex);
+      HairRenderer.render(mesh, hairIndex, xPos, yPos, rotation, 1, length, this.aspect);
     });
   }
 
-  private updateStaticHair(
-    xPos: number,
-    yPos: number,
-    length: number,
-    rotation: number,
-    hairIndex: number,
-  ) {
-    const mesh = this.ref?.current;
-    if (!mesh) return;
+  private static getHairIndicesToDraw = (maxSize: number, skipFrequency: number) => {
+    const indices = [];
 
-    HairRenderer.render(mesh, hairIndex, xPos, yPos, rotation, 1, length, this.aspect);
-  }
+    for (let index = 0; index < maxSize; index++) {
+      const shouldSkip = index % skipFrequency > 1;
+      if (shouldSkip) continue;
+      indices.push(index);
+    }
+    return indices;
+  };
 
   private updateCutHairs() {
     const { currentPlayerCuts, combinedCuts } = this.calculateCuts();
