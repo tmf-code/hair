@@ -3,7 +3,7 @@ import { Object3D } from 'three';
 const transformHolder = new Object3D();
 transformHolder.matrixAutoUpdate = false;
 
-export const transformObject3D = (
+export const getMatrixFromTransform = (
   position: [number, number, number],
   rotation: [number, number, number],
   scale: [number, number, number],

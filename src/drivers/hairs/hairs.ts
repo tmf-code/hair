@@ -1,6 +1,6 @@
 import { InstancedMesh, Camera, Vector2 } from 'three';
 import { mouseToWorld } from '../../utilities/utilities';
-import { transformObject3D } from '../../utilities/transform-object-3d';
+import { getMatrixFromTransform } from '../../utilities/get-matrix-from-transform';
 import { maxFallingHair, widthPoints, heightPoints } from '../../utilities/constants';
 import { Mouse } from '../mouse/mouse';
 
@@ -114,7 +114,11 @@ class Hairs {
     hairIndex: number,
     hairWidth = 1,
   ) {
-    const matrix = transformObject3D([xPos, yPos, 0], [0, 0, rotation], [hairWidth, length, 1]);
+    const matrix = getMatrixFromTransform(
+      [xPos, yPos, 0],
+      [0, 0, rotation],
+      [hairWidth, length, 1],
+    );
 
     this.ref?.current?.setMatrixAt(hairIndex, matrix);
   }
