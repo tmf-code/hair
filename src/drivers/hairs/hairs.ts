@@ -1,6 +1,5 @@
 import { InstancedMesh, Camera, Vector2 } from 'three';
 import { mouseToWorld } from '../../utilities/utilities';
-import { getMatrixFromTransform } from '../../utilities/get-matrix-from-transform';
 import { maxFallingHair, widthPoints, heightPoints } from '../../utilities/constants';
 import { Mouse } from '../mouse/mouse';
 
@@ -10,6 +9,7 @@ import { FallingHairs } from './falling-hairs';
 import { HairPositions } from './hair-positions';
 import { HairRotations } from './hair-rotations';
 import { Viewport } from '../../types/viewport';
+import { HairRenderer } from './hair-renderer';
 
 class Hairs {
   private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
@@ -114,13 +114,10 @@ class Hairs {
     hairIndex: number,
     hairWidth = 1,
   ) {
-    const matrix = getMatrixFromTransform(
-      [xPos, yPos, 0],
-      [0, 0, rotation],
-      [hairWidth, length, 1],
-    );
+    const mesh = this.ref?.current;
+    if (!mesh) return;
 
-    this.ref?.current?.setMatrixAt(hairIndex, matrix);
+    HairRenderer.render(mesh, hairIndex, xPos, yPos, rotation, 1, length);
   }
 
   private updateCutHairs() {

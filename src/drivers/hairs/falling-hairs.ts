@@ -1,9 +1,9 @@
+import { HairRenderer } from './hair-renderer';
 import { InstancedMesh } from 'three';
 import { Buckets } from '../../utilities/buckets';
 import { FIFO } from '../../utilities/fifo';
 import { animationDuration } from '../../utilities/constants';
 import { FallingHair, IfallingHair } from './falling-hair';
-import { getMatrixFromTransform } from '../../utilities/get-matrix-from-transform';
 
 class FallingHairs {
   private static readonly emptyCutHair: IfallingHair = {
@@ -89,12 +89,18 @@ class FallingHairs {
     { xPos, yPos, distanceToDestination, rotation, length }: FallingHair,
     index: number,
   ) => {
-    const matrix = getMatrixFromTransform(
-      [xPos, yPos - distanceToDestination, 0],
-      [0, 0, rotation],
-      [1, length, 1],
+    const mesh = this.ref?.current;
+    if (!mesh) return;
+
+    HairRenderer.render(
+      mesh,
+      this.hairPositions.length + index,
+      xPos,
+      yPos - distanceToDestination,
+      rotation,
+      1,
+      length,
     );
-    this.ref?.current?.setMatrixAt(this.hairPositions.length + index, matrix);
   };
 
   private makeHairFall() {
