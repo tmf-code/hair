@@ -17,7 +17,7 @@ class FallingHairs {
   };
 
   private viewport: { width: number; height: number; factor: number };
-  private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
+  private mesh: InstancedMesh | undefined;
   private maxFallingHair: number;
   private cutHairFIFO: FIFO<IfallingHair, 'hairIndex'>;
 
@@ -115,7 +115,7 @@ class FallingHairs {
     heightBuckets.numBuckets;
 
   private createFallingHair = (heightBuckets: Buckets, frameTime: number) => {
-    const maybeMesh = this.ref?.current;
+    const maybeMesh = this.mesh;
     if (maybeMesh === undefined) return;
 
     const hairs = this.cutHairFIFO.getStack();
@@ -148,8 +148,8 @@ class FallingHairs {
     this.viewport = viewport;
   }
 
-  setRef(ref: React.MutableRefObject<InstancedMesh | undefined>) {
-    this.ref = ref;
+  setMesh(mesh: InstancedMesh) {
+    this.mesh = mesh;
   }
 }
 export { FallingHairs };

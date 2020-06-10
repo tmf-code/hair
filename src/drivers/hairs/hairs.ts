@@ -13,7 +13,6 @@ import { Viewport } from '../../types/viewport';
 import { HairRenderer } from './hair-renderer';
 
 class Hairs {
-  private ref: React.MutableRefObject<InstancedMesh | undefined> | undefined;
   private hairCuts: HairCuts;
   private hairLengths: HairLengths;
   private hairPositions: HairPositions;
@@ -51,25 +50,24 @@ class Hairs {
     mouse: Vector2,
     camera: Camera,
   ) {
-    this.ref = ref;
-    this.fallingHair.setRef(ref);
-    this.updateStaticHairs();
+    if (ref?.current === undefined) return;
+
+    const instancedMesh = ref.current;
+    this.fallingHair.setMesh(instancedMesh);
+    this.updateStaticHairs(instancedMesh);
     this.updateCutHairs();
     this.updateSwirls(mouse, camera);
   }
 
-  private updateStaticHairs = () => {
-    const maybeMesh = this.ref?.current;
-    if (maybeMesh === undefined) return;
-
-    maybeMesh.instanceMatrix.needsUpdate = true;
-    maybeMesh.matrixAutoUpdate = false;
+  private updateStaticHairs(instancedMesh: InstancedMesh) {
+    instancedMesh.instanceMatrix.needsUpdate = true;
+    instancedMesh.matrixAutoUpdate = false;
     const rotations = this.hairRotations.getRotations();
     const positions = this.hairPositions.getScreenPositions();
     const lengths = this.hairLengths.getLengths();
 
-    this.updateStaticHair(maybeMesh, positions, lengths, rotations);
-  };
+    this.updateStaticHair(instancedMesh, positions, lengths, rotations);
+  }
 
   private updateStaticHair(
     mesh: InstancedMesh,
