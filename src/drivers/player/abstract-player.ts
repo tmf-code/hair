@@ -1,3 +1,4 @@
+import { friendLayer, playerLayer } from './../../utilities/constants';
 import { lerpTuple3, lerpTuple2, lerpTheta, relativeToWorld } from '../../utilities/utilities';
 import { offscreen, razorWidth, razorHeight } from '../../utilities/constants';
 import { Mesh, Vector2, Camera, Matrix4, Triangle, Vector3 } from 'three';
@@ -131,8 +132,8 @@ export abstract class AbstractPlayer {
     this.razorTriangles = [triangleLeft, triangleRight];
   }
 
-  protected setZ(zPos: number) {
-    this.worldPosition[2] = zPos;
+  protected setLayer(layer: typeof friendLayer | typeof playerLayer) {
+    this.worldPosition[2] = layer;
   }
 
   protected setRazorTransform() {

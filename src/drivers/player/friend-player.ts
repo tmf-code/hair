@@ -1,3 +1,4 @@
+import { friendLayer } from './../../utilities/constants';
 import { AbstractPlayer } from './abstract-player';
 import { sampleInterval } from '../../utilities/constants';
 type PlayerLocation = { rotation: number; position: [number, number] };
@@ -7,7 +8,7 @@ export class FriendPlayer extends AbstractPlayer {
 
   constructor() {
     super();
-    this.setZ(-0.1);
+    this.setLayer(friendLayer);
     this.startPlayingBackLocations();
   }
 

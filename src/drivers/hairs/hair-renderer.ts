@@ -1,3 +1,4 @@
+import { hairLayer } from './../../utilities/constants';
 import { InstancedMesh } from 'three';
 import { getMatrixFromTransform } from '../../utilities/get-matrix-from-transform';
 
@@ -17,7 +18,9 @@ export class HairRenderer {
     const hairLengthScale = HairRenderer.getHairLengthScale(aspect);
     const hairWidthScale = HairRenderer.getHairWidthScale(aspect);
 
-    const position: Tuple3<number> = [xPos, yPos, 0];
+    const zPos = hairLayer;
+
+    const position: Tuple3<number> = [xPos, yPos, zPos];
     const rotation: Tuple3<number> = [0, 0, zRotation];
     const scale: Tuple3<number> = [width * hairWidthScale, length * hairLengthScale, 1];
 

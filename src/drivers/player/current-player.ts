@@ -1,4 +1,4 @@
-import { sampleInterval } from './../../utilities/constants';
+import { sampleInterval, playerLayer } from './../../utilities/constants';
 import { Mouse } from '../mouse/mouse';
 import { AbstractPlayer } from './abstract-player';
 import { cachedMovementCount } from '../../utilities/constants';
@@ -13,7 +13,7 @@ export class CurrentPlayer extends AbstractPlayer {
   constructor() {
     super();
     this.id = ids++;
-
+    this.setLayer(playerLayer);
     this.startBufferingLocations();
   }
 
