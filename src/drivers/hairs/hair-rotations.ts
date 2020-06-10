@@ -20,16 +20,6 @@ class HairRotations {
     this.rotationOffsets = allZeros;
   }
 
-  setRotationOffsets(offsets: number[]) {
-    this.rotationOffsets = offsets;
-
-    for (let index = 0; index < this.initialRotations.length; index++) {
-      const rotation = this.initialRotations[index];
-      const rotationOffset = this.rotationOffsets[index];
-      this.rotations[index] = rotation + rotationOffset;
-    }
-  }
-
   setInitialRotations(rotations: number[]) {
     this.initialRotations = [...rotations];
     this.rotations = [...this.initialRotations];
@@ -40,42 +30,28 @@ class HairRotations {
     return this.rotations;
   }
 
-  private noSwirl(hairIndex: number) {
-    return this.rotationOffsets[hairIndex];
-  }
-
   calculateSwirls(positions: [number, number][], mousePos: Vector3) {
     const mouseVelocity = this.mouseVelocityHolder.fromArray(Mouse.getVelocity());
     const isMousePerformingSwirl =
       !Mouse.isClicked() && !Mouse.isSingleTouched() && mouseVelocity.length() > 0.001;
 
-    const newRotationOffsets = positions.map(([xPos, yPos], hairIndex) =>
-      this.getRotationOffset(
-        isMousePerformingSwirl,
-        mousePos,
-        mouseVelocity,
-        [xPos, yPos],
-        hairIndex,
-      ),
-    );
+    if (!isMousePerformingSwirl) return;
 
-    this.setRotationOffsets(newRotationOffsets);
+    for (let hairIndex = 0; hairIndex < this.rotations.length; hairIndex++) {
+      const [xPos, yPos] = positions[hairIndex];
+
+      const distance = mousePos.distanceTo(this.positionHolder.set(xPos, yPos, 0));
+      const isHovering = distance < swirlRadius;
+
+      if (!isHovering) continue;
+
+      const offset = this.getRotationOffset(distance, mouseVelocity, hairIndex);
+
+      this.setRotationOffset(offset, hairIndex);
+    }
   }
 
-  private getRotationOffset(
-    isMousePerformingSwirl: boolean,
-    mousePos: Vector3,
-    mouseVelocity: Vector2,
-    [xPos, yPos]: [number, number],
-    hairIndex: number,
-  ) {
-    if (!isMousePerformingSwirl) return this.noSwirl(hairIndex);
-
-    const distance = mousePos.distanceTo(this.positionHolder.set(xPos, yPos, 0));
-    const isHovering = distance < swirlRadius;
-
-    if (!isHovering) return this.noSwirl(hairIndex);
-
+  private getRotationOffset(distance: number, mouseVelocity: Vector2, hairIndex: number) {
     const directionVector = mouseVelocity.normalize();
     const swirlAmount = directionVector.multiplyScalar(1 - distance / swirlRadius);
 
@@ -84,6 +60,13 @@ class HairRotations {
     const newRotation =
       this.rotationOffsets[hairIndex] + (rotationDifference * swirlAmount.length()) / 10;
     return newRotation;
+  }
+
+  private setRotationOffset(offset: number, hairIndex: number) {
+    this.rotationOffsets[hairIndex] = offset;
+    const rotation = this.initialRotations[hairIndex];
+    const rotationOffset = this.rotationOffsets[hairIndex];
+    this.rotations[hairIndex] = rotation + rotationOffset;
   }
 }
 
