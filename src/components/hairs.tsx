@@ -15,15 +15,20 @@ type HairsProps = {
 const material = new MeshBasicMaterial({ color: new Color(hairColor) });
 
 const Hairs = ({ viewportChange, updateFrame, instanceCount }: HairsProps) => {
+  const ref = useRef<InstancedMesh>();
   const { viewport, mouse, camera } = useThree();
   const hairGeo = useMemo(() => triangleGeometry(viewport.width), [viewport.width]);
-  useMemo(() => viewportChange(viewport), [viewport, viewportChange]);
-  useFrame(() => {
+
+  const handleFrame = () => {
     const maybeMesh = ref?.current;
     if (maybeMesh !== undefined) updateFrame(maybeMesh, mouse, camera);
-  });
+  };
 
-  const ref = useRef<InstancedMesh>();
+  const handleViewportChange = () => viewportChange(viewport);
+
+  useMemo(handleViewportChange, [viewport, viewportChange]);
+  useFrame(handleFrame);
+
   return <instancedMesh ref={ref} args={[hairGeo, material, instanceCount]}></instancedMesh>;
 };
 
