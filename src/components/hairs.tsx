@@ -8,11 +8,7 @@ import { Viewport } from '../types/viewport';
 
 type HairsProps = {
   viewportChange: (viewport: Viewport) => void;
-  updateFrame: (
-    ref: React.MutableRefObject<InstancedMesh | undefined>,
-    mouse: Vector2,
-    camera: Camera,
-  ) => void;
+  updateFrame: (mesh: InstancedMesh, mouse: Vector2, camera: Camera) => void;
   instanceCount: number;
 };
 
@@ -22,7 +18,10 @@ const Hairs = ({ viewportChange, updateFrame, instanceCount }: HairsProps) => {
   const { viewport, mouse, camera } = useThree();
   const hairGeo = useMemo(() => triangleGeometry(viewport.width), [viewport.width]);
   useMemo(() => viewportChange(viewport), [viewport, viewportChange]);
-  useFrame(() => updateFrame(ref, mouse, camera));
+  useFrame(() => {
+    const maybeMesh = ref?.current;
+    if (maybeMesh !== undefined) updateFrame(maybeMesh, mouse, camera);
+  });
 
   const ref = useRef<InstancedMesh>();
   return <instancedMesh ref={ref} args={[hairGeo, material, instanceCount]}></instancedMesh>;

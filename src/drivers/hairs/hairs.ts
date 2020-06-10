@@ -45,16 +45,9 @@ class Hairs {
     this.fallingHair.setViewport({ width, height, factor });
   }
 
-  public updateFrame(
-    ref: React.MutableRefObject<InstancedMesh | undefined>,
-    mouse: Vector2,
-    camera: Camera,
-  ) {
-    if (ref?.current === undefined) return;
-
-    const instancedMesh = ref.current;
-    this.fallingHair.setMesh(instancedMesh);
-    this.updateStaticHairs(instancedMesh);
+  public updateFrame(mesh: InstancedMesh, mouse: Vector2, camera: Camera) {
+    this.fallingHair.setMesh(mesh);
+    this.updateStaticHairs(mesh);
     this.updateCutHairs();
     this.updateSwirls(mouse, camera);
   }
