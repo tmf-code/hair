@@ -1,8 +1,9 @@
+import { GhostPlayerSocket } from './ghost-player-socket';
 import { PlayerSocket } from './player-socket';
-import { IplayerData } from './i-player-data';
+import { IPlayerSocket } from './i-player-socket';
 
 export class Players {
-  private players: Record<string, PlayerSocket>;
+  private players: Record<string, IPlayerSocket>;
   private getMapState: () => {
     positions: [number, number][];
     rotations: number[];
@@ -15,6 +16,7 @@ export class Players {
   ) {
     this.players = {};
     this.getMapState = getMapState;
+    this.addGhostPlayers(5);
   }
 
   setRecieveCuts(recieveCuts: (cuts: boolean[]) => void) {
@@ -30,6 +32,13 @@ export class Players {
       rotations,
       lengths,
     );
+  }
+
+  private addGhostPlayers(count: number) {
+    for (let index = 0; index < count; index++) {
+      const id = 'IAMTHEGHOSTNAMEDNUM' + index;
+      this.players[id] = new GhostPlayerSocket(id, index, count);
+    }
   }
 
   removePlayer(socketId: string) {

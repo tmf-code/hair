@@ -1,5 +1,6 @@
 import { IplayerData } from './i-player-data';
 import SocketIO from 'socket.io';
+import { IPlayerSocket } from './i-player-socket';
 
 export type PlayerSocketCallbacks = {
   receiveCuts: (cuts: boolean[]) => void;
@@ -7,7 +8,7 @@ export type PlayerSocketCallbacks = {
 
 type PlayerLocations = { position: [number, number]; rotation: number }[];
 
-export class PlayerSocket {
+export class PlayerSocket implements IPlayerSocket {
   private readonly id: string;
   private playerLocations: PlayerLocations = [];
   private readonly socket: SocketIO.Socket;

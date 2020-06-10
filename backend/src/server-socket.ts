@@ -1,3 +1,4 @@
+import { Recorder } from './utilities/recorder';
 import { SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
 
