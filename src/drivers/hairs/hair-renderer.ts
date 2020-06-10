@@ -36,18 +36,18 @@ export class HairRenderer {
     mesh.setMatrixAt(hairIndex, matrix);
   }
 
-  static getMatrixFromTransform = (
+  static getMatrixFromTransform(
     position: [number, number, number],
     rotation: [number, number, number],
     scale: [number, number, number],
-  ) => {
+  ) {
     HairRenderer.transformHolder.position.set(...position);
     HairRenderer.transformHolder.rotation.set(...rotation);
     HairRenderer.transformHolder.scale.set(...scale);
     HairRenderer.transformHolder.updateMatrix();
 
     return HairRenderer.transformHolder.matrix;
-  };
+  }
 
   static getHairLengthScale(aspect: number) {
     return 2 / aspect;
