@@ -70,16 +70,19 @@ class Hairs {
   ) {
     const skipFrequency = 1 / this.aspect;
     const indices = Memoize.memoize(Hairs.getHairIndicesToDraw, positions.length, skipFrequency);
-    indices.forEach((hairIndex) => {
+
+    for (let index = 0; index < indices.length; index++) {
+      const hairIndex = indices[index];
+
       const [xPos, yPos] = positions[hairIndex];
       const length = lengths[hairIndex];
       const rotation = rotations[hairIndex];
 
       HairRenderer.render(mesh, hairIndex, xPos, yPos, rotation, 1, length, this.aspect);
-    });
+    }
   }
 
-  private static getHairIndicesToDraw = (maxSize: number, skipFrequency: number) => {
+  private static getHairIndicesToDraw(maxSize: number, skipFrequency: number) {
     const indices = [];
 
     for (let index = 0; index < maxSize; index++) {
@@ -88,7 +91,7 @@ class Hairs {
       indices.push(index);
     }
     return indices;
-  };
+  }
 
   private updateCutHairs() {
     const { currentPlayerCuts, combinedCuts } = this.calculateCuts();
@@ -113,10 +116,10 @@ class Hairs {
 
   public instanceCount = () => this.hairPositions.getPositions().length + maxFallingHair;
 
-  private calculateCuts = (): {
+  private calculateCuts(): {
     currentPlayerCuts: boolean[] | undefined;
     combinedCuts: boolean[];
-  } => {
+  } {
     const positions = this.hairPositions.getScreenPositions();
     const friendPlayerCuts = this.friendPlayerCuts(positions);
 
@@ -133,7 +136,7 @@ class Hairs {
       currentPlayerCuts: undefined,
       combinedCuts: friendPlayerCuts,
     };
-  };
+  }
 
   private currentPlayerCuts(positions: [number, number][]) {
     return positions.map(this.currentPlayerContainsPoint);
