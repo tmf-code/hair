@@ -62,15 +62,26 @@ export abstract class AbstractPlayer {
   }
 
   protected updateScaleUp() {
-    const targetScale = 1.1 * this.aspect;
+    const targetScale = 1.1 * this.getScale();
     this.scale = [targetScale, targetScale, 1];
   }
 
   protected updateScaleDown() {
-    const targetScale = 1.0 * this.aspect;
+    const targetScale = 1.0 * this.getScale();
     const lerpRate = 0.1;
 
     this.scale = lerpTuple3(this.scale, [targetScale, targetScale, 1.0], lerpRate);
+  }
+
+  private getScale() {
+    const isLandscape = this.aspect > 1.0;
+
+    if (isLandscape) {
+      const scaleAtHalfRateOfAspect = (this.aspect - 1) / 2 + 1;
+      return scaleAtHalfRateOfAspect;
+    }
+
+    return 1.0;
   }
 
   protected updatePosition() {
