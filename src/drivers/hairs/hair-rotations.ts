@@ -35,33 +35,51 @@ class HairRotations {
     return this.rotations;
   }
 
-  private noSwirl = (hairIndex: number) => this.rotationOffsets[hairIndex];
+  private noSwirl(hairIndex: number) {
+    return this.rotationOffsets[hairIndex];
+  }
 
-  calculateSwirls = (positions: number[][], mousePos: Vector3) => {
+  calculateSwirls(positions: [number, number][], mousePos: Vector3) {
     const mouseVelocity = new Vector2().fromArray(Mouse.getVelocity());
     const isMousePerformingSwirl =
       !Mouse.isClicked() && !Mouse.isSingleTouched() && mouseVelocity.length() > 0.001;
 
-    const newRotationOffsets = positions.map(([xPos, yPos], hairIndex) => {
-      if (!isMousePerformingSwirl) return this.noSwirl(hairIndex);
-
-      const distance = mousePos.distanceTo(new Vector3(xPos, yPos, 0));
-      const isHovering = distance < swirlRadius;
-
-      if (!isHovering) return this.noSwirl(hairIndex);
-
-      const directionVector = mouseVelocity.normalize();
-      const swirlAmount = directionVector.multiplyScalar(1 - distance / swirlRadius);
-
-      const rotationDifference =
-        Math.atan2(swirlAmount.y, swirlAmount.x) - this.rotationOffsets[hairIndex];
-      const newRotation =
-        this.rotationOffsets[hairIndex] + (rotationDifference * swirlAmount.length()) / 10;
-      return newRotation;
-    });
+    const newRotationOffsets = positions.map(([xPos, yPos], hairIndex) =>
+      this.getRotationOffset(
+        isMousePerformingSwirl,
+        mousePos,
+        mouseVelocity,
+        [xPos, yPos],
+        hairIndex,
+      ),
+    );
 
     this.setRotationOffsets(newRotationOffsets);
-  };
+  }
+
+  private getRotationOffset(
+    isMousePerformingSwirl: boolean,
+    mousePos: Vector3,
+    mouseVelocity: Vector2,
+    [xPos, yPos]: [number, number],
+    hairIndex: number,
+  ) {
+    if (!isMousePerformingSwirl) return this.noSwirl(hairIndex);
+
+    const distance = mousePos.distanceTo(new Vector3(xPos, yPos, 0));
+    const isHovering = distance < swirlRadius;
+
+    if (!isHovering) return this.noSwirl(hairIndex);
+
+    const directionVector = mouseVelocity.normalize();
+    const swirlAmount = directionVector.multiplyScalar(1 - distance / swirlRadius);
+
+    const rotationDifference =
+      Math.atan2(swirlAmount.y, swirlAmount.x) - this.rotationOffsets[hairIndex];
+    const newRotation =
+      this.rotationOffsets[hairIndex] + (rotationDifference * swirlAmount.length()) / 10;
+    return newRotation;
+  }
 }
 
 export { HairRotations };
