@@ -120,13 +120,6 @@ class Hairs {
     this.hairRotations.calculateSwirls(this.hairPositions.getScreenPositions(), mousePos);
   }
 
-  public readyToRender = () => {
-    const isMeshMade = !!this.ref?.current;
-    const hairsRetrievedFromServer = this.hairLengths.getLengths().length !== 0;
-    const gridConstructed = this.hairPositions.getPositions().length !== 0;
-    return isMeshMade && hairsRetrievedFromServer && gridConstructed;
-  };
-
   public instanceCount = () => this.hairPositions.getPositions().length + maxFallingHair;
 
   private calculateCuts = (): {
