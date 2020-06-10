@@ -57,6 +57,10 @@ const App = () => {
         orthographic={false}
         pixelRatio={window.devicePixelRatio}
       >
+        <Colofon
+          roomName={'unfortunately luring upper buttock'}
+          url={'https://comeshave.com/my-unfortunately-luring-upper-buttock'}
+        />
         <FriendPlayersRenderable players={players} />
         <CurrentPlayerRazorRenderable
           updateFrame={currentPlayerRazor.updateFrame.bind(currentPlayerRazor)}
@@ -67,7 +71,6 @@ const App = () => {
           viewportChange={hairs.setViewport.bind(hairs)}
         />
       </Canvas>
-      <Colofon />
     </div>
   );
 };

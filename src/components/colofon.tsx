@@ -1,15 +1,21 @@
 import React, { useState } from 'react';
 import { ColofonText } from './colofon-text';
 
-const Colofon = (): React.ReactElement => {
+type ColofonProps = {
+  roomName: string;
+  url: string;
+};
+
+const Colofon = ({ roomName, url }: ColofonProps) => {
   const [display, showColofon] = useState(false);
   // react hook useState
   const ToggleColofonState = () => showColofon(!display);
   return (
-    <div>
-      {display && <ColofonText />}
-      <div className="clickableButtonArea" onClick={ToggleColofonState}></div>
-      <button id="colofonButton">i</button>
+    <div className="colofon">
+      {display && <ColofonText roomName={roomName} url={url} />}
+      <button id="colofonButton" onClick={ToggleColofonState}>
+        ?
+      </button>
     </div>
   );
 };
