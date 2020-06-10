@@ -46,15 +46,15 @@ class Hairs {
   }
 
   public updateFrame(mesh: InstancedMesh, mouse: Vector2, camera: Camera) {
+    mesh.matrixAutoUpdate = false;
     this.fallingHair.setMesh(mesh);
     this.updateStaticHairs(mesh);
     this.updateCutHairs();
     this.updateSwirls(mouse, camera);
+    mesh.instanceMatrix.needsUpdate = true;
   }
 
   private updateStaticHairs(instancedMesh: InstancedMesh) {
-    instancedMesh.instanceMatrix.needsUpdate = true;
-    instancedMesh.matrixAutoUpdate = false;
     const rotations = this.hairRotations.getRotations();
     const positions = this.hairPositions.getScreenPositions();
     const lengths = this.hairLengths.getLengths();
