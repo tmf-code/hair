@@ -1,4 +1,4 @@
-import { Shape, ShapeGeometry } from 'three';
+import { Shape, ShapeBufferGeometry } from 'three';
 import { lerp } from '../utilities/utilities';
 import { maxLengthAsPercentWidth, maxWidthAsPercentWidth } from '../utilities/constants';
 
@@ -7,7 +7,7 @@ const triangleGeometry = function (screenWidth: number) {
   const width = lerp(0, screenWidth, maxWidthAsPercentWidth);
 
   const maxLengthHairShape = makeTriangleShape(width, maxLength);
-  const geo = new ShapeGeometry(maxLengthHairShape);
+  const geo = new ShapeBufferGeometry(maxLengthHairShape);
   geo.computeVertexNormals();
   geo.scale(0.5, 0.5, 0.5);
 
