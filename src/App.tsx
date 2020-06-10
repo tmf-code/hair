@@ -51,7 +51,12 @@ const socket = new ClientSocket(io, process.env.NODE_ENV, socketCallbacks);
 const App = () => {
   return (
     <div>
-      <Canvas gl2={false} orthographic={false} pixelRatio={window.devicePixelRatio}>
+      <Canvas
+        style={{ height: '100%', width: '100%', position: 'absolute' }}
+        gl2={false}
+        orthographic={false}
+        pixelRatio={window.devicePixelRatio}
+      >
         <FriendPlayersRenderable players={players} />
         <CurrentPlayerRazorRenderable
           updateFrame={currentPlayerRazor.updateFrame.bind(currentPlayerRazor)}
