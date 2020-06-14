@@ -1,10 +1,6 @@
 import { IplayerData } from './i-player-data';
 import { IPlayerSocket } from './i-player-socket';
 
-export type GhostPlayerSocketCallbacks = {
-  receiveCuts: (cuts: boolean[]) => void;
-};
-
 export class GhostPlayerSocket implements IPlayerSocket {
   private readonly id: string;
   private currentGhostIndex: number;
