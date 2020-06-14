@@ -52,7 +52,7 @@ export abstract class AbstractPlayer {
         this.updateRazorTriangles();
         this.updateRazorTransform();
         this.updateRotation();
-        this.playerState = this.updateStartCutting();
+        this.playerState = 'CUTTING';
         break;
       case 'CUTTING':
         this.setRazorOnscreen();
@@ -103,7 +103,6 @@ export abstract class AbstractPlayer {
   }
   protected abstract beforeEachState(): void;
   protected abstract updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING';
-  protected abstract updateStartCutting(): 'START_CUTTING' | 'CUTTING';
   protected abstract updateCutting(): 'CUTTING' | 'STOP_CUTTING';
   protected abstract updateStopCutting(): 'STOP_CUTTING' | 'NOT_CUTTING';
 
