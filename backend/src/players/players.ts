@@ -16,7 +16,6 @@ export class Players {
   ) {
     this.players = {};
     this.getMapState = getMapState;
-    this.addGhostPlayers(5);
   }
 
   setRecieveCuts(recieveCuts: (cuts: boolean[]) => void): void {
