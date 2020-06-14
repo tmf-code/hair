@@ -49,30 +49,29 @@ export abstract class AbstractPlayer {
         this.setRazorOnscreen();
         this.snapSmoothedToTargetPosition();
         this.snapSmoothedToTargetRotation();
-        this.updateRazorTriangles();
-        this.updateRazorTransform();
-        this.updateRotation();
+        this.updateDisplay();
         this.playerState = 'CUTTING';
         break;
       case 'CUTTING':
         this.setRazorOnscreen();
         this.updateScaleDown();
-        this.updateRotation();
-        this.updatePosition();
-        this.updateRazorTriangles();
-        this.updateRazorTransform();
+        this.updateDisplay();
         this.playerState = this.updateCutting();
         break;
       case 'STOP_CUTTING':
         this.setRazorOffscreen();
         this.playerState = this.updateStopCutting();
         this.updateScaleUp();
-        this.updatePosition();
-        this.updateRotation();
-        this.updateRazorTriangles();
-        this.updateRazorTransform();
+        this.updateDisplay();
         break;
     }
+  }
+
+  private updateDisplay() {
+    this.updatePosition();
+    this.updateRotation();
+    this.updateRazorTriangles();
+    this.updateRazorTransform();
   }
 
   getBufferedPlayerData(): BufferedPlayerData {
