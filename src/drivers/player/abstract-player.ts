@@ -1,8 +1,9 @@
-import { friendLayer, playerLayer } from './../../utilities/constants';
+import { friendLayer, playerLayer, cachedMovementCount } from './../../utilities/constants';
 import { lerpTuple3, lerpTuple2, lerpTheta, relativeToWorld } from '../../utilities/utilities';
 import { offscreen, razorWidth, razorHeight } from '../../utilities/constants';
 import { Mesh, Vector2, Camera, Matrix4, Triangle, Vector3 } from 'three';
 import React from 'react';
+import { BufferedPlayerData, PlayerData } from '../../../@types/messages';
 
 type PlayerState = 'NOT_CUTTING' | 'START_CUTTING' | 'CUTTING' | 'STOP_CUTTING';
 
@@ -14,16 +15,16 @@ export abstract class AbstractPlayer {
   private camera: Camera | undefined;
   protected mouse: Vector2 | undefined;
 
-  private smoothedPosition: [number, number] = offscreen;
+  private razorSmoothedPosition: [number, number] = offscreen;
   private worldPosition: [number, number, number] = [0, 0, 0];
   private pointerPosition: [number, number] = offscreen;
   private razorTargetPosition: [number, number] = offscreen;
-
   private scale: [number, number, number] = [1, 1, 1];
-
   private playerState: PlayerState = 'STOP_CUTTING';
-
   private razorTriangles: [Triangle, Triangle] = [new Triangle(), new Triangle()];
+
+  protected bufferedPlayerData: BufferedPlayerData = [];
+  protected actionState: PlayerData['state'] = 'NOT_CUTTING';
 
   updateFrame(
     ref: React.MutableRefObject<Mesh | undefined>,
@@ -36,36 +37,91 @@ export abstract class AbstractPlayer {
     this.mouse = mouse;
     this.camera = camera;
 
+    this.beforeEachState();
     switch (this.playerState) {
       case 'NOT_CUTTING':
+        this.setRazorOffscreen();
+        this.updateScaleUp();
         this.playerState = this.updateNotCutting();
 
         break;
       case 'START_CUTTING':
+        this.setRazorOnscreen();
+        this.snapSmoothedToTargetPosition();
+        this.snapSmoothedToTargetRotation();
+        this.updateRazorTriangles();
+        this.updateRazorTransform();
+        this.updateRotation();
         this.playerState = this.updateStartCutting();
         break;
       case 'CUTTING':
+        this.setRazorOnscreen();
+        this.updateScaleDown();
+        this.updateRotation();
+        this.updatePosition();
+        this.updateRazorTriangles();
+        this.updateRazorTransform();
         this.playerState = this.updateCutting();
         break;
       case 'STOP_CUTTING':
+        this.setRazorOffscreen();
         this.playerState = this.updateStopCutting();
+        this.updateScaleUp();
+        this.updatePosition();
+        this.updateRotation();
+        this.updateRazorTriangles();
+        this.updateRazorTransform();
         break;
     }
   }
 
-  protected abstract isCutting(): boolean;
+  getBufferedPlayerData(): BufferedPlayerData {
+    return this.bufferedPlayerData;
+  }
+
+  protected getPlayerData(): PlayerData | undefined {
+    return this.bufferedPlayerData.pop();
+  }
+
+  setBufferedPlayerData(bufferedPlayerData: BufferedPlayerData): void {
+    this.bufferedPlayerData = bufferedPlayerData;
+  }
+
+  protected addPlayerData(data: PlayerData): void {
+    this.bufferedPlayerData.unshift(data);
+    const bufferIsFull = this.bufferedPlayerData.length > cachedMovementCount;
+    if (bufferIsFull) {
+      this.bufferedPlayerData.pop();
+    }
+  }
+
+  protected setState(state: PlayerData['state']): void {
+    this.actionState = state;
+  }
+  protected isCutting(): boolean {
+    return this.actionState === 'CUTTING';
+  }
+  protected abstract beforeEachState(): void;
   protected abstract updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING';
   protected abstract updateStartCutting(): 'START_CUTTING' | 'CUTTING';
   protected abstract updateCutting(): 'CUTTING' | 'STOP_CUTTING';
   protected abstract updateStopCutting(): 'STOP_CUTTING' | 'NOT_CUTTING';
 
-  protected setPositionOffscreen(): void {
-    this.pointerPosition = [...offscreen] as [number, number];
+  protected setRazorOffscreen(): void {
+    this.razorTargetPosition = [...offscreen] as [number, number];
     this.snapSmoothedToTargetPosition();
+  }
+
+  protected snapSmoothedToTargetPosition(): void {
+    this.razorSmoothedPosition = this.razorTargetPosition;
   }
 
   protected setPointerPosition(position: [number, number]): void {
     this.pointerPosition = position;
+  }
+
+  protected setRazorOnscreen(): void {
+    this.razorTargetPosition = this.pointerPosition;
   }
 
   protected setRotation(rotation: number): void {
@@ -78,10 +134,6 @@ export abstract class AbstractPlayer {
 
   protected getPointerPosition(): [number, number] {
     return this.pointerPosition;
-  }
-
-  protected snapSmoothedToTargetPosition(): void {
-    this.smoothedPosition = this.pointerPosition;
   }
 
   protected snapSmoothedToTargetRotation(): void {
@@ -113,11 +165,15 @@ export abstract class AbstractPlayer {
 
   protected updatePosition(): void {
     const lerpRate = 0.1;
-    this.smoothedPosition = lerpTuple2(this.smoothedPosition, this.pointerPosition, lerpRate);
+    this.razorSmoothedPosition = lerpTuple2(
+      this.razorSmoothedPosition,
+      this.razorTargetPosition,
+      lerpRate,
+    );
 
     if (!this.camera) return;
 
-    const [xPos, yPos] = relativeToWorld(this.smoothedPosition, this.camera).toArray() as [
+    const [xPos, yPos] = relativeToWorld(this.razorSmoothedPosition, this.camera).toArray() as [
       number,
       number,
       number,
@@ -174,7 +230,7 @@ export abstract class AbstractPlayer {
     this.worldPosition[2] = layer;
   }
 
-  protected setRazorTransform(): void {
+  protected updateRazorTransform(): void {
     if (!this.ref?.current) return;
     const cursorOnTipOffset = -(2.1 / 2) * 0.5;
 

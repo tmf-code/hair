@@ -1,12 +1,9 @@
 import { sampleInterval, playerLayer } from './../../utilities/constants';
 import { Mouse } from '../mouse/mouse';
 import { AbstractPlayer } from './abstract-player';
-import { cachedMovementCount } from '../../utilities/constants';
-import { BufferedPlayerData, PlayerData } from '../../../@types/messages';
+import { PlayerData } from '../../../@types/messages';
 
 export class CurrentPlayer extends AbstractPlayer {
-  private bufferedPlayerData: BufferedPlayerData = [];
-
   constructor() {
     super();
     this.setLayer(playerLayer);
@@ -26,20 +23,16 @@ export class CurrentPlayer extends AbstractPlayer {
       state: this.isCutting() ? 'CUTTING' : 'NOT_CUTTING',
     };
 
-    this.bufferedPlayerData.unshift(data);
-    const bufferIsFull = this.bufferedPlayerData.length > cachedMovementCount;
-    if (bufferIsFull) {
-      this.bufferedPlayerData.pop();
-    }
+    this.addPlayerData(data);
   }
 
-  isCutting(): boolean {
-    return Mouse.isClicked() || Mouse.isSingleTouched();
+  beforeEachState(): void {
+    this.setPointerPosition(this.mouse?.toArray() as [number, number]);
+    this.setRotation(Mouse.getDirection());
+    this.setState(Mouse.isClicked() || Mouse.isSingleTouched() ? 'CUTTING' : 'NOT_CUTTING');
   }
 
   updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {
-    this.setPositionOffscreen();
-    this.updateScaleUp();
     this.setRotationToVertical();
     if (this.isCutting()) return 'START_CUTTING';
 
@@ -47,41 +40,17 @@ export class CurrentPlayer extends AbstractPlayer {
   }
 
   updateStartCutting(): 'START_CUTTING' | 'CUTTING' {
-    this.setPointerPosition(this.mouse?.toArray() as [number, number]);
-    this.snapSmoothedToTargetPosition();
-    this.updateRazorTriangles();
-    this.setRazorTransform();
-    this.updateRotation();
-
     return 'CUTTING';
   }
 
   updateCutting(): 'CUTTING' | 'STOP_CUTTING' {
-    this.setPointerPosition(this.mouse?.toArray() as [number, number]);
-    this.setRotation(Mouse.getDirection());
-
-    this.updateScaleDown();
-    this.updateRotation();
-    this.updatePosition();
-    this.updateRazorTriangles();
-    this.setRazorTransform();
-
-    if (!this.isCutting()) {
-      return 'STOP_CUTTING';
-    }
+    if (!this.isCutting()) return 'STOP_CUTTING';
 
     return 'CUTTING';
   }
 
   updateStopCutting(): 'STOP_CUTTING' | 'NOT_CUTTING' {
     this.setRotationToVertical();
-    this.setPositionOffscreen();
-    this.updateScaleUp();
-    this.updatePosition();
-    this.updateRotation();
-    this.updateRazorTriangles();
-    this.setRazorTransform();
-
     return 'NOT_CUTTING';
   }
 
@@ -89,9 +58,5 @@ export class CurrentPlayer extends AbstractPlayer {
     Mouse.setDirectionToVertical();
     this.setRotation(Mouse.getDirection());
     this.snapSmoothedToTargetRotation();
-  }
-
-  getBufferedPlayerData(): BufferedPlayerData {
-    return this.bufferedPlayerData;
   }
 }
