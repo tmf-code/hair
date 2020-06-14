@@ -26,36 +26,6 @@ export const lerpTuple3 = function (
   ) as [number, number, number];
 };
 
-export const arrayEqual = <T extends number | string | boolean>(
-  array1: T[],
-  array2: T[],
-): boolean => {
-  return array2.every((element, index) => array1[index] === element);
-};
-
-export const getWorldLimits = (
-  camera: Camera | undefined,
-): {
-  leftTop: Vector3;
-  rightBottom: Vector3;
-} => {
-  if (!camera) return { leftTop: new Vector3(0, 0, 0), rightBottom: new Vector3(1, 1, 0) };
-  const getWorldPos = (xPos: number, yPos: number) => {
-    const pos = new Vector3();
-    const vec = new Vector3();
-    vec.set((xPos / window.innerWidth) * 2 - 1, -(yPos / window.innerHeight) * 2 + 1, 0);
-    vec.unproject(camera);
-    vec.sub(camera.position).normalize();
-    const distance = -camera.position.z / vec.z;
-    return pos.copy(camera.position).add(vec.multiplyScalar(distance));
-  };
-
-  return {
-    leftTop: getWorldPos(0, 0),
-    rightBottom: getWorldPos(window.innerWidth, window.innerHeight),
-  };
-};
-
 export const relativeToWorld = (position: [number, number], camera: Camera): Vector3 => {
   const vec = new Vector3(...position, 0);
   vec.unproject(camera);
@@ -110,19 +80,5 @@ export const lerpTheta = (
   return lerp(current, current + offset, interpolation);
 };
 
-export const clamp = (value: number, min: number, max: number): number =>
+const clamp = (value: number, min: number, max: number): number =>
   Math.min(Math.max(min, value), max);
-
-export const zipTo = <T>(arrayB: T[]) => (
-  elementFromA: T,
-  indexOnA: number,
-  arrayA: T[],
-): [T, T] => {
-  if (arrayA.length !== arrayB.length)
-    throw new RangeError(
-      `Unable to combine arrayA with arrayB. Lengths ${arrayA.length} and ${arrayB.length} do not match`,
-    );
-  return [elementFromA, arrayB[indexOnA]];
-};
-
-export type WorldLimits = ReturnType<typeof getWorldLimits>;
