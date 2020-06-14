@@ -1,3 +1,4 @@
+import { ClientSocketOverload } from './../../@types/socketio-overloads.d';
 import { emitInterval } from './../utilities/constants';
 type SocketCallbacks = {
   setPositions: (positions: [number, number][]) => void;
@@ -14,7 +15,7 @@ type SocketCallbacks = {
 };
 
 export class ClientSocket {
-  private socket: SocketIOClient.Socket;
+  private socket: ClientSocketOverload;
   private socketCallbacks: SocketCallbacks;
   private clientID = '';
 
@@ -36,27 +37,27 @@ export class ClientSocket {
   }
 
   private connectSocket(io: SocketIOClientStatic, mode: 'production' | 'development') {
-    return mode === 'production' ? io() : io('http://192.168.178.41:3001');
+    return (mode === 'production'
+      ? io()
+      : io('http://192.168.178.41:3001')) as ClientSocketOverload;
   }
 
   private attachSocketHandlers() {
-    const socketEventHandlers = {
-      updateClientGrid: (serverHairPositions: [number, number][]) =>
-        this.socketCallbacks.setPositions(serverHairPositions),
+    this.socket.on('updateClientGrid', (serverHairPositions: [number, number][]) =>
+      this.socketCallbacks.setPositions(serverHairPositions),
+    );
 
-      updateClientGrowth: (growthSpeed: number) => this.socketCallbacks.tickGrowth(growthSpeed),
+    this.socket.on('updateClientLengths', (serverHairLengths: number[]) =>
+      this.socketCallbacks.setLengths(serverHairLengths),
+    );
 
-      updateClientLengths: (serverHairLengths: number[]) =>
-        this.socketCallbacks.setLengths(serverHairLengths),
+    this.socket.on('updateClientRotations', (serverHairRotations: number[]) =>
+      this.socketCallbacks.setRotations(serverHairRotations),
+    );
 
-      updateClientRotations: (serverHairRotations: number[]) =>
-        this.socketCallbacks.setRotations(serverHairRotations),
-
-      updateClientCuts: (cuts: boolean[]) => this.socketCallbacks.setRemoteCuts(cuts),
-
-      updateClientPlayerLocations: (
-        playerData: Record<string, { rotation: number; position: [number, number] }[]>,
-      ) => {
+    this.socket.on(
+      'updateClientPlayerLocations',
+      (playerData: Record<string, { rotation: number; position: [number, number] }[]>) => {
         if (playerData !== null) {
           if (playerData[this.clientID] !== undefined) {
             delete playerData[this.clientID];
@@ -64,11 +65,7 @@ export class ClientSocket {
           this.socketCallbacks.setPlayers(playerData);
         }
       },
-    };
-
-    Object.entries(socketEventHandlers).forEach(([name, handler]) => {
-      this.socket.on(name, handler);
-    });
+    );
 
     this.socket.on('connect', () => {
       this.clientID = this.socket.id;

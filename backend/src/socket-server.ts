@@ -1,8 +1,9 @@
 import { SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
+import { ServerSocketOverload, ServerIoOverload } from '../../@types/socketio-overloads';
 
 export type ServerSocketCallbacks = {
-  onPlayerConnected: (socket: SocketIO.Socket) => void;
+  onPlayerConnected: (socket: ServerSocketOverload) => void;
   onPlayerDisconnected: (playerId: string) => void;
   onEmitPlayerLocations: () => Record<
     string,
@@ -14,8 +15,8 @@ export type ServerSocketCallbacks = {
   onReceiveCuts: (cuts: boolean[]) => void;
 };
 
-export class ServerSocket {
-  private io: SocketIO.Server;
+export class SocketServer {
+  private io: ServerIoOverload;
   private serverSocketCallbacks: ServerSocketCallbacks;
 
   constructor(server: import('http').Server, serverSocketCallbacks: ServerSocketCallbacks) {
