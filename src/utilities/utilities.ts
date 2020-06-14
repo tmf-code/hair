@@ -1,6 +1,6 @@
 import { Camera, Vector3, Vector2 } from 'three';
 
-export const lerp = function (value1: number, value2: number, amount: number) {
+export const lerp = function (value1: number, value2: number, amount: number): number {
   amount = amount < 0 ? 0 : amount;
   amount = amount > 1 ? 1 : amount;
   return value1 + (value2 - value1) * amount;
@@ -26,11 +26,19 @@ export const lerpTuple3 = function (
   ) as [number, number, number];
 };
 
-export const arrayEqual = <T extends number | string | boolean>(array1: T[], array2: T[]) => {
+export const arrayEqual = <T extends number | string | boolean>(
+  array1: T[],
+  array2: T[],
+): boolean => {
   return array2.every((element, index) => array1[index] === element);
 };
 
-export const getWorldLimits = (camera: Camera | undefined) => {
+export const getWorldLimits = (
+  camera: Camera | undefined,
+): {
+  leftTop: Vector3;
+  rightBottom: Vector3;
+} => {
   if (!camera) return { leftTop: new Vector3(0, 0, 0), rightBottom: new Vector3(1, 1, 0) };
   const getWorldPos = (xPos: number, yPos: number) => {
     const pos = new Vector3();
@@ -48,7 +56,7 @@ export const getWorldLimits = (camera: Camera | undefined) => {
   };
 };
 
-export const relativeToWorld = (position: [number, number], camera: Camera) => {
+export const relativeToWorld = (position: [number, number], camera: Camera): Vector3 => {
   const vec = new Vector3(...position, 0);
   vec.unproject(camera);
   vec.sub(camera.position).normalize();
@@ -56,7 +64,7 @@ export const relativeToWorld = (position: [number, number], camera: Camera) => {
   return new Vector3().copy(camera.position).add(vec.multiplyScalar(distance));
 };
 
-export const mouseToWorld = (mouse: Vector2, camera: Camera) => {
+export const mouseToWorld = (mouse: Vector2, camera: Camera): Vector3 => {
   const vec = new Vector3(mouse.x, mouse.y, 0);
   vec.unproject(camera);
   vec.sub(camera.position).normalize();
@@ -91,7 +99,7 @@ export const lerpTheta = (
   target: number,
   interpolation: number,
   circleAt: number,
-) => {
+): number => {
   const removeLoops = (distance: number) =>
     clamp(distance - Math.floor(distance / circleAt) * circleAt, 0, circleAt);
 
@@ -102,10 +110,14 @@ export const lerpTheta = (
   return lerp(current, current + offset, interpolation);
 };
 
-export const clamp = (value: number, min: number, max: number) =>
+export const clamp = (value: number, min: number, max: number): number =>
   Math.min(Math.max(min, value), max);
 
-export const zipTo = <T>(arrayB: T[]) => (elementFromA: T, indexOnA: number, arrayA: T[]) => {
+export const zipTo = <T>(arrayB: T[]) => (
+  elementFromA: T,
+  indexOnA: number,
+  arrayA: T[],
+): [T, T] => {
   if (arrayA.length !== arrayB.length)
     throw new RangeError(
       `Unable to combine arrayA with arrayB. Lengths ${arrayA.length} and ${arrayB.length} do not match`,

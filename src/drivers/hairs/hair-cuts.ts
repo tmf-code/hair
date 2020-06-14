@@ -11,12 +11,12 @@ class HairCuts {
     this.newCuts = this.noCuts;
   }
 
-  addFromClient(hairCuts: boolean[]) {
+  addFromClient(hairCuts: boolean[]): void {
     this.clientCuts = HairCuts.combineCuts(this.clientCuts, hairCuts);
     this.newCuts = HairCuts.combineCuts(this.newCuts, this.clientCuts);
   }
 
-  addFromServer(hairCuts: boolean[]) {
+  addFromServer(hairCuts: boolean[]): void {
     this.newCuts = HairCuts.combineCuts(this.newCuts, hairCuts);
   }
 
@@ -33,27 +33,27 @@ class HairCuts {
     return cutA || cutB;
   }
 
-  hasNewCuts() {
+  hasNewCuts(): boolean {
     return this.newCuts.some(Boolean);
   }
 
-  hasClientCuts() {
+  hasClientCuts(): boolean {
     return this.clientCuts.some(Boolean);
   }
 
-  getNewCuts() {
+  getNewCuts(): boolean[] {
     return this.newCuts;
   }
 
-  getClientCuts() {
+  getClientCuts(): boolean[] {
     return this.clientCuts;
   }
 
-  clearClientCuts() {
+  clearClientCuts(): void {
     this.clientCuts = this.noCuts;
   }
 
-  clearNewCuts() {
+  clearNewCuts(): void {
     this.newCuts = this.noCuts;
   }
 }

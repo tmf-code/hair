@@ -60,15 +60,15 @@ export class MouseDirection {
     }
   }
 
-  setToVertical() {
+  setToVertical(): void {
     this.currentDirection = 0;
     this.targetDirection = 0;
   }
 
-  reset = () => {
+  reset(): void {
     this.stopAnimating();
     this.removeInterval();
-  };
+  }
 
   private stopAnimating() {
     this.shouldAnimate = false;
@@ -78,6 +78,11 @@ export class MouseDirection {
     this.interval && clearInterval(this.interval);
   }
 
-  getDirection = () => this.targetDirection;
-  getSmoothedDirection = () => this.currentDirection;
+  getDirection(): number {
+    return this.targetDirection;
+  }
+
+  getSmoothedDirection(): number {
+    return this.currentDirection;
+  }
 }

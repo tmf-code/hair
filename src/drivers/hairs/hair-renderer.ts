@@ -1,5 +1,5 @@
 import { hairLayer } from './../../utilities/constants';
-import { InstancedMesh, Object3D } from 'three';
+import { InstancedMesh, Object3D, Matrix4 } from 'three';
 
 type Tuple3<T> = [T, T, T];
 
@@ -22,7 +22,7 @@ export class HairRenderer {
     width: number,
     length: number,
     aspect: number,
-  ) {
+  ): void {
     const hairLengthScale = HairRenderer.getHairLengthScale(aspect);
     const hairWidthScale = HairRenderer.getHairWidthScale(aspect);
 
@@ -40,7 +40,7 @@ export class HairRenderer {
     position: [number, number, number],
     rotation: [number, number, number],
     scale: [number, number, number],
-  ) {
+  ): Matrix4 {
     HairRenderer.transformHolder.position.set(...position);
     HairRenderer.transformHolder.rotation.set(...rotation);
     HairRenderer.transformHolder.scale.set(...scale);
@@ -49,11 +49,11 @@ export class HairRenderer {
     return HairRenderer.transformHolder.matrix;
   }
 
-  static getHairLengthScale(aspect: number) {
+  private static getHairLengthScale(aspect: number) {
     return 2 / aspect;
   }
 
-  static getHairWidthScale(aspect: number) {
+  private static getHairWidthScale(aspect: number) {
     return 2 / aspect;
   }
 }

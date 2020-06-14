@@ -39,13 +39,13 @@ class Hairs {
     this.fallingHair = new FallingHairs(widthPoints * heightPoints, maxFallingHair);
   }
 
-  setViewport({ width, height, factor }: Viewport) {
+  setViewport({ width, height, factor }: Viewport): void {
     this.aspect = width / height;
     this.hairPositions.setViewport(width, height);
     this.fallingHair.setViewport({ width, height, factor });
   }
 
-  public updateFrame(mesh: InstancedMesh, mouse: Vector2, camera: Camera) {
+  public updateFrame(mesh: InstancedMesh, mouse: Vector2, camera: Camera): void {
     mesh.matrixAutoUpdate = false;
     this.fallingHair.setMesh(mesh);
     this.updateStaticHairs(mesh);
@@ -114,7 +114,9 @@ class Hairs {
     this.hairRotations.calculateSwirls(this.hairPositions.getScreenPositions(), mousePos);
   }
 
-  public instanceCount = () => this.hairPositions.getPositions().length + maxFallingHair;
+  public instanceCount(): number {
+    return this.hairPositions.getPositions().length + maxFallingHair;
+  }
 
   private calculateCuts(): {
     currentPlayerCuts: boolean[] | undefined;

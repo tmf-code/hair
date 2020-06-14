@@ -48,7 +48,7 @@ const socketCallbacks = {
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const socket = new ClientSocket(io, process.env.NODE_ENV, socketCallbacks);
 
-const App = () => {
+const App = (): React.ReactElement => {
   return (
     <div>
       <Canvas

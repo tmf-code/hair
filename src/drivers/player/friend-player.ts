@@ -12,7 +12,7 @@ export class FriendPlayer extends AbstractPlayer {
     this.startPlayingBackLocations();
   }
 
-  startPlayingBackLocations() {
+  startPlayingBackLocations(): void {
     setInterval(
       () => requestAnimationFrame(this.playbackBufferedLocations.bind(this)),
       sampleInterval,
@@ -77,7 +77,7 @@ export class FriendPlayer extends AbstractPlayer {
     return this.position[0] < -20 && this.position[1] < -20;
   }
 
-  public serverUpdate(playerLocations: PlayerLocation[]) {
+  public serverUpdate(playerLocations: PlayerLocation[]): void {
     this.bufferedLocations = playerLocations;
   }
 }

@@ -21,7 +21,7 @@ export class FIFO<T extends IEmpty, I extends keyof T> {
     return this.currentSize;
   }
 
-  getStack() {
+  getStack(): T[] {
     return this.stack;
   }
 
@@ -33,6 +33,7 @@ export class FIFO<T extends IEmpty, I extends keyof T> {
    */
   private add(value: T): T {
     this.stack.unshift(value);
+    // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
     const last = this.stack.pop()!;
 
     if (last.type === 'empty') this.currentSize++;

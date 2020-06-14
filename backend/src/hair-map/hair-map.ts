@@ -18,7 +18,7 @@ export class HairMap {
     return this.positions.map(() => false);
   }
 
-  recieveCuts(cuts: boolean[]) {
+  recieveCuts(cuts: boolean[]): void {
     this.addCuts(cuts);
   }
 
@@ -56,7 +56,11 @@ export class HairMap {
     this.cuts = this.positions.map(() => false);
   }
 
-  getMapState() {
+  getMapState(): {
+    positions: [number, number][];
+    rotations: number[];
+    lengths: number[];
+  } {
     return {
       positions: this.positions,
       rotations: this.rotations,

@@ -25,7 +25,7 @@ export class HairMapFactory {
     randomJitterRange: number,
     minRotationAngle: number,
     maxRotationAngle: number,
-  ) {
+  ): HairMap {
     this.horizontalDesity = horizontalDesity;
     this.verticalDensity = verticalDensity;
     this.randomJitterRange = randomJitterRange;

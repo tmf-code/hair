@@ -18,11 +18,11 @@ export class MouseClickState {
   private handleDragStart = () => (this.isClicked = true);
   private handleDragEnd = () => (this.isClicked = false);
 
-  getIsClicked() {
+  getIsClicked(): boolean {
     return this.isClicked;
   }
 
-  reset() {
+  reset(): void {
     this.clearEventListeners();
   }
 

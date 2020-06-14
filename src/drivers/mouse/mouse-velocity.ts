@@ -7,7 +7,7 @@ export class MouseVelocity {
     this.sampledVelocity = new SampledVelocity(sampleInterval, getMousePosition);
   }
 
-  public getVelocity() {
+  public getVelocity(): [number, number] {
     return this.sampledVelocity.getVelocity();
   }
 }

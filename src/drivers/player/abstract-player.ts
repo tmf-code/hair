@@ -28,7 +28,7 @@ export abstract class AbstractPlayer {
     mouse: Vector2,
     aspect: number,
     camera: Camera,
-  ) {
+  ): void {
     this.ref = ref;
     this.aspect = aspect;
     this.mouse = mouse;
@@ -56,17 +56,17 @@ export abstract class AbstractPlayer {
   protected abstract updateCutting(): 'CUTTING' | 'STOP_CUTTING';
   protected abstract updateStopCutting(): 'STOP_CUTTING' | 'NOT_CUTTING';
 
-  protected setPositionOffscreen() {
+  protected setPositionOffscreen(): void {
     this.position = [...offscreen] as [number, number];
     this.smoothedPosition = this.position;
   }
 
-  protected updateScaleUp() {
+  protected updateScaleUp(): void {
     const targetScale = 1.1 * this.getScale();
     this.scale = [targetScale, targetScale, 1];
   }
 
-  protected updateScaleDown() {
+  protected updateScaleDown(): void {
     const targetScale = 1.0 * this.getScale();
     const lerpRate = 0.1;
 
@@ -84,7 +84,7 @@ export abstract class AbstractPlayer {
     return 1.0;
   }
 
-  protected updatePosition() {
+  protected updatePosition(): void {
     const lerpRate = 0.1;
     this.smoothedPosition = lerpTuple2(this.smoothedPosition, this.position, lerpRate);
 
@@ -101,17 +101,17 @@ export abstract class AbstractPlayer {
     this.worldPosition = [xPos, yPos, zPos];
   }
 
-  protected updateRotation() {
+  protected updateRotation(): void {
     this.smoothedRotation = lerpTheta(this.smoothedRotation, this.rotation, 0.1, Math.PI * 2);
   }
 
-  containsPoint([xPos, yPos]: [number, number]) {
+  containsPoint([xPos, yPos]: [number, number]): boolean {
     return this.razorTriangles.some((triangle) =>
       triangle.containsPoint(new Vector3(xPos, yPos, 0)),
     );
   }
 
-  protected updateRazorTriangles() {
+  protected updateRazorTriangles(): void {
     const [widthScale, heightScale] = this.scale;
     const offsets = [
       [-razorWidth * widthScale, -razorHeight],
@@ -143,11 +143,11 @@ export abstract class AbstractPlayer {
     this.razorTriangles = [triangleLeft, triangleRight];
   }
 
-  protected setLayer(layer: typeof friendLayer | typeof playerLayer) {
+  protected setLayer(layer: typeof friendLayer | typeof playerLayer): void {
     this.worldPosition[2] = layer;
   }
 
-  protected setRazorTransform() {
+  protected setRazorTransform(): void {
     if (!this.ref?.current) return;
     const cursorOnTipOffset = -(2.1 / 2) * 0.5;
 

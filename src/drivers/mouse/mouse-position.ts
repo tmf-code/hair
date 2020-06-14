@@ -29,11 +29,11 @@ export class MousePosition {
   private isTouchEvent = (event: TouchEvent | MouseEvent): event is TouchEvent =>
     (event as TouchEvent).touches !== undefined;
 
-  getPosition() {
+  getPosition(): [number, number] {
     return this.position;
   }
 
-  reset() {
+  reset(): void {
     this.clearEventListeners();
   }
 

@@ -19,11 +19,11 @@ export class Players {
     this.addGhostPlayers(5);
   }
 
-  setRecieveCuts(recieveCuts: (cuts: boolean[]) => void) {
+  setRecieveCuts(recieveCuts: (cuts: boolean[]) => void): void {
     this.recieveCuts = recieveCuts;
   }
 
-  addPlayer(socket: SocketIO.Socket) {
+  addPlayer(socket: SocketIO.Socket): void {
     const { positions, rotations, lengths } = this.getMapState();
     this.players[socket.id] = new PlayerSocket(
       socket,
@@ -41,11 +41,17 @@ export class Players {
     }
   }
 
-  removePlayer(socketId: string) {
+  removePlayer(socketId: string): void {
     delete this.players[socketId];
   }
 
-  getPlayerLocations() {
+  getPlayerLocations(): Record<
+    string,
+    {
+      rotation: number;
+      position: [number, number];
+    }[]
+  > {
     return Object.values(this.players).reduce(
       (record, player) => {
         const playerData = player.getPlayerData();

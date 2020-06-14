@@ -17,7 +17,7 @@ export class CurrentPlayer extends AbstractPlayer {
     this.startBufferingLocations();
   }
 
-  startBufferingLocations() {
+  startBufferingLocations(): void {
     setInterval(() => {
       return requestAnimationFrame(() => this.recordBufferedLocations());
     }, sampleInterval);

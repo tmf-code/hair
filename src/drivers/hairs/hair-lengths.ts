@@ -11,22 +11,22 @@ class HairLengths {
     }, growthTickInterval);
   }
 
-  destroy() {
+  destroy(): void {
     clearInterval(this.growthIntervalId);
   }
 
-  size() {
+  size(): number {
     return this.lengths.length;
   }
 
-  grow(growthSpeed: number) {
+  grow(growthSpeed: number): void {
     for (let lengthIndex = 0; lengthIndex < this.lengths.length; lengthIndex++) {
       const length = this.lengths[lengthIndex];
       this.lengths[lengthIndex] = Math.min(length + growthSpeed, 1);
     }
   }
 
-  cutHairs(cuts: boolean[]) {
+  cutHairs(cuts: boolean[]): void {
     if (cuts.length !== this.getLengths().length)
       throw new RangeError(
         `cuts.length should be the same size as this.lengths. Got ${cuts.length}, expected ${
@@ -41,11 +41,11 @@ class HairLengths {
     }
   }
 
-  updateLengths(lengths: number[]) {
+  updateLengths(lengths: number[]): void {
     this.lengths = lengths;
   }
 
-  getLengths() {
+  getLengths(): number[] {
     return this.lengths;
   }
 }

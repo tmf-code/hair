@@ -1,4 +1,3 @@
-import { Recorder } from './utilities/recorder';
 import { SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
 
@@ -36,7 +35,7 @@ export class ServerSocket {
     });
   }
 
-  public recieveCuts(incomingCuts: boolean[]) {
+  public recieveCuts(incomingCuts: boolean[]): void {
     this.serverSocketCallbacks.onReceiveCuts(incomingCuts);
   }
   private startEmitting() {

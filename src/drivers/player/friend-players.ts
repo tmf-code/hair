@@ -5,7 +5,7 @@ type PlayerLocation = { rotation: number; position: [number, number] };
 export class FriendPlayers {
   players: Record<string, { razor: FriendPlayer }> = {};
 
-  updatePlayers(playerData: Record<string, PlayerLocation[]>) {
+  updatePlayers(playerData: Record<string, PlayerLocation[]>): void {
     this.removeDisconnectedPlayers(playerData);
 
     const playerDataList = Object.entries(playerData);
@@ -43,13 +43,13 @@ export class FriendPlayers {
     mouse: Vector2,
     aspect: number,
     camera: Camera,
-  ) {
+  ): void {
     Object.values(this.players).forEach((player) => {
       player.razor.updateFrame(ref, mouse, aspect, camera);
     });
   }
 
-  containsPoint([xPos, yPos]: [number, number]) {
+  containsPoint([xPos, yPos]: [number, number]): boolean {
     return Object.values(this.players).some((player) => player.razor.containsPoint([xPos, yPos]));
   }
 }

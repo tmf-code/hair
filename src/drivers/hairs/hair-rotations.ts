@@ -20,17 +20,17 @@ class HairRotations {
     this.rotationOffsets = allZeros;
   }
 
-  setInitialRotations(rotations: number[]) {
+  setInitialRotations(rotations: number[]): void {
     this.initialRotations = [...rotations];
     this.rotations = [...this.initialRotations];
     this.rotationOffsets = this.initialRotations.map(() => 0);
   }
 
-  getRotations() {
+  getRotations(): number[] {
     return this.rotations;
   }
 
-  calculateSwirls(positions: [number, number][], mousePos: Vector3) {
+  calculateSwirls(positions: [number, number][], mousePos: Vector3): void {
     const mouseVelocity = this.mouseVelocityHolder.fromArray(Mouse.getVelocity());
     const isMousePerformingSwirl =
       !Mouse.isClicked() && !Mouse.isSingleTouched() && mouseVelocity.length() > 0.001;
