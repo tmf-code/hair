@@ -1,13 +1,5 @@
 import { HairMap } from './hair-map';
 
-export type CreateGridArgs = {
-  horizontalDesity: number;
-  verticalDensity: number;
-  randomJitterRange: number;
-  minRotationAngle: number;
-  maxRotationAngle: number;
-};
-
 export class HairMapFactory {
   private static horizontalDesity: number;
   private static verticalDensity: number;
