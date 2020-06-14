@@ -21,6 +21,16 @@ export class FriendPlayer extends AbstractPlayer {
     );
   }
 
+  private playbackBufferedLocations() {
+    const playerLocation = this.bufferedPlayerData.pop();
+    if (playerLocation === undefined) return;
+    const { position, rotation, state } = playerLocation;
+
+    this.setPointerPosition(position);
+    this.setRotation(rotation);
+    this.setState(state);
+  }
+
   updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {
     this.updateScaleUp();
     this.updatePosition();
@@ -66,16 +76,6 @@ export class FriendPlayer extends AbstractPlayer {
     this.setRazorTransform();
 
     return 'NOT_CUTTING';
-  }
-
-  private playbackBufferedLocations() {
-    const playerLocation = this.bufferedPlayerData.pop();
-    if (playerLocation === undefined) return;
-    const { position, rotation, state } = playerLocation;
-
-    this.setPointerPosition(position);
-    this.setRotation(rotation);
-    this.setState(state);
   }
 
   private setState(state: PlayerData['state']) {
