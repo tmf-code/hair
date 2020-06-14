@@ -94,7 +94,7 @@ export class CurrentPlayer extends AbstractPlayer {
     this.snapSmoothedToTargetRotation();
   }
 
-  getLocation(): BufferedPlayerData {
+  getBufferedPlayerData(): BufferedPlayerData {
     return this.bufferedPlayerData;
   }
 }
