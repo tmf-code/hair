@@ -1,7 +1,6 @@
 import {
   mouseVelocitySampleInterval,
   mouseDirectionSampleInterval,
-  mouseDirectionSmoothing,
 } from './../../utilities/constants';
 
 import { MouseVelocity } from './mouse-velocity';
@@ -24,7 +23,6 @@ export class Mouse {
   private direction: MouseDirection = new MouseDirection(
     mouseDirectionSampleInterval,
     this.velocity.getVelocity.bind(this.velocity),
-    mouseDirectionSmoothing,
   );
 
   static getPosition(): [number, number] {
@@ -45,10 +43,6 @@ export class Mouse {
 
   static getVelocity(): [number, number] {
     return this.instance.velocity.getVelocity();
-  }
-
-  static getSmoothedDirection(): number {
-    return this.instance.direction.getSmoothedDirection();
   }
 
   static getDirection(): number {
