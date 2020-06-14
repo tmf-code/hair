@@ -24,6 +24,7 @@ export type ServerToSockets = {
 type PlayerData = {
   rotation: number;
   position: [number, number];
+  state: 'CUTTING' | 'NOT_CUTTING';
 };
 
 export type PlayerIdentity = string;

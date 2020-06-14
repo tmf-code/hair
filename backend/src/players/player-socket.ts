@@ -1,3 +1,4 @@
+import { BufferedPlayerData } from './../../../@types/messages.d';
 import { IplayerData } from './i-player-data';
 import SocketIO from 'socket.io';
 import { IPlayerSocket } from './i-player-socket';
@@ -6,11 +7,9 @@ export type PlayerSocketCallbacks = {
   receiveCuts: (cuts: boolean[]) => void;
 };
 
-type PlayerLocations = { position: [number, number]; rotation: number }[];
-
 export class PlayerSocket implements IPlayerSocket {
   private readonly id: string;
-  private playerLocations: PlayerLocations = [];
+  private playerLocations: BufferedPlayerData = [];
   private readonly socket: SocketIO.Socket;
   private readonly receiveCuts: (cuts: boolean[]) => void;
 
@@ -40,7 +39,7 @@ export class PlayerSocket implements IPlayerSocket {
     });
   }
 
-  private updatePlayerLocation(playerLocations: PlayerLocations) {
+  private updatePlayerLocation(playerLocations: BufferedPlayerData) {
     this.playerLocations = playerLocations;
   }
 

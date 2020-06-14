@@ -2,12 +2,11 @@ import { sampleInterval, playerLayer } from './../../utilities/constants';
 import { Mouse } from '../mouse/mouse';
 import { AbstractPlayer } from './abstract-player';
 import { cachedMovementCount } from '../../utilities/constants';
-
-type PlayerLocation = { rotation: number; position: [number, number] };
+import { BufferedPlayerData, PlayerData } from '../../../@types/messages';
 
 let ids = 0;
 export class CurrentPlayer extends AbstractPlayer {
-  private bufferedLocations: PlayerLocation[] = [];
+  private bufferedLocations: BufferedPlayerData = [];
   id: number;
 
   constructor() {
@@ -77,7 +76,11 @@ export class CurrentPlayer extends AbstractPlayer {
   }
 
   private recordBufferedLocations() {
-    const newLocation = { rotation: this.rotation, position: this.position };
+    const newLocation: PlayerData = {
+      rotation: this.rotation,
+      position: this.position,
+      state: 'CUTTING',
+    };
     this.bufferedLocations.unshift(newLocation);
     const bufferIsFull = this.bufferedLocations.length > cachedMovementCount;
     if (bufferIsFull) {
@@ -85,7 +88,7 @@ export class CurrentPlayer extends AbstractPlayer {
     }
   }
 
-  getLocation(): PlayerLocation[] {
+  getLocation(): BufferedPlayerData {
     return this.bufferedLocations;
   }
 }

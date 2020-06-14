@@ -1,16 +1,15 @@
+import { BufferedPlayerData } from './../../@types/messages.d';
 import { ClientSocketOverload } from './../../@types/socketio-overloads.d';
 import { emitInterval } from './../utilities/constants';
 import { PlayersDataMessage } from '../../@types/messages';
 export type SocketCallbacks = {
   setPositions: (positions: [number, number][]) => void;
   setRotations: (rotations: number[]) => void;
-  setPlayers: (
-    playerData: Record<number, { rotation: number; position: [number, number] }[]>,
-  ) => void;
+  setPlayers: (playerData: PlayersDataMessage) => void;
   setLengths: (lengths: number[]) => void;
   sendLocalCuts: () => boolean[];
   sentLocalCuts: () => void;
-  sendLocation: () => { rotation: number; position: [number, number] }[];
+  sendLocation: () => BufferedPlayerData;
 };
 
 export class ClientSocket {
@@ -84,7 +83,7 @@ export class ClientSocket {
     this.socketCallbacks.sentLocalCuts();
   }
 
-  private updatePlayerLocation(location: { rotation: number; position: [number, number] }[]) {
+  private updatePlayerLocation(location: BufferedPlayerData) {
     this.socket.emit('updatePlayerLocation', location);
   }
 }
