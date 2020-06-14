@@ -11,20 +11,17 @@ export class FriendPlayer extends AbstractPlayer {
   constructor() {
     super();
     this.setLayer(friendLayer);
-    this.startPlayingBackLocations();
+    this.startPlayingBackPlayerData();
   }
 
-  startPlayingBackLocations(): void {
-    setInterval(
-      () => requestAnimationFrame(this.playbackBufferedLocations.bind(this)),
-      sampleInterval,
-    );
+  startPlayingBackPlayerData(): void {
+    setInterval(() => requestAnimationFrame(this.playbackPlayerData.bind(this)), sampleInterval);
   }
 
-  private playbackBufferedLocations() {
-    const playerLocation = this.bufferedPlayerData.pop();
-    if (playerLocation === undefined) return;
-    const { position, rotation, state } = playerLocation;
+  private playbackPlayerData() {
+    const data = this.bufferedPlayerData.pop();
+    if (data === undefined) return;
+    const { position, rotation, state } = data;
 
     this.setPointerPosition(position);
     this.setRotation(rotation);
