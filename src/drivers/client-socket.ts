@@ -1,5 +1,5 @@
 import { emitInterval } from './../utilities/constants';
-export type SocketCallbacks = {
+type SocketCallbacks = {
   setPositions: (positions: [number, number][]) => void;
   setRotations: (rotations: number[]) => void;
   setPlayers: (
