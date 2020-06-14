@@ -15,18 +15,18 @@ export class CurrentPlayer extends AbstractPlayer {
 
   startRecordingPlayerData(): void {
     setInterval(() => {
-      return requestAnimationFrame(() => this.recordBufferedLocations());
+      return requestAnimationFrame(() => this.recordPlayerData());
     }, sampleInterval);
   }
 
-  private recordBufferedLocations() {
-    const newLocation: PlayerData = {
+  private recordPlayerData() {
+    const data: PlayerData = {
       rotation: this.getRotation(),
       position: this.getPointerPosition(),
       state: this.isCutting() ? 'CUTTING' : 'NOT_CUTTING',
     };
 
-    this.bufferedPlayerData.unshift(newLocation);
+    this.bufferedPlayerData.unshift(data);
     const bufferIsFull = this.bufferedPlayerData.length > cachedMovementCount;
     if (bufferIsFull) {
       this.bufferedPlayerData.pop();
