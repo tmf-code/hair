@@ -86,7 +86,7 @@ export class FriendPlayer extends AbstractPlayer {
     return this.state === 'CUTTING';
   }
 
-  public serverUpdate(BufferedPlayerData: BufferedPlayerData): void {
-    this.bufferedPlayerData = BufferedPlayerData;
+  public setBufferedPlayerData(bufferedPlayerData: BufferedPlayerData): void {
+    this.bufferedPlayerData = bufferedPlayerData;
   }
 }

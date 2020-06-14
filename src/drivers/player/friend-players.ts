@@ -34,7 +34,7 @@ export class FriendPlayers {
   private updatePlayerLocations(playerData: [string, BufferedPlayerData][]) {
     playerData.forEach(([id, playerLocations]) => {
       const razor: FriendPlayer = this.players[id].razor;
-      razor.serverUpdate(playerLocations);
+      razor.setBufferedPlayerData(playerLocations);
     });
   }
 
