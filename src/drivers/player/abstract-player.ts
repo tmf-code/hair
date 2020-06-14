@@ -103,7 +103,11 @@ export abstract class AbstractPlayer {
   }
   protected abstract beforeEachState(): void;
   protected abstract updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING';
-  protected abstract updateCutting(): 'CUTTING' | 'STOP_CUTTING';
+  protected updateCutting(): 'CUTTING' | 'STOP_CUTTING' {
+    if (!this.isCutting()) return 'STOP_CUTTING';
+
+    return 'CUTTING';
+  }
   protected abstract updateStopCutting(): 'STOP_CUTTING' | 'NOT_CUTTING';
 
   protected setRazorOffscreen(): void {

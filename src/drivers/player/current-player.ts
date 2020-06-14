@@ -39,12 +39,6 @@ export class CurrentPlayer extends AbstractPlayer {
     return 'NOT_CUTTING';
   }
 
-  updateCutting(): 'CUTTING' | 'STOP_CUTTING' {
-    if (!this.isCutting()) return 'STOP_CUTTING';
-
-    return 'CUTTING';
-  }
-
   updateStopCutting(): 'STOP_CUTTING' | 'NOT_CUTTING' {
     this.setRotationToVertical();
     return 'NOT_CUTTING';

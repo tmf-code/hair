@@ -38,12 +38,6 @@ export class FriendPlayer extends AbstractPlayer {
     return 'NOT_CUTTING';
   }
 
-  updateCutting(): 'CUTTING' | 'STOP_CUTTING' {
-    if (!this.isCutting()) return 'STOP_CUTTING';
-
-    return 'CUTTING';
-  }
-
   updateStopCutting(): 'NOT_CUTTING' | 'STOP_CUTTING' {
     return 'NOT_CUTTING';
   }
