@@ -1,7 +1,6 @@
+import { PlayerIdentity, BufferedPlayerData } from '../../../@types/messages';
+
 export interface IplayerData {
-  id: string;
-  playerLocations: {
-    rotation: number;
-    position: [number, number];
-  }[];
+  id: PlayerIdentity;
+  playerLocations: BufferedPlayerData;
 }

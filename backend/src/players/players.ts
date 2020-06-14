@@ -1,6 +1,7 @@
 import { GhostPlayerSocket } from './ghost-player-socket';
 import { PlayerSocket } from './player-socket';
 import { IPlayerSocket } from './i-player-socket';
+import { PlayersDataMessage } from '../../../@types/messages';
 
 export class Players {
   private players: Record<string, IPlayerSocket>;
@@ -44,25 +45,10 @@ export class Players {
     delete this.players[socketId];
   }
 
-  getPlayerLocations(): Record<
-    string,
-    {
-      rotation: number;
-      position: [number, number];
-    }[]
-  > {
-    return Object.values(this.players).reduce(
-      (record, player) => {
-        const playerData = player.getPlayerData();
-        return { ...record, [playerData.id]: playerData.playerLocations };
-      },
-      {} as Record<
-        string,
-        {
-          rotation: number;
-          position: [number, number];
-        }[]
-      >,
-    );
+  getPlayerLocations(): PlayersDataMessage {
+    return Object.values(this.players).reduce((record, player) => {
+      const playerData = player.getPlayerData();
+      return { ...record, [playerData.id]: playerData.playerLocations };
+    }, {} as PlayersDataMessage);
   }
 }

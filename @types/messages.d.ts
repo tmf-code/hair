@@ -26,6 +26,6 @@ type PlayerData = {
   position: [number, number];
 };
 
-type BufferedPlayerData = PlayerData[];
-type PlayerIdentity = string;
+export type PlayerIdentity = string;
+export type BufferedPlayerData = PlayerData[];
 export type PlayersDataMessage = Record<PlayerIdentity, BufferedPlayerData>;
