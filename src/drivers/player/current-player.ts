@@ -4,14 +4,11 @@ import { AbstractPlayer } from './abstract-player';
 import { cachedMovementCount } from '../../utilities/constants';
 import { BufferedPlayerData, PlayerData } from '../../../@types/messages';
 
-let ids = 0;
 export class CurrentPlayer extends AbstractPlayer {
   private bufferedPlayerData: BufferedPlayerData = [];
-  id: number;
 
   constructor() {
     super();
-    this.id = ids++;
     this.setLayer(playerLayer);
     this.startBufferingLocations();
   }
