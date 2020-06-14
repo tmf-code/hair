@@ -34,7 +34,7 @@ export class FriendPlayer extends AbstractPlayer {
   }
 
   updateStartCutting(): 'START_CUTTING' | 'CUTTING' {
-    this.smoothedPosition = this.position;
+    this.snapSmoothedToTargetPosition();
     this.updateRazorTriangles();
     this.setRazorTransform();
     this.updateScaleDown();
@@ -71,8 +71,15 @@ export class FriendPlayer extends AbstractPlayer {
   private playbackBufferedLocations() {
     const playerLocation = this.bufferedPlayerData.pop();
     if (playerLocation === undefined) return;
+    const { position, rotation, state } = playerLocation;
 
-    ({ position: this.position, rotation: this.rotation, state: this.state } = playerLocation);
+    this.setPointerPosition(position);
+    this.setRotation(rotation);
+    this.setState(state);
+  }
+
+  private setState(state: PlayerData['state']) {
+    this.state = state;
   }
 
   isCutting(): boolean {

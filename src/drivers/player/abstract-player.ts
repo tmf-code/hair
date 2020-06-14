@@ -7,21 +7,23 @@ import React from 'react';
 type PlayerState = 'NOT_CUTTING' | 'START_CUTTING' | 'CUTTING' | 'STOP_CUTTING';
 
 export abstract class AbstractPlayer {
-  protected ref: React.MutableRefObject<Mesh | undefined> | undefined;
-  protected aspect = 1.0;
-  protected rotation = 0;
-  protected smoothedRotation = 0;
-  protected camera: Camera | undefined;
+  private ref: React.MutableRefObject<Mesh | undefined> | undefined;
+  private aspect = 1.0;
+  private rotation = 0;
+  private smoothedRotation = 0;
+  private camera: Camera | undefined;
   protected mouse: Vector2 | undefined;
 
-  protected smoothedPosition: [number, number] = offscreen;
+  private smoothedPosition: [number, number] = offscreen;
   private worldPosition: [number, number, number] = [0, 0, 0];
-  protected position: [number, number] = offscreen;
-  protected scale: [number, number, number] = [1, 1, 1];
+  private pointerPosition: [number, number] = offscreen;
+  private razorTargetPosition: [number, number] = offscreen;
 
-  protected playerState: PlayerState = 'STOP_CUTTING';
+  private scale: [number, number, number] = [1, 1, 1];
 
-  protected razorTriangles: [Triangle, Triangle] = [new Triangle(), new Triangle()];
+  private playerState: PlayerState = 'STOP_CUTTING';
+
+  private razorTriangles: [Triangle, Triangle] = [new Triangle(), new Triangle()];
 
   updateFrame(
     ref: React.MutableRefObject<Mesh | undefined>,
@@ -58,8 +60,32 @@ export abstract class AbstractPlayer {
   protected abstract updateStopCutting(): 'STOP_CUTTING' | 'NOT_CUTTING';
 
   protected setPositionOffscreen(): void {
-    this.position = [...offscreen] as [number, number];
-    this.smoothedPosition = this.position;
+    this.pointerPosition = [...offscreen] as [number, number];
+    this.snapSmoothedToTargetPosition();
+  }
+
+  protected setPointerPosition(position: [number, number]): void {
+    this.pointerPosition = position;
+  }
+
+  protected setRotation(rotation: number): void {
+    this.rotation = rotation;
+  }
+
+  protected getRotation(): number {
+    return this.rotation;
+  }
+
+  protected getPointerPosition(): [number, number] {
+    return this.pointerPosition;
+  }
+
+  protected snapSmoothedToTargetPosition(): void {
+    this.smoothedPosition = this.pointerPosition;
+  }
+
+  protected snapSmoothedToTargetRotation(): void {
+    this.smoothedRotation = this.rotation;
   }
 
   protected updateScaleUp(): void {
@@ -87,7 +113,7 @@ export abstract class AbstractPlayer {
 
   protected updatePosition(): void {
     const lerpRate = 0.1;
-    this.smoothedPosition = lerpTuple2(this.smoothedPosition, this.position, lerpRate);
+    this.smoothedPosition = lerpTuple2(this.smoothedPosition, this.pointerPosition, lerpRate);
 
     if (!this.camera) return;
 

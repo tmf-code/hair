@@ -24,8 +24,8 @@ export class CurrentPlayer extends AbstractPlayer {
 
   private recordBufferedLocations() {
     const newLocation: PlayerData = {
-      rotation: this.rotation,
-      position: this.position,
+      rotation: this.getRotation(),
+      position: this.getPointerPosition(),
       state: this.isCutting() ? 'CUTTING' : 'NOT_CUTTING',
     };
 
@@ -50,7 +50,8 @@ export class CurrentPlayer extends AbstractPlayer {
   }
 
   updateStartCutting(): 'START_CUTTING' | 'CUTTING' {
-    this.smoothedPosition = this.mouse?.toArray() as [number, number];
+    this.setPointerPosition(this.mouse?.toArray() as [number, number]);
+    this.snapSmoothedToTargetPosition();
     this.updateRazorTriangles();
     this.setRazorTransform();
     this.updateRotation();
@@ -59,8 +60,8 @@ export class CurrentPlayer extends AbstractPlayer {
   }
 
   updateCutting(): 'CUTTING' | 'STOP_CUTTING' {
-    this.position = this.mouse?.toArray() as [number, number];
-    this.rotation = Mouse.getDirection();
+    this.setPointerPosition(this.mouse?.toArray() as [number, number]);
+    this.setRotation(Mouse.getDirection());
 
     this.updateScaleDown();
     this.updateRotation();
@@ -89,8 +90,8 @@ export class CurrentPlayer extends AbstractPlayer {
 
   private setRotationToVertical() {
     Mouse.setDirectionToVertical();
-    this.rotation = Mouse.getDirection();
-    this.smoothedRotation = this.rotation;
+    this.setRotation(Mouse.getDirection());
+    this.snapSmoothedToTargetRotation();
   }
 
   getLocation(): BufferedPlayerData {
