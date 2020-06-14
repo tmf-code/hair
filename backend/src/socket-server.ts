@@ -1,3 +1,4 @@
+import { PlayersDataMessage } from './../../@types/messages.d';
 import { SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
 import { ServerSocketOverload, ServerIoOverload } from '../../@types/socketio-overloads';
@@ -5,13 +6,7 @@ import { ServerSocketOverload, ServerIoOverload } from '../../@types/socketio-ov
 export type ServerSocketCallbacks = {
   onPlayerConnected: (socket: ServerSocketOverload) => void;
   onPlayerDisconnected: (playerId: string) => void;
-  onEmitPlayerLocations: () => Record<
-    string,
-    {
-      rotation: number;
-      position: [number, number];
-    }[]
-  >;
+  onEmitPlayerLocations: () => PlayersDataMessage;
   onReceiveCuts: (cuts: boolean[]) => void;
 };
 
@@ -53,6 +48,6 @@ export class SocketServer {
 
   private emitPlayerLocations() {
     const playerLocations = this.serverSocketCallbacks.onEmitPlayerLocations();
-    this.io.emit('updateClientPlayerLocations', playerLocations);
+    this.io.emit('updatePlayersData', playerLocations);
   }
 }

@@ -17,10 +17,14 @@ export type ClientSocketOverload = Omit<SocketIOClient.Socket, 'emit' | 'on'> & 
   ) => SocketIOClient.Emitter;
 };
 
-export type ServerIoOverload = Omit<SocketIO.Server, 'on'> & {
+export type ServerIoOverload = Omit<SocketIO.Server, 'on' | 'emit'> & {
   on: <T extends keyof ClientToServer>(
     event: T,
     listener: (...args: [ClientToServer[T]]) => void,
+  ) => SocketIO.Namespace;
+  emit: <T extends keyof ServerToSockets>(
+    event: T,
+    ...args: [ServerToSockets[T]]
   ) => SocketIO.Namespace;
 };
 

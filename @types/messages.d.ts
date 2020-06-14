@@ -7,10 +7,7 @@ export type ClientToServer = {
 export type ClientToSocket = {
   disconnect: void;
   updateServerCuts: boolean[];
-  updatePlayerLocation: {
-    rotation: number;
-    position: [number, number];
-  }[];
+  updatePlayerLocation: BufferedPlayerData;
 };
 
 export type ServerToSocket = {
@@ -21,11 +18,14 @@ export type ServerToSocket = {
 };
 
 export type ServerToSockets = {
-  updateClientPlayerLocations: Record<
-    string,
-    {
-      rotation: number;
-      position: [number, number];
-    }[]
-  >;
+  updatePlayersData: PlayersDataMessage;
 };
+
+type PlayerData = {
+  rotation: number;
+  position: [number, number];
+};
+
+type BufferedPlayerData = PlayerData[];
+type PlayerIdentity = string;
+export type PlayersDataMessage = Record<PlayerIdentity, BufferedPlayerData>;

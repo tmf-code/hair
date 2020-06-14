@@ -1,5 +1,6 @@
 import { ClientSocketOverload } from './../../@types/socketio-overloads.d';
 import { emitInterval } from './../utilities/constants';
+import { PlayersDataMessage } from '../../@types/messages';
 export type SocketCallbacks = {
   setPositions: (positions: [number, number][]) => void;
   setRotations: (rotations: number[]) => void;
@@ -53,17 +54,14 @@ export class ClientSocket {
       this.socketCallbacks.setRotations(serverHairRotations),
     );
 
-    this.socket.on(
-      'updateClientPlayerLocations',
-      (playerData: Record<string, { rotation: number; position: [number, number] }[]>) => {
-        if (playerData !== null) {
-          if (playerData[this.clientID] !== undefined) {
-            delete playerData[this.clientID];
-          }
-          this.socketCallbacks.setPlayers(playerData);
+    this.socket.on('updatePlayersData', (playerData: PlayersDataMessage) => {
+      if (playerData !== null) {
+        if (playerData[this.clientID] !== undefined) {
+          delete playerData[this.clientID];
         }
-      },
-    );
+        this.socketCallbacks.setPlayers(playerData);
+      }
+    });
 
     this.socket.on('connect', () => {
       this.clientID = this.socket.id;
