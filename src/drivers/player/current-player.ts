@@ -10,10 +10,10 @@ export class CurrentPlayer extends AbstractPlayer {
   constructor() {
     super();
     this.setLayer(playerLayer);
-    this.startBufferingLocations();
+    this.startRecordingPlayerData();
   }
 
-  startBufferingLocations(): void {
+  startRecordingPlayerData(): void {
     setInterval(() => {
       return requestAnimationFrame(() => this.recordBufferedLocations());
     }, sampleInterval);
