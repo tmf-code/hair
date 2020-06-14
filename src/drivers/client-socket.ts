@@ -1,14 +1,12 @@
 import { ClientSocketOverload } from './../../@types/socketio-overloads.d';
 import { emitInterval } from './../utilities/constants';
-type SocketCallbacks = {
+export type SocketCallbacks = {
   setPositions: (positions: [number, number][]) => void;
   setRotations: (rotations: number[]) => void;
   setPlayers: (
     playerData: Record<number, { rotation: number; position: [number, number] }[]>,
   ) => void;
   setLengths: (lengths: number[]) => void;
-  tickGrowth: (growthSpeed: number) => void;
-  setRemoteCuts: (cuts: boolean[]) => void;
   sendLocalCuts: () => boolean[];
   sentLocalCuts: () => void;
   sendLocation: () => { rotation: number; position: [number, number] }[];

@@ -19,7 +19,7 @@ class HairLengths {
     return this.lengths.length;
   }
 
-  grow(growthSpeed: number): void {
+  private grow(growthSpeed: number): void {
     for (let lengthIndex = 0; lengthIndex < this.lengths.length; lengthIndex++) {
       const length = this.lengths[lengthIndex];
       this.lengths[lengthIndex] = Math.min(length + growthSpeed, 1);

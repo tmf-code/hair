@@ -16,10 +16,6 @@ class HairCuts {
     this.newCuts = HairCuts.combineCuts(this.newCuts, this.clientCuts);
   }
 
-  addFromServer(hairCuts: boolean[]): void {
-    this.newCuts = HairCuts.combineCuts(this.newCuts, hairCuts);
-  }
-
   private static combineCuts(cutsA: boolean[], cutsB: boolean[]) {
     if (cutsA.length !== cutsB.length)
       throw new RangeError(

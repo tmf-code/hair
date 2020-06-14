@@ -9,7 +9,7 @@ import { FriendPlayers as FriendPlayersRenderable } from './components/friend-pl
 import { Hairs as HairRenderable } from './components/hairs';
 import { HairPositions } from './drivers/hairs/hair-positions';
 import { HairRotations } from './drivers/hairs/hair-rotations';
-import { ClientSocket } from './drivers/client-socket';
+import { ClientSocket, SocketCallbacks } from './drivers/client-socket';
 import { CurrentPlayerRazor as CurrentPlayerRazorRenderable } from './components/current-player-razor';
 import { CurrentPlayer } from './drivers/player/current-player';
 import { HairCuts } from './drivers/hairs/hair-cuts';
@@ -33,13 +33,11 @@ const hairs = new Hairs(
   hairCuts,
 );
 
-const socketCallbacks = {
+const socketCallbacks: SocketCallbacks = {
   setPositions: hairPositions.setPositions.bind(hairPositions),
   setRotations: hairRotations.setInitialRotations.bind(hairRotations),
   setPlayers: players.updatePlayers.bind(players),
   setLengths: hairLengths.updateLengths.bind(hairLengths),
-  tickGrowth: hairLengths.grow.bind(hairLengths),
-  setRemoteCuts: hairCuts.addFromServer.bind(hairCuts),
   sendLocalCuts: hairCuts.getClientCuts.bind(hairCuts),
   sentLocalCuts: hairCuts.clearClientCuts.bind(hairCuts),
   sendLocation: currentPlayerRazor.getLocation.bind(currentPlayerRazor),
