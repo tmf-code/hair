@@ -1,9 +1,9 @@
 import { friendLayer } from './../../utilities/constants';
-import { AbstractPlayer } from './abstract-player';
+import { Player } from './player';
 import { sampleInterval } from '../../utilities/constants';
 import { PlayerData } from '../../../@types/messages';
 
-export class FriendPlayer extends AbstractPlayer {
+export class FriendPlayer extends Player {
   private playbackPointerPosition: [number, number] = [0, 0];
   private playbackRotation = 0;
   private playbackActionState: PlayerData['state'] = 'NOT_CUTTING';

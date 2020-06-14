@@ -1,4 +1,4 @@
-import { friendLayer, playerLayer, cachedMovementCount } from './../../utilities/constants';
+import { friendLayer, playerLayer, cachedMovementCount } from '../../utilities/constants';
 import { lerpTuple3, lerpTuple2, lerpTheta, relativeToWorld } from '../../utilities/utilities';
 import { offscreen, razorWidth, razorHeight } from '../../utilities/constants';
 import { Mesh, Vector2, Camera, Matrix4, Triangle, Vector3 } from 'three';
@@ -7,7 +7,7 @@ import { BufferedPlayerData, PlayerData } from '../../../@types/messages';
 
 type PlayerState = 'NOT_CUTTING' | 'START_CUTTING' | 'CUTTING' | 'STOP_CUTTING';
 
-export abstract class AbstractPlayer {
+export abstract class Player {
   private ref: React.MutableRefObject<Mesh | undefined> | undefined;
   private aspect = 1.0;
   private rotation = 0;

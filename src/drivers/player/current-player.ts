@@ -1,9 +1,9 @@
 import { sampleInterval, playerLayer } from './../../utilities/constants';
 import { Mouse } from '../mouse/mouse';
-import { AbstractPlayer } from './abstract-player';
+import { Player } from './player';
 import { PlayerData } from '../../../@types/messages';
 
-export class CurrentPlayer extends AbstractPlayer {
+export class CurrentPlayer extends Player {
   constructor() {
     super();
     this.setLayer(playerLayer);
