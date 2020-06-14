@@ -33,14 +33,4 @@ export class FriendPlayer extends AbstractPlayer {
     this.setRotation(this.playbackRotation);
     this.setState(this.playbackActionState);
   }
-
-  updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {
-    if (this.isCutting()) return 'START_CUTTING';
-
-    return 'NOT_CUTTING';
-  }
-
-  updateStopCutting(): 'NOT_CUTTING' | 'STOP_CUTTING' {
-    return 'NOT_CUTTING';
-  }
 }

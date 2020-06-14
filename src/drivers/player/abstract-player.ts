@@ -42,7 +42,8 @@ export abstract class AbstractPlayer {
       case 'NOT_CUTTING':
         this.setRazorOffscreen();
         this.updateScaleUp();
-        this.playerState = this.updateNotCutting();
+        this.updateNotCutting();
+        this.playerState = this.isCutting() ? 'START_CUTTING' : 'NOT_CUTTING';
 
         break;
       case 'START_CUTTING':
@@ -60,9 +61,10 @@ export abstract class AbstractPlayer {
         break;
       case 'STOP_CUTTING':
         this.setRazorOffscreen();
-        this.playerState = this.updateStopCutting();
+        this.updateStopCutting();
         this.updateScaleUp();
         this.updateDisplay();
+        this.playerState = 'NOT_CUTTING';
         break;
     }
   }
@@ -101,14 +103,23 @@ export abstract class AbstractPlayer {
   protected isCutting(): boolean {
     return this.actionState === 'CUTTING';
   }
-  protected abstract beforeEachState(): void;
-  protected abstract updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING';
+
+  protected beforeEachState(): void {
+    // NOOP
+  }
+
+  protected updateNotCutting(): void {
+    // NOOP
+  }
+
   private updateCutting(): 'CUTTING' | 'STOP_CUTTING' {
     if (!this.isCutting()) return 'STOP_CUTTING';
 
     return 'CUTTING';
   }
-  protected abstract updateStopCutting(): 'STOP_CUTTING' | 'NOT_CUTTING';
+  protected updateStopCutting(): void {
+    // NOOP
+  }
 
   private setRazorOffscreen(): void {
     this.razorTargetPosition = [...offscreen] as [number, number];

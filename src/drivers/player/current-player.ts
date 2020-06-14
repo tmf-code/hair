@@ -32,16 +32,12 @@ export class CurrentPlayer extends AbstractPlayer {
     this.setState(Mouse.isClicked() || Mouse.isSingleTouched() ? 'CUTTING' : 'NOT_CUTTING');
   }
 
-  updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {
+  updateNotCutting(): void {
     this.setRotationToVertical();
-    if (this.isCutting()) return 'START_CUTTING';
-
-    return 'NOT_CUTTING';
   }
 
-  updateStopCutting(): 'STOP_CUTTING' | 'NOT_CUTTING' {
+  updateStopCutting(): void {
     this.setRotationToVertical();
-    return 'NOT_CUTTING';
   }
 
   private setRotationToVertical() {
