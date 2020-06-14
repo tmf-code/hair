@@ -22,11 +22,29 @@ export class CurrentPlayer extends AbstractPlayer {
     }, sampleInterval);
   }
 
+  private recordBufferedLocations() {
+    const newLocation: PlayerData = {
+      rotation: this.rotation,
+      position: this.position,
+      state: this.isCutting() ? 'CUTTING' : 'NOT_CUTTING',
+    };
+
+    this.bufferedLocations.unshift(newLocation);
+    const bufferIsFull = this.bufferedLocations.length > cachedMovementCount;
+    if (bufferIsFull) {
+      this.bufferedLocations.pop();
+    }
+  }
+
+  isCutting(): boolean {
+    return Mouse.isClicked() || Mouse.isSingleTouched();
+  }
+
   updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {
     this.setPositionOffscreen();
     this.updateScaleUp();
     this.setRotationToVertical();
-    if (Mouse.isClicked() || Mouse.isSingleTouched()) return 'START_CUTTING';
+    if (this.isCutting()) return 'START_CUTTING';
 
     return 'NOT_CUTTING';
   }
@@ -50,7 +68,7 @@ export class CurrentPlayer extends AbstractPlayer {
     this.updateRazorTriangles();
     this.setRazorTransform();
 
-    if (!Mouse.isClicked() && !Mouse.isSingleTouched()) {
+    if (!this.isCutting()) {
       return 'STOP_CUTTING';
     }
 
@@ -73,19 +91,6 @@ export class CurrentPlayer extends AbstractPlayer {
     Mouse.setDirectionToVertical();
     this.rotation = Mouse.getDirection();
     this.smoothedRotation = this.rotation;
-  }
-
-  private recordBufferedLocations() {
-    const newLocation: PlayerData = {
-      rotation: this.rotation,
-      position: this.position,
-      state: 'CUTTING',
-    };
-    this.bufferedLocations.unshift(newLocation);
-    const bufferIsFull = this.bufferedLocations.length > cachedMovementCount;
-    if (bufferIsFull) {
-      this.bufferedLocations.pop();
-    }
   }
 
   getLocation(): BufferedPlayerData {

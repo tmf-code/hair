@@ -1,10 +1,12 @@
+import { BufferedPlayerData } from './../../../@types/messages.d';
 import { friendLayer } from './../../utilities/constants';
 import { AbstractPlayer } from './abstract-player';
 import { sampleInterval } from '../../utilities/constants';
-type PlayerLocation = { rotation: number; position: [number, number] };
+import { PlayerData } from '../../../@types/messages';
 
 export class FriendPlayer extends AbstractPlayer {
-  private bufferedLocations: PlayerLocation[] = [];
+  private bufferedPlayerData: BufferedPlayerData = [];
+  private state: PlayerData['state'] = 'NOT_CUTTING';
 
   constructor() {
     super();
@@ -24,7 +26,7 @@ export class FriendPlayer extends AbstractPlayer {
     this.updatePosition();
     this.updateRotation();
 
-    if (!this.isOffScreen()) {
+    if (this.isCutting()) {
       return 'START_CUTTING';
     }
 
@@ -48,7 +50,7 @@ export class FriendPlayer extends AbstractPlayer {
     this.updatePosition();
     this.updateRotation();
 
-    if (this.isOffScreen()) {
+    if (!this.isCutting()) {
       return 'STOP_CUTTING';
     }
 
@@ -67,17 +69,17 @@ export class FriendPlayer extends AbstractPlayer {
   }
 
   private playbackBufferedLocations() {
-    const playerLocation = this.bufferedLocations.pop();
+    const playerLocation = this.bufferedPlayerData.pop();
     if (playerLocation === undefined) return;
 
-    ({ position: this.position, rotation: this.rotation } = playerLocation);
+    ({ position: this.position, rotation: this.rotation, state: this.state } = playerLocation);
   }
 
-  private isOffScreen() {
-    return this.position[0] < -20 && this.position[1] < -20;
+  isCutting(): boolean {
+    return this.state === 'CUTTING';
   }
 
-  public serverUpdate(playerLocations: PlayerLocation[]): void {
-    this.bufferedLocations = playerLocations;
+  public serverUpdate(BufferedPlayerData: BufferedPlayerData): void {
+    this.bufferedPlayerData = BufferedPlayerData;
   }
 }

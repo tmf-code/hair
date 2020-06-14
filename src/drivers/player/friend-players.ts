@@ -1,11 +1,11 @@
+import { BufferedPlayerData } from './../../../@types/messages.d';
 import { Camera, Mesh, Vector2 } from 'three';
 import { FriendPlayer } from './friend-player';
 
-type PlayerLocation = { rotation: number; position: [number, number] };
 export class FriendPlayers {
   players: Record<string, { razor: FriendPlayer }> = {};
 
-  updatePlayers(playerData: Record<string, PlayerLocation[]>): void {
+  updatePlayers(playerData: Record<string, BufferedPlayerData>): void {
     this.removeDisconnectedPlayers(playerData);
 
     const playerDataList = Object.entries(playerData);
@@ -13,7 +13,7 @@ export class FriendPlayers {
     this.updatePlayerLocations(playerDataList);
   }
 
-  private addNewPlayers(playerData: [string, PlayerLocation[]][]) {
+  private addNewPlayers(playerData: [string, BufferedPlayerData][]) {
     playerData.forEach(([id]) => {
       const playerHasConnected = this.players[id] === undefined;
       if (playerHasConnected) {
@@ -22,7 +22,7 @@ export class FriendPlayers {
     });
   }
 
-  private removeDisconnectedPlayers(playerData: Record<string, PlayerLocation[]>) {
+  private removeDisconnectedPlayers(playerData: Record<string, BufferedPlayerData>) {
     Object.entries(this.players).forEach(([id]) => {
       const playerHasDisconnected = !playerData.hasOwnProperty(id);
       if (playerHasDisconnected) {
@@ -31,7 +31,7 @@ export class FriendPlayers {
     });
   }
 
-  private updatePlayerLocations(playerData: [string, PlayerLocation[]][]) {
+  private updatePlayerLocations(playerData: [string, BufferedPlayerData][]) {
     playerData.forEach(([id, playerLocations]) => {
       const razor: FriendPlayer = this.players[id].razor;
       razor.serverUpdate(playerLocations);

@@ -15,7 +15,7 @@ export abstract class AbstractPlayer {
   protected mouse: Vector2 | undefined;
 
   protected smoothedPosition: [number, number] = offscreen;
-  protected worldPosition: [number, number, number] = [0, 0, 0];
+  private worldPosition: [number, number, number] = [0, 0, 0];
   protected position: [number, number] = offscreen;
   protected scale: [number, number, number] = [1, 1, 1];
 
@@ -51,6 +51,7 @@ export abstract class AbstractPlayer {
     }
   }
 
+  protected abstract isCutting(): boolean;
   protected abstract updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING';
   protected abstract updateStartCutting(): 'START_CUTTING' | 'CUTTING';
   protected abstract updateCutting(): 'CUTTING' | 'STOP_CUTTING';
