@@ -23,8 +23,8 @@ export abstract class AbstractPlayer {
   private playerState: PlayerState = 'STOP_CUTTING';
   private razorTriangles: [Triangle, Triangle] = [new Triangle(), new Triangle()];
 
-  protected bufferedPlayerData: BufferedPlayerData = [];
-  protected actionState: PlayerData['state'] = 'NOT_CUTTING';
+  private bufferedPlayerData: BufferedPlayerData = [];
+  private actionState: PlayerData['state'] = 'NOT_CUTTING';
 
   updateFrame(
     ref: React.MutableRefObject<Mesh | undefined>,
@@ -97,24 +97,25 @@ export abstract class AbstractPlayer {
   protected setState(state: PlayerData['state']): void {
     this.actionState = state;
   }
+
   protected isCutting(): boolean {
     return this.actionState === 'CUTTING';
   }
   protected abstract beforeEachState(): void;
   protected abstract updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING';
-  protected updateCutting(): 'CUTTING' | 'STOP_CUTTING' {
+  private updateCutting(): 'CUTTING' | 'STOP_CUTTING' {
     if (!this.isCutting()) return 'STOP_CUTTING';
 
     return 'CUTTING';
   }
   protected abstract updateStopCutting(): 'STOP_CUTTING' | 'NOT_CUTTING';
 
-  protected setRazorOffscreen(): void {
+  private setRazorOffscreen(): void {
     this.razorTargetPosition = [...offscreen] as [number, number];
     this.snapSmoothedToTargetPosition();
   }
 
-  protected snapSmoothedToTargetPosition(): void {
+  private snapSmoothedToTargetPosition(): void {
     this.razorSmoothedPosition = this.razorTargetPosition;
   }
 
@@ -122,7 +123,7 @@ export abstract class AbstractPlayer {
     this.pointerPosition = position;
   }
 
-  protected setRazorOnscreen(): void {
+  private setRazorOnscreen(): void {
     this.razorTargetPosition = this.pointerPosition;
   }
 
@@ -142,12 +143,12 @@ export abstract class AbstractPlayer {
     this.smoothedRotation = this.rotation;
   }
 
-  protected updateScaleUp(): void {
+  private updateScaleUp(): void {
     const targetScale = 1.1 * this.getScale();
     this.scale = [targetScale, targetScale, 1];
   }
 
-  protected updateScaleDown(): void {
+  private updateScaleDown(): void {
     const targetScale = 1.0 * this.getScale();
     const lerpRate = 0.1;
 
@@ -165,7 +166,7 @@ export abstract class AbstractPlayer {
     return 1.0;
   }
 
-  protected updatePosition(): void {
+  private updatePosition(): void {
     const lerpRate = 0.1;
     this.razorSmoothedPosition = lerpTuple2(
       this.razorSmoothedPosition,
@@ -186,7 +187,7 @@ export abstract class AbstractPlayer {
     this.worldPosition = [xPos, yPos, zPos];
   }
 
-  protected updateRotation(): void {
+  private updateRotation(): void {
     this.smoothedRotation = lerpTheta(this.smoothedRotation, this.rotation, 0.1, Math.PI * 2);
   }
 
@@ -196,7 +197,7 @@ export abstract class AbstractPlayer {
     );
   }
 
-  protected updateRazorTriangles(): void {
+  private updateRazorTriangles(): void {
     const [widthScale, heightScale] = this.scale;
     const offsets = [
       [-razorWidth * widthScale, -razorHeight],
@@ -232,7 +233,7 @@ export abstract class AbstractPlayer {
     this.worldPosition[2] = layer;
   }
 
-  protected updateRazorTransform(): void {
+  private updateRazorTransform(): void {
     if (!this.ref?.current) return;
     const cursorOnTipOffset = -(2.1 / 2) * 0.5;
 

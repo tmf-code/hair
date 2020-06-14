@@ -1,18 +1,19 @@
 import { friendLayer } from './../../utilities/constants';
 import { AbstractPlayer } from './abstract-player';
 import { sampleInterval } from '../../utilities/constants';
+import { PlayerData } from '../../../@types/messages';
 
 export class FriendPlayer extends AbstractPlayer {
   private playbackPointerPosition: [number, number] = [0, 0];
   private playbackRotation = 0;
-
+  private playbackActionState: PlayerData['state'] = 'NOT_CUTTING';
   constructor() {
     super();
     this.setLayer(friendLayer);
     this.startPlayingBackPlayerData();
   }
 
-  startPlayingBackPlayerData(): void {
+  private startPlayingBackPlayerData(): void {
     setInterval(() => requestAnimationFrame(this.playbackPlayerData.bind(this)), sampleInterval);
   }
 
@@ -23,13 +24,14 @@ export class FriendPlayer extends AbstractPlayer {
 
     this.playbackPointerPosition = position;
     this.playbackRotation = rotation;
-    this.actionState = state;
+    this.setState(state);
+    this.playbackActionState = state;
   }
 
   beforeEachState(): void {
     this.setPointerPosition(this.playbackPointerPosition);
     this.setRotation(this.playbackRotation);
-    this.setState(this.actionState);
+    this.setState(this.playbackActionState);
   }
 
   updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {

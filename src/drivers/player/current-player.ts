@@ -10,7 +10,7 @@ export class CurrentPlayer extends AbstractPlayer {
     this.startRecordingPlayerData();
   }
 
-  startRecordingPlayerData(): void {
+  private startRecordingPlayerData(): void {
     setInterval(() => {
       return requestAnimationFrame(() => this.recordPlayerData());
     }, sampleInterval);
