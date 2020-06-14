@@ -6,7 +6,7 @@ import { BufferedPlayerData, PlayerData } from '../../../@types/messages';
 
 let ids = 0;
 export class CurrentPlayer extends AbstractPlayer {
-  private bufferedLocations: BufferedPlayerData = [];
+  private bufferedPlayerData: BufferedPlayerData = [];
   id: number;
 
   constructor() {
@@ -29,10 +29,10 @@ export class CurrentPlayer extends AbstractPlayer {
       state: this.isCutting() ? 'CUTTING' : 'NOT_CUTTING',
     };
 
-    this.bufferedLocations.unshift(newLocation);
-    const bufferIsFull = this.bufferedLocations.length > cachedMovementCount;
+    this.bufferedPlayerData.unshift(newLocation);
+    const bufferIsFull = this.bufferedPlayerData.length > cachedMovementCount;
     if (bufferIsFull) {
-      this.bufferedLocations.pop();
+      this.bufferedPlayerData.pop();
     }
   }
 
@@ -95,6 +95,6 @@ export class CurrentPlayer extends AbstractPlayer {
   }
 
   getLocation(): BufferedPlayerData {
-    return this.bufferedLocations;
+    return this.bufferedPlayerData;
   }
 }
