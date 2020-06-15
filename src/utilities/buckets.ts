@@ -14,25 +14,25 @@ export class Buckets {
     return this.counts;
   }
 
-  getBucket(value: number) {
+  getBucket(value: number): number {
     return Math.floor(((value - this.min) / (this.max - this.min)) * this.numBuckets);
   }
 
-  getCountOfBucketAtValue(value: number) {
+  getCountOfBucketAtValue(value: number): number {
     const bucket = this.getBucket(value);
     return this.getCountOfBucket(bucket);
   }
 
-  getCountOfBucket(bucket: number) {
+  getCountOfBucket(bucket: number): number {
     return this.counts[bucket];
   }
 
-  add(value: number) {
+  add(value: number): void {
     const bucket = this.getBucket(value);
     this.counts[bucket] += 1;
   }
 
-  remove(value: number) {
+  remove(value: number): void {
     const bucket = this.getBucket(value);
     this.counts[bucket] -= 1;
   }

@@ -1,22 +1,17 @@
-import { Recorder } from './utilities/recorder';
+import { PlayersDataMessage } from './../../@types/messages.d';
 import { SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
+import { ServerSocketOverload, ServerIoOverload } from '../../@types/socketio-overloads';
 
 export type ServerSocketCallbacks = {
-  onPlayerConnected: (socket: SocketIO.Socket) => void;
+  onPlayerConnected: (socket: ServerSocketOverload) => void;
   onPlayerDisconnected: (playerId: string) => void;
-  onEmitPlayerLocations: () => Record<
-    string,
-    {
-      rotation: number;
-      position: [number, number];
-    }[]
-  >;
+  onEmitPlayerLocations: () => PlayersDataMessage;
   onReceiveCuts: (cuts: boolean[]) => void;
 };
 
-export class ServerSocket {
-  private io: SocketIO.Server;
+export class SocketServer {
+  private io: ServerIoOverload;
   private serverSocketCallbacks: ServerSocketCallbacks;
 
   constructor(server: import('http').Server, serverSocketCallbacks: ServerSocketCallbacks) {
@@ -36,7 +31,7 @@ export class ServerSocket {
     });
   }
 
-  public recieveCuts(incomingCuts: boolean[]) {
+  public recieveCuts(incomingCuts: boolean[]): void {
     this.serverSocketCallbacks.onReceiveCuts(incomingCuts);
   }
   private startEmitting() {
@@ -53,6 +48,6 @@ export class ServerSocket {
 
   private emitPlayerLocations() {
     const playerLocations = this.serverSocketCallbacks.onEmitPlayerLocations();
-    this.io.emit('updateClientPlayerLocations', playerLocations);
+    this.io.emit('updatePlayersData', playerLocations);
   }
 }

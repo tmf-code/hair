@@ -9,7 +9,7 @@ import { FriendPlayers as FriendPlayersRenderable } from './components/friend-pl
 import { Hairs as HairRenderable } from './components/hairs';
 import { HairPositions } from './drivers/hairs/hair-positions';
 import { HairRotations } from './drivers/hairs/hair-rotations';
-import { ClientSocket } from './drivers/client-socket';
+import { ClientSocket, SocketCallbacks } from './drivers/client-socket';
 import { CurrentPlayerRazor as CurrentPlayerRazorRenderable } from './components/current-player-razor';
 import { CurrentPlayer } from './drivers/player/current-player';
 import { HairCuts } from './drivers/hairs/hair-cuts';
@@ -22,33 +22,33 @@ const hairRotations = new HairRotations(widthPoints * heightPoints);
 const hairPositions = new HairPositions(widthPoints * heightPoints);
 const hairLengths = new HairLengths(widthPoints * heightPoints);
 const hairCuts = new HairCuts(widthPoints * heightPoints);
-const currentPlayerRazor = new CurrentPlayer();
-const players = new FriendPlayers();
+const currentPlayer = new CurrentPlayer();
+const friendPlayers = new FriendPlayers();
 const hairs = new Hairs(
-  currentPlayerRazor.containsPoint.bind(currentPlayerRazor),
-  players.containsPoint.bind(players),
+  currentPlayer.containsPoint.bind(currentPlayer),
+  friendPlayers.containsPoint.bind(friendPlayers),
+  friendPlayers.getPointerPositions.bind(friendPlayers),
+  friendPlayers.getRotations.bind(friendPlayers),
   hairRotations,
   hairPositions,
   hairLengths,
   hairCuts,
 );
 
-const socketCallbacks = {
+const socketCallbacks: SocketCallbacks = {
   setPositions: hairPositions.setPositions.bind(hairPositions),
   setRotations: hairRotations.setInitialRotations.bind(hairRotations),
-  setPlayers: players.updatePlayers.bind(players),
+  setPlayers: friendPlayers.updatePlayers.bind(friendPlayers),
   setLengths: hairLengths.updateLengths.bind(hairLengths),
-  tickGrowth: hairLengths.grow.bind(hairLengths),
-  setRemoteCuts: hairCuts.addFromServer.bind(hairCuts),
   sendLocalCuts: hairCuts.getClientCuts.bind(hairCuts),
   sentLocalCuts: hairCuts.clearClientCuts.bind(hairCuts),
-  sendLocation: currentPlayerRazor.getLocation.bind(currentPlayerRazor),
+  sendLocation: currentPlayer.getBufferedPlayerData.bind(currentPlayer),
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const socket = new ClientSocket(io, process.env.NODE_ENV, socketCallbacks);
 
-const App = () => {
+const App = (): React.ReactElement => {
   return (
     <div>
       <Canvas
@@ -57,10 +57,8 @@ const App = () => {
         orthographic={false}
         pixelRatio={window.devicePixelRatio}
       >
-        <FriendPlayersRenderable players={players} />
-        <CurrentPlayerRazorRenderable
-          updateFrame={currentPlayerRazor.updateFrame.bind(currentPlayerRazor)}
-        />
+        <FriendPlayersRenderable players={friendPlayers} />
+        <CurrentPlayerRazorRenderable updateFrame={currentPlayer.updateFrame.bind(currentPlayer)} />
         <HairRenderable
           instanceCount={hairs.instanceCount()}
           updateFrame={hairs.updateFrame.bind(hairs)}

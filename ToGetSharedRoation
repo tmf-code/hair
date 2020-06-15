@@ -1,0 +1,7 @@
+Swirls need to know player positions and velocities
+
+Currently current player moves off screen when mouse / touch is up
+
+We need to change the messages to the server to contain this information
+player-mouse-position
+state: CUTTING | NOT_CUTTING

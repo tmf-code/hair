@@ -1,83 +1,36 @@
 import { friendLayer } from './../../utilities/constants';
-import { AbstractPlayer } from './abstract-player';
+import { Player } from './player';
 import { sampleInterval } from '../../utilities/constants';
-type PlayerLocation = { rotation: number; position: [number, number] };
+import { PlayerData } from '../../../@types/messages';
 
-export class FriendPlayer extends AbstractPlayer {
-  private bufferedLocations: PlayerLocation[] = [];
-
+export class FriendPlayer extends Player {
+  private playbackPointerPosition: [number, number] = [0, 0];
+  private playbackRotation = 0;
+  private playbackActionState: PlayerData['state'] = 'NOT_CUTTING';
   constructor() {
     super();
     this.setLayer(friendLayer);
-    this.startPlayingBackLocations();
+    this.startPlayingBackPlayerData();
   }
 
-  startPlayingBackLocations() {
-    setInterval(
-      () => requestAnimationFrame(this.playbackBufferedLocations.bind(this)),
-      sampleInterval,
-    );
+  private startPlayingBackPlayerData(): void {
+    setInterval(() => requestAnimationFrame(this.playbackPlayerData.bind(this)), sampleInterval);
   }
 
-  updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {
-    this.updateScaleUp();
-    this.updatePosition();
-    this.updateRotation();
+  private playbackPlayerData() {
+    const data = this.getPlayerData();
+    if (data === undefined) return;
+    const { position, rotation, state } = data;
 
-    if (!this.isOffScreen()) {
-      return 'START_CUTTING';
-    }
-
-    return 'NOT_CUTTING';
+    this.playbackPointerPosition = position;
+    this.playbackRotation = rotation;
+    this.setState(state);
+    this.playbackActionState = state;
   }
 
-  updateStartCutting(): 'START_CUTTING' | 'CUTTING' {
-    this.smoothedPosition = this.position;
-    this.updateRazorTriangles();
-    this.setRazorTransform();
-    this.updateScaleDown();
-    this.updateRotation();
-
-    return 'CUTTING';
-  }
-
-  updateCutting(): 'CUTTING' | 'STOP_CUTTING' {
-    this.updateRazorTriangles();
-    this.setRazorTransform();
-    this.updateScaleDown();
-    this.updatePosition();
-    this.updateRotation();
-
-    if (this.isOffScreen()) {
-      return 'STOP_CUTTING';
-    }
-
-    return 'CUTTING';
-  }
-
-  updateStopCutting(): 'NOT_CUTTING' | 'STOP_CUTTING' {
-    this.setPositionOffscreen();
-    this.updateScaleUp();
-    this.updatePosition();
-    this.updateRotation();
-    this.updateRazorTriangles();
-    this.setRazorTransform();
-
-    return 'NOT_CUTTING';
-  }
-
-  private playbackBufferedLocations() {
-    const playerLocation = this.bufferedLocations.pop();
-    if (playerLocation === undefined) return;
-
-    ({ position: this.position, rotation: this.rotation } = playerLocation);
-  }
-
-  private isOffScreen() {
-    return this.position[0] < -20 && this.position[1] < -20;
-  }
-
-  public serverUpdate(playerLocations: PlayerLocation[]) {
-    this.bufferedLocations = playerLocations;
+  beforeEachState(): void {
+    this.setPointerPosition(this.playbackPointerPosition);
+    this.setRotation(this.playbackRotation);
+    this.setState(this.playbackActionState);
   }
 }

@@ -1,20 +1,19 @@
+import { BufferedPlayerData } from './../../@types/messages.d';
+import { ClientSocketOverload } from './../../@types/socketio-overloads.d';
 import { emitInterval } from './../utilities/constants';
+import { PlayersDataMessage } from '../../@types/messages';
 export type SocketCallbacks = {
   setPositions: (positions: [number, number][]) => void;
   setRotations: (rotations: number[]) => void;
-  setPlayers: (
-    playerData: Record<number, { rotation: number; position: [number, number] }[]>,
-  ) => void;
+  setPlayers: (playerData: PlayersDataMessage) => void;
   setLengths: (lengths: number[]) => void;
-  tickGrowth: (growthSpeed: number) => void;
-  setRemoteCuts: (cuts: boolean[]) => void;
   sendLocalCuts: () => boolean[];
   sentLocalCuts: () => void;
-  sendLocation: () => { rotation: number; position: [number, number] }[];
+  sendLocation: () => BufferedPlayerData;
 };
 
 export class ClientSocket {
-  private socket: SocketIOClient.Socket;
+  private socket: ClientSocketOverload;
   private socketCallbacks: SocketCallbacks;
   private clientID = '';
 
@@ -36,38 +35,31 @@ export class ClientSocket {
   }
 
   private connectSocket(io: SocketIOClientStatic, mode: 'production' | 'development') {
-    return mode === 'production' ? io() : io('http://192.168.178.41:3001');
+    return (mode === 'production'
+      ? io()
+      : io('http://192.168.178.41:3001')) as ClientSocketOverload;
   }
 
   private attachSocketHandlers() {
-    const socketEventHandlers = {
-      updateClientGrid: (serverHairPositions: [number, number][]) =>
-        this.socketCallbacks.setPositions(serverHairPositions),
+    this.socket.on('updateClientGrid', (serverHairPositions: [number, number][]) =>
+      this.socketCallbacks.setPositions(serverHairPositions),
+    );
 
-      updateClientGrowth: (growthSpeed: number) => this.socketCallbacks.tickGrowth(growthSpeed),
+    this.socket.on('updateClientLengths', (serverHairLengths: number[]) =>
+      this.socketCallbacks.setLengths(serverHairLengths),
+    );
 
-      updateClientLengths: (serverHairLengths: number[]) =>
-        this.socketCallbacks.setLengths(serverHairLengths),
+    this.socket.on('updateClientRotations', (serverHairRotations: number[]) =>
+      this.socketCallbacks.setRotations(serverHairRotations),
+    );
 
-      updateClientRotations: (serverHairRotations: number[]) =>
-        this.socketCallbacks.setRotations(serverHairRotations),
-
-      updateClientCuts: (cuts: boolean[]) => this.socketCallbacks.setRemoteCuts(cuts),
-
-      updateClientPlayerLocations: (
-        playerData: Record<string, { rotation: number; position: [number, number] }[]>,
-      ) => {
-        if (playerData !== null) {
-          if (playerData[this.clientID] !== undefined) {
-            delete playerData[this.clientID];
-          }
-          this.socketCallbacks.setPlayers(playerData);
+    this.socket.on('updatePlayersData', (playerData: PlayersDataMessage) => {
+      if (playerData !== null) {
+        if (playerData[this.clientID] !== undefined) {
+          delete playerData[this.clientID];
         }
-      },
-    };
-
-    Object.entries(socketEventHandlers).forEach(([name, handler]) => {
-      this.socket.on(name, handler);
+        this.socketCallbacks.setPlayers(playerData);
+      }
     });
 
     this.socket.on('connect', () => {
@@ -91,7 +83,7 @@ export class ClientSocket {
     this.socketCallbacks.sentLocalCuts();
   }
 
-  private updatePlayerLocation(location: { rotation: number; position: [number, number] }[]) {
+  private updatePlayerLocation(location: BufferedPlayerData) {
     this.socket.emit('updatePlayerLocation', location);
   }
 }

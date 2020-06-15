@@ -1,91 +1,48 @@
 import { sampleInterval, playerLayer } from './../../utilities/constants';
 import { Mouse } from '../mouse/mouse';
-import { AbstractPlayer } from './abstract-player';
-import { cachedMovementCount } from '../../utilities/constants';
+import { Player } from './player';
+import { PlayerData } from '../../../@types/messages';
 
-type PlayerLocation = { rotation: number; position: [number, number] };
-
-let ids = 0;
-export class CurrentPlayer extends AbstractPlayer {
-  private bufferedLocations: PlayerLocation[] = [];
-  id: number;
-
+export class CurrentPlayer extends Player {
   constructor() {
     super();
-    this.id = ids++;
     this.setLayer(playerLayer);
-    this.startBufferingLocations();
+    this.startRecordingPlayerData();
   }
 
-  startBufferingLocations() {
+  private startRecordingPlayerData(): void {
     setInterval(() => {
-      return requestAnimationFrame(() => this.recordBufferedLocations());
+      return requestAnimationFrame(() => this.recordPlayerData());
     }, sampleInterval);
   }
 
-  updateNotCutting(): 'NOT_CUTTING' | 'START_CUTTING' {
-    this.setPositionOffscreen();
-    this.updateScaleUp();
+  private recordPlayerData() {
+    const data: PlayerData = {
+      rotation: this.getRotation(),
+      position: this.getPointerPosition(),
+      state: this.isCutting() ? 'CUTTING' : 'NOT_CUTTING',
+    };
+
+    this.addPlayerData(data);
+  }
+
+  beforeEachState(): void {
+    this.setPointerPosition(this.mouse?.toArray() as [number, number]);
+    this.setRotation(Mouse.getDirection());
+    this.setState(Mouse.isClicked() || Mouse.isSingleTouched() ? 'CUTTING' : 'NOT_CUTTING');
+  }
+
+  updateNotCutting(): void {
     this.setRotationToVertical();
-    if (Mouse.isClicked() || Mouse.isSingleTouched()) return 'START_CUTTING';
-
-    return 'NOT_CUTTING';
   }
 
-  updateStartCutting(): 'START_CUTTING' | 'CUTTING' {
-    this.smoothedPosition = this.mouse?.toArray() as [number, number];
-    this.updateRazorTriangles();
-    this.setRazorTransform();
-    this.updateRotation();
-
-    return 'CUTTING';
-  }
-
-  updateCutting(): 'CUTTING' | 'STOP_CUTTING' {
-    this.position = this.mouse?.toArray() as [number, number];
-    this.rotation = Mouse.getDirection();
-
-    this.updateScaleDown();
-    this.updateRotation();
-    this.updatePosition();
-    this.updateRazorTriangles();
-    this.setRazorTransform();
-
-    if (!Mouse.isClicked() && !Mouse.isSingleTouched()) {
-      return 'STOP_CUTTING';
-    }
-
-    return 'CUTTING';
-  }
-
-  updateStopCutting(): 'STOP_CUTTING' | 'NOT_CUTTING' {
+  updateStopCutting(): void {
     this.setRotationToVertical();
-    this.setPositionOffscreen();
-    this.updateScaleUp();
-    this.updatePosition();
-    this.updateRotation();
-    this.updateRazorTriangles();
-    this.setRazorTransform();
-
-    return 'NOT_CUTTING';
   }
 
   private setRotationToVertical() {
     Mouse.setDirectionToVertical();
-    this.rotation = Mouse.getDirection();
-    this.smoothedRotation = this.rotation;
-  }
-
-  private recordBufferedLocations() {
-    const newLocation = { rotation: this.rotation, position: this.position };
-    this.bufferedLocations.unshift(newLocation);
-    const bufferIsFull = this.bufferedLocations.length > cachedMovementCount;
-    if (bufferIsFull) {
-      this.bufferedLocations.pop();
-    }
-  }
-
-  getLocation(): PlayerLocation[] {
-    return this.bufferedLocations;
+    this.setRotation(Mouse.getDirection());
+    this.snapSmoothedToTargetRotation();
   }
 }

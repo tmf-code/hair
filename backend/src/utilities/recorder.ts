@@ -1,7 +1,5 @@
 import { writeFileSync } from 'fs';
 
-interface IPlayerLocations {}
-
 export class Recorder {
   static startDelay = 10;
   static recordCount = 30;
@@ -22,7 +20,7 @@ export class Recorder {
         position: [number, number];
       }[]
     >,
-  ) {
+  ): void {
     this.submissionCount++;
     const shouldStart = this.submissionCount > this.startDelay;
     if (!shouldStart) {
@@ -41,7 +39,7 @@ export class Recorder {
     this.samples.push(sample);
   }
 
-  static saveToFile(filename: string) {
+  static saveToFile(filename: string): void {
     const jsonString = JSON.stringify(this.samples);
     writeFileSync(filename, jsonString);
     console.log('Saved');

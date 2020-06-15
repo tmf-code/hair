@@ -32,7 +32,7 @@
     "build:frontend": "react-scripts build",
     "build:server": "cd ./backend && tsc",
     "build": "npm run build:server && npm run build:frontend",
-    "eslint": "eslint \"./src/**/*.{js,jsx,ts,tsx}\"",
+    "eslint": "eslint \"./src/**/*.{js,jsx,ts,tsx}\" \"./backend/src/**/*.ts\"",
     "lint": "prettier --write \"./src/**/*.{js,jsx,ts,tsx,json,css,scss,md}\"",
     "load-test": "artillery run tests/load-tests/load-test.yml",
     "test": "cross-env PWD=./ jest --watch --no-cache"

@@ -1,7 +1,6 @@
 import {
   mouseVelocitySampleInterval,
   mouseDirectionSampleInterval,
-  mouseDirectionSmoothing,
 } from './../../utilities/constants';
 
 import { MouseVelocity } from './mouse-velocity';
@@ -24,42 +23,37 @@ export class Mouse {
   private direction: MouseDirection = new MouseDirection(
     mouseDirectionSampleInterval,
     this.velocity.getVelocity.bind(this.velocity),
-    mouseDirectionSmoothing,
   );
 
-  static getPosition() {
+  static getPosition(): [number, number] {
     return this.instance.position.getPosition();
   }
 
-  static isClicked() {
+  static isClicked(): boolean {
     return this.instance.clickState.getIsClicked();
   }
 
-  static isSingleTouched() {
+  static isSingleTouched(): boolean {
     return this.instance.touchState.getIsSingleTouched();
   }
 
-  static isDoubleTouched() {
+  static isDoubleTouched(): boolean {
     return this.instance.touchState.getIsDoubleTouched();
   }
 
-  static getVelocity() {
+  static getVelocity(): [number, number] {
     return this.instance.velocity.getVelocity();
   }
 
-  static getSmoothedDirection() {
-    return this.instance.direction.getSmoothedDirection();
-  }
-
-  static getDirection() {
+  static getDirection(): number {
     return this.instance.direction.getDirection();
   }
 
-  static setDirectionToVertical() {
+  static setDirectionToVertical(): void {
     this.instance.direction.setToVertical();
   }
 
-  static reset() {
+  static reset(): void {
     this.instance = new Mouse();
   }
 }

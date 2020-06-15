@@ -12,20 +12,20 @@ class HairPositions {
     this.screenPositions = allZeros;
   }
 
-  setPositions(positions: [number, number][]) {
+  setPositions(positions: [number, number][]): void {
     this.positions = positions;
     this.convertRelativeToScreen();
   }
 
-  getPositions() {
+  getPositions(): [number, number][] {
     return this.positions;
   }
 
-  getScreenPositions() {
+  getScreenPositions(): [number, number][] {
     return this.screenPositions;
   }
 
-  setViewport(viewportWidth: number, viewportHeight: number) {
+  setViewport(viewportWidth: number, viewportHeight: number): void {
     this.viewportWidth = viewportWidth;
     this.viewportHeight = viewportHeight;
     this.convertRelativeToScreen();

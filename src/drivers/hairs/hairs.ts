@@ -21,10 +21,14 @@ class Hairs {
   private aspect = 1.0;
   private currentPlayerContainsPoint: (arg0: [number, number]) => boolean;
   private friendPlayersContainPoint: (arg0: [number, number]) => boolean;
+  private friendPlayersPositions: () => [number, number][];
+  private friendPlayersRotations: () => number[];
 
   constructor(
     currentPlayerContainsPoint: (arg0: [number, number]) => boolean,
     friendPlayersContainPoint: (arg0: [number, number]) => boolean,
+    friendPlayersPositions: () => [number, number][],
+    friendPlayersRotations: () => number[],
     hairRotations: HairRotations,
     hairPositions: HairPositions,
     hairLengths: HairLengths,
@@ -32,6 +36,8 @@ class Hairs {
   ) {
     this.currentPlayerContainsPoint = currentPlayerContainsPoint;
     this.friendPlayersContainPoint = friendPlayersContainPoint;
+    this.friendPlayersPositions = friendPlayersPositions;
+    this.friendPlayersRotations = friendPlayersRotations;
     this.hairRotations = hairRotations;
     this.hairPositions = hairPositions;
     this.hairLengths = hairLengths;
@@ -39,13 +45,13 @@ class Hairs {
     this.fallingHair = new FallingHairs(widthPoints * heightPoints, maxFallingHair);
   }
 
-  setViewport({ width, height, factor }: Viewport) {
+  setViewport({ width, height, factor }: Viewport): void {
     this.aspect = width / height;
     this.hairPositions.setViewport(width, height);
     this.fallingHair.setViewport({ width, height, factor });
   }
 
-  public updateFrame(mesh: InstancedMesh, mouse: Vector2, camera: Camera) {
+  public updateFrame(mesh: InstancedMesh, mouse: Vector2, camera: Camera): void {
     mesh.matrixAutoUpdate = false;
     this.fallingHair.setMesh(mesh);
     this.updateStaticHairs(mesh);
@@ -112,9 +118,17 @@ class Hairs {
   private updateSwirls(mouse: Vector2, camera: Camera) {
     const mousePos = mouseToWorld(mouse, camera);
     this.hairRotations.calculateSwirls(this.hairPositions.getScreenPositions(), mousePos);
+
+    this.hairRotations.calculateFriendSwirls(
+      this.hairPositions.getScreenPositions(),
+      this.friendPlayersPositions(),
+      this.friendPlayersRotations(),
+    );
   }
 
-  public instanceCount = () => this.hairPositions.getPositions().length + maxFallingHair;
+  public instanceCount(): number {
+    return this.hairPositions.getPositions().length + maxFallingHair;
+  }
 
   private calculateCuts(): {
     currentPlayerCuts: boolean[] | undefined;

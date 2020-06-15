@@ -1,7 +1,8 @@
+import { ServerSocketOverload } from '../../@types/socketio-overloads';
 import { Players } from './players/players';
 import { widthPoints, heightPoints, jitterRange, rotationStart, rotationEnd } from './constants';
 import { HairMapFactory } from './hair-map/hair-map-factory';
-import { ServerSocket, ServerSocketCallbacks } from './server-socket';
+import { SocketServer, ServerSocketCallbacks } from './socket-server';
 import { makeProductionServer, makeDevelopmentServer } from './server';
 
 let server;
@@ -25,13 +26,13 @@ const hairMap = HairMapFactory.createFrom(
 const players = new Players(hairMap.getMapState.bind(hairMap));
 
 const serverSocketCallbacks: ServerSocketCallbacks = {
-  onPlayerConnected: (socket: SocketIO.Socket) => players.addPlayer(socket),
+  onPlayerConnected: (socket: ServerSocketOverload) => players.addPlayer(socket),
   onPlayerDisconnected: (playerId: string) => players.removePlayer(playerId),
   onEmitPlayerLocations: () => players.getPlayerLocations(),
   onReceiveCuts: (cuts: boolean[]) => hairMap.recieveCuts(cuts),
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const socket = new ServerSocket(server, serverSocketCallbacks);
+const socket = new SocketServer(server, serverSocketCallbacks);
 
 players.setRecieveCuts(socket.recieveCuts.bind(socket));

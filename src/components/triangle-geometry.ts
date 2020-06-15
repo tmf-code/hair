@@ -2,7 +2,7 @@ import { Shape, ShapeBufferGeometry } from 'three';
 import { lerp } from '../utilities/utilities';
 import { maxLengthAsPercentWidth, maxWidthAsPercentWidth } from '../utilities/constants';
 
-const triangleGeometry = function (screenWidth: number) {
+const triangleGeometry = function (screenWidth: number): ShapeBufferGeometry {
   const maxLength = lerp(0, screenWidth, maxLengthAsPercentWidth);
   const width = lerp(0, screenWidth, maxWidthAsPercentWidth);
 

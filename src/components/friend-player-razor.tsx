@@ -13,7 +13,10 @@ type FriendPlayerRazorProps = {
   texture: Texture;
 };
 
-const FriendPlayerRazor = ({ updateFrame, texture }: FriendPlayerRazorProps) => {
+const FriendPlayerRazor = ({
+  updateFrame,
+  texture,
+}: FriendPlayerRazorProps): React.ReactElement => {
   const { camera, aspect, mouse } = useThree();
 
   const ref = useRef<Mesh>();

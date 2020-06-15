@@ -14,7 +14,7 @@ type HairsProps = {
 
 const material = new MeshBasicMaterial({ color: new Color(hairColor) });
 
-const Hairs = ({ viewportChange, updateFrame, instanceCount }: HairsProps) => {
+const Hairs = ({ viewportChange, updateFrame, instanceCount }: HairsProps): React.ReactElement => {
   const ref = useRef<InstancedMesh>();
   const { viewport, mouse, camera } = useThree();
   const hairGeo = useMemo(() => triangleGeometry(viewport.width), [viewport.width]);

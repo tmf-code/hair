@@ -13,7 +13,7 @@ type CurrentPlayerRazorProps = {
   ) => void;
 };
 
-const CurrentPlayerRazor = ({ updateFrame }: CurrentPlayerRazorProps) => {
+const CurrentPlayerRazor = ({ updateFrame }: CurrentPlayerRazorProps): React.ReactElement => {
   const { mouse, camera, aspect } = useThree();
   const texture = useMemo(() => new TextureLoader().load(razorSVG), []);
   const [mouseUp, setMouseUp] = useState(true);

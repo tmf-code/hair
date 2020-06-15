@@ -47,7 +47,7 @@ class FallingHairs {
     cutEffect: boolean[],
     rotations: number[],
     positions: [number, number][],
-  ) {
+  ): void {
     this.hairRotations = rotations;
     this.hairPositions = positions;
     this.hairLengths = lengths;
@@ -144,11 +144,11 @@ class FallingHairs {
     cuts.forEach((cut) => this.cutHairFIFO.addIfUnique(cut));
   }
 
-  setViewport(viewport: { width: number; height: number; factor: number }) {
+  setViewport(viewport: { width: number; height: number; factor: number }): void {
     this.viewport = viewport;
   }
 
-  setMesh(mesh: InstancedMesh) {
+  setMesh(mesh: InstancedMesh): void {
     this.mesh = mesh;
   }
 }

@@ -7,7 +7,7 @@ type RazorProps = {
   players: FriendPlayersManager;
 };
 
-const FriendPlayers = ({ players: playerData }: RazorProps) => {
+const FriendPlayers = ({ players: playerData }: RazorProps): React.ReactElement => {
   const [players, setPlayers] = useState<FriendPlayersManager['players']>({});
   const texture = useMemo(() => new TextureLoader().load(razorSVG), []);
 

@@ -34,19 +34,19 @@ export class MouseTouchState {
     if (this.numberOfTouches !== 1) this.isSingleTouched = false;
   };
 
-  getIsSingleTouched() {
+  getIsSingleTouched(): boolean {
     return this.isSingleTouched;
   }
 
-  getIsDoubleTouched() {
+  getIsDoubleTouched(): boolean {
     return this.isDoubleTouched;
   }
 
-  getNumberOfTouches() {
+  getNumberOfTouches(): number {
     return this.numberOfTouches;
   }
 
-  reset() {
+  reset(): void {
     this.clearEventListeners();
   }
 
