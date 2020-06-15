@@ -118,6 +118,12 @@ class Hairs {
   private updateSwirls(mouse: Vector2, camera: Camera) {
     const mousePos = mouseToWorld(mouse, camera);
     this.hairRotations.calculateSwirls(this.hairPositions.getScreenPositions(), mousePos);
+
+    this.hairRotations.calculateFriendSwirls(
+      this.hairPositions.getScreenPositions(),
+      this.friendPlayersPositions(),
+      this.friendPlayersRotations(),
+    );
   }
 
   public instanceCount(): number {
