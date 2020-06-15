@@ -16,7 +16,8 @@ export abstract class Player {
   protected mouse: Vector2 | undefined;
 
   private razorSmoothedPosition: [number, number] = offscreen;
-  private worldPosition: [number, number, number] = [0, 0, 0];
+  private razorWorldPosition: [number, number, number] = [0, 0, 0];
+  private pointerWorldPosition: [number, number, number] = [0, 0, 0];
   private pointerPosition: [number, number] = offscreen;
   private razorTargetPosition: [number, number] = offscreen;
   private scale: [number, number, number] = [1, 1, 1];
@@ -132,6 +133,14 @@ export abstract class Player {
 
   protected setPointerPosition(position: [number, number]): void {
     this.pointerPosition = position;
+
+    if (!this.camera) return;
+
+    this.pointerWorldPosition = relativeToWorld(this.pointerPosition, this.camera).toArray() as [
+      number,
+      number,
+      number,
+    ];
   }
 
   private setRazorOnscreen(): void {
@@ -142,12 +151,16 @@ export abstract class Player {
     this.rotation = rotation;
   }
 
-  protected getRotation(): number {
+  public getRotation(): number {
     return this.rotation;
   }
 
   protected getPointerPosition(): [number, number] {
     return this.pointerPosition;
+  }
+
+  public getPointerWorldPosition(): [number, number] {
+    return [this.pointerWorldPosition[0], this.pointerWorldPosition[1]];
   }
 
   protected snapSmoothedToTargetRotation(): void {
@@ -193,9 +206,9 @@ export abstract class Player {
       number,
     ];
 
-    const zPos = this.worldPosition[2];
+    const zPos = this.razorWorldPosition[2];
 
-    this.worldPosition = [xPos, yPos, zPos];
+    this.razorWorldPosition = [xPos, yPos, zPos];
   }
 
   private updateRotation(): void {
@@ -227,7 +240,7 @@ export abstract class Player {
     );
 
     const absoluteVector2 = offsetVector2.map((vector) =>
-      vector.add(new Vector2(this.worldPosition[0], this.worldPosition[1])),
+      vector.add(new Vector2(this.razorWorldPosition[0], this.razorWorldPosition[1])),
     );
 
     const absoluteVector3 = absoluteVector2.map((vector) => {
@@ -241,7 +254,7 @@ export abstract class Player {
   }
 
   protected setLayer(layer: typeof friendLayer | typeof playerLayer): void {
-    this.worldPosition[2] = layer;
+    this.razorWorldPosition[2] = layer;
   }
 
   private updateRazorTransform(): void {
@@ -252,7 +265,7 @@ export abstract class Player {
 
     this.ref.current.matrix.identity();
     const mat4: Matrix4 = new Matrix4();
-    this.ref.current.matrix.multiply(mat4.makeTranslation(...this.worldPosition));
+    this.ref.current.matrix.multiply(mat4.makeTranslation(...this.razorWorldPosition));
     this.ref.current.matrix.multiply(mat4.makeScale(...this.scale));
     this.ref.current.matrix.multiply(mat4.makeRotationZ(this.smoothedRotation));
     this.ref.current.matrix.multiply(mat4.makeTranslation(0, cursorOnTipOffset, 0));

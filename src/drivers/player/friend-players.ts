@@ -52,4 +52,11 @@ export class FriendPlayers {
   containsPoint([xPos, yPos]: [number, number]): boolean {
     return Object.values(this.players).some((player) => player.razor.containsPoint([xPos, yPos]));
   }
+
+  getPointerPositions(): [number, number][] {
+    return Object.values(this.players).map(({ razor }) => razor.getPointerWorldPosition());
+  }
+  getRotations(): number[] {
+    return Object.values(this.players).map(({ razor }) => razor.getRotation());
+  }
 }
