@@ -51,6 +51,30 @@ class HairRotations {
     }
   }
 
+  calculateFriendSwirls(
+    hairPositions: [number, number][],
+    pointerPositions: [number, number][],
+    rotations: number[],
+  ): void {
+    const squaredDistance = (x1: number, y1: number, x2: number, y2: number) =>
+      (x2 - x1) ** 2 + (y2 - y1) ** 2;
+    for (let hairIndex = 0; hairIndex < this.rotations.length; hairIndex++) {
+      const [xPos, yPos] = hairPositions[hairIndex];
+      pointerPositions.forEach((pointerPosition, index) => {
+        const [pointerX, pointerY] = pointerPosition;
+
+        const distance = squaredDistance(xPos, yPos, pointerX, pointerY);
+        const isHovering = distance < swirlRadius ** 2;
+
+        if (!isHovering) return;
+
+        const offset = this.getFriendRotationOffset(distance, rotations[index], hairIndex);
+
+        this.setRotationOffset(offset, hairIndex);
+      });
+    }
+  }
+
   private getRotationOffset(distance: number, mouseVelocity: Vector2, hairIndex: number) {
     const directionVector = mouseVelocity.normalize();
     const swirlAmount = directionVector.multiplyScalar(1 - distance / swirlRadius);
@@ -59,6 +83,14 @@ class HairRotations {
       Math.atan2(swirlAmount.y, swirlAmount.x) - this.rotationOffsets[hairIndex];
     const newRotation =
       this.rotationOffsets[hairIndex] + (rotationDifference * swirlAmount.length()) / 10;
+    return newRotation;
+  }
+
+  private getFriendRotationOffset(distance: number, rotation: number, hairIndex: number) {
+    const swirlAmount = 1 - distance / swirlRadius ** 2;
+
+    const rotationDifference = rotation - this.rotationOffsets[hairIndex];
+    const newRotation = this.rotationOffsets[hairIndex] + (rotationDifference * swirlAmount) / 10;
     return newRotation;
   }
 
