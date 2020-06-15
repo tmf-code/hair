@@ -1,0 +1,112 @@
+export const getRandomRoomName = (): string => {
+  const first = getRandomElement(firstWord);
+  const second = getRandomElement(secondWord);
+  const third = getRandomElement(thirdWord);
+  const fourth = getRandomElement(fourthWord);
+
+  return `${first}-${second}-${third}-${fourth}`;
+};
+
+const getRandomElement = <T>(list: T[]) => list[Math.floor(Math.random() * list.length)];
+
+const firstWord = [
+  'absurdly',
+  'annoyingly',
+  'awfully',
+  'barely',
+  'carelessly',
+  'cheerfully',
+  'clearly',
+  'crazily',
+  'dramatically',
+  'fortunately',
+  'frivolously',
+  'generously',
+  'gently',
+  'mildly',
+  'obviously',
+  'outrageously',
+  'practically',
+  'precariously',
+  'preposterously',
+  'pretty',
+  'quite',
+  'ridiculously',
+  'saddeningly',
+  'senselessly',
+  'shockingly',
+  'slightly',
+  'smoothly',
+  'tediously',
+  'unfortunately',
+  'utterly',
+  'very',
+  'wildly',
+  'woefully',
+];
+
+const secondWord = [
+  '  bearded',
+  'bushy',
+  'combed',
+  'curly',
+  'dirty',
+  'dressed',
+  'fluffy',
+  'furry',
+  'greasy',
+  'groomed',
+  'hairy',
+  'hirsute',
+  'irresistible',
+  'itchy',
+  'luring',
+  'malting',
+  'matted',
+  'muscular',
+  'prickly',
+  'scraggly',
+  'scruffy',
+  'sensual',
+  'shaggy',
+  'smooth',
+  'soft',
+  'stubbly',
+  'tangled',
+  'trimmed',
+  'wild',
+  'woolly',
+];
+
+const thirdWord = ['lower', 'upper'];
+
+const fourthWord = [
+  '  abdomen',
+  'arm',
+  'armpit',
+  'back',
+  'buttock',
+  'calf',
+  'chest',
+  'chin',
+  'crease',
+  'fold',
+  'forehead',
+  'groin',
+  'head',
+  'hip',
+  'knee',
+  'leg',
+  'leg',
+  'lip',
+  'midriff',
+  'nape',
+  'neck',
+  'pubis',
+  'shoulder',
+  'thigh',
+  'torso',
+  'torso',
+  'waist',
+  'whiskers',
+];
