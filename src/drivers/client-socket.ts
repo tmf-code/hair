@@ -36,8 +36,8 @@ export class ClientSocket {
 
   private connectSocket(io: SocketIOClientStatic, mode: 'production' | 'development') {
     return (mode === 'production'
-      ? io()
-      : io('http://192.168.178.41:3001')) as ClientSocketOverload;
+      ? (io() as ClientSocketOverload)
+      : io('http://192.168.178.41:8080')) as ClientSocketOverload;
   }
 
   private attachSocketHandlers() {

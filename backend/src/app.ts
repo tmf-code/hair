@@ -3,17 +3,9 @@ import { Players } from './players/players';
 import { widthPoints, heightPoints, jitterRange, rotationStart, rotationEnd } from './constants';
 import { HairMapFactory } from './hair-map/hair-map-factory';
 import { SocketServer, ServerSocketCallbacks } from './socket-server';
-import { makeProductionServer, makeDevelopmentServer } from './server';
+import { makeProductionServer } from './server';
 
-let server;
-
-if (process.env.NODE_ENV === 'production') {
-  server = makeProductionServer();
-  console.log(process.env.NODE_ENV);
-} else {
-  server = makeDevelopmentServer();
-  console.log(process.env.NODE_ENV);
-}
+const server = makeProductionServer();
 
 const hairMap = HairMapFactory.createFrom(
   widthPoints,
