@@ -21,10 +21,14 @@ class Hairs {
   private aspect = 1.0;
   private currentPlayerContainsPoint: (arg0: [number, number]) => boolean;
   private friendPlayersContainPoint: (arg0: [number, number]) => boolean;
+  private friendPlayersPositions: () => [number, number][];
+  private friendPlayersRotations: () => number[];
 
   constructor(
     currentPlayerContainsPoint: (arg0: [number, number]) => boolean,
     friendPlayersContainPoint: (arg0: [number, number]) => boolean,
+    friendPlayersPositions: () => [number, number][],
+    friendPlayersRotations: () => number[],
     hairRotations: HairRotations,
     hairPositions: HairPositions,
     hairLengths: HairLengths,
@@ -32,6 +36,8 @@ class Hairs {
   ) {
     this.currentPlayerContainsPoint = currentPlayerContainsPoint;
     this.friendPlayersContainPoint = friendPlayersContainPoint;
+    this.friendPlayersPositions = friendPlayersPositions;
+    this.friendPlayersRotations = friendPlayersRotations;
     this.hairRotations = hairRotations;
     this.hairPositions = hairPositions;
     this.hairLengths = hairLengths;

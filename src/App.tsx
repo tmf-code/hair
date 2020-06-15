@@ -22,11 +22,13 @@ const hairRotations = new HairRotations(widthPoints * heightPoints);
 const hairPositions = new HairPositions(widthPoints * heightPoints);
 const hairLengths = new HairLengths(widthPoints * heightPoints);
 const hairCuts = new HairCuts(widthPoints * heightPoints);
-const currentPlayerRazor = new CurrentPlayer();
-const players = new FriendPlayers();
+const currentPlayer = new CurrentPlayer();
+const friendPlayers = new FriendPlayers();
 const hairs = new Hairs(
-  currentPlayerRazor.containsPoint.bind(currentPlayerRazor),
-  players.containsPoint.bind(players),
+  currentPlayer.containsPoint.bind(currentPlayer),
+  friendPlayers.containsPoint.bind(friendPlayers),
+  friendPlayers.getPointerPositions.bind(friendPlayers),
+  friendPlayers.getRotations.bind(friendPlayers),
   hairRotations,
   hairPositions,
   hairLengths,
@@ -36,11 +38,11 @@ const hairs = new Hairs(
 const socketCallbacks: SocketCallbacks = {
   setPositions: hairPositions.setPositions.bind(hairPositions),
   setRotations: hairRotations.setInitialRotations.bind(hairRotations),
-  setPlayers: players.updatePlayers.bind(players),
+  setPlayers: friendPlayers.updatePlayers.bind(friendPlayers),
   setLengths: hairLengths.updateLengths.bind(hairLengths),
   sendLocalCuts: hairCuts.getClientCuts.bind(hairCuts),
   sentLocalCuts: hairCuts.clearClientCuts.bind(hairCuts),
-  sendLocation: currentPlayerRazor.getBufferedPlayerData.bind(currentPlayerRazor),
+  sendLocation: currentPlayer.getBufferedPlayerData.bind(currentPlayer),
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -55,10 +57,8 @@ const App = (): React.ReactElement => {
         orthographic={false}
         pixelRatio={window.devicePixelRatio}
       >
-        <FriendPlayersRenderable players={players} />
-        <CurrentPlayerRazorRenderable
-          updateFrame={currentPlayerRazor.updateFrame.bind(currentPlayerRazor)}
-        />
+        <FriendPlayersRenderable players={friendPlayers} />
+        <CurrentPlayerRazorRenderable updateFrame={currentPlayer.updateFrame.bind(currentPlayer)} />
         <HairRenderable
           instanceCount={hairs.instanceCount()}
           updateFrame={hairs.updateFrame.bind(hairs)}
