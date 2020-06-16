@@ -1,5 +1,9 @@
-import { startRooms, addGuestToRooms, removeGuest } from './../../backend/src/rooms/Room';
-import type { Guest } from '../../backend/src/rooms/Guest';
+import {
+  startRooms,
+  addGuestToRooms,
+  removeGuest,
+} from './../../backend/src/rooms/room-operations';
+import type { Guest } from '../../backend/src/rooms/guest';
 describe('Room tests', () => {
   test('Can create rooms', () => {
     const rooms = startRooms();
