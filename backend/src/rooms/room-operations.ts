@@ -15,7 +15,7 @@ export const addGuestToRooms = (
   guest: Guest,
   rooms: readonly NotEmptyRooms[],
 ): readonly NotEmptyRooms[] => {
-  const maybeRoom = findRoomOfGuest(guest, rooms);
+  const maybeRoom = tryFindRoomOfGuest(guest, rooms);
 
   if (maybeRoom !== undefined)
     throw new Error(`Could not add guest. Guest ${guest.id} already exists in rooms`);
@@ -85,22 +85,29 @@ const addGuestToRoom = (
 
 const addNewGuestToRooms = (rooms: readonly NotEmptyRooms[], name: string, guest: Guest) => {
   const room = RoomOne.openRoom(name, guest);
-  rooms = addRoom(rooms, room);
-  return rooms;
+  return addRoom(rooms, room);
 };
 
-const findRoomOfGuest = (
+const tryFindRoomOfGuest = (
   guest: Guest,
   rooms: readonly NotEmptyRooms[],
 ): NotEmptyRooms | undefined => {
   return rooms.find((room) => room.guests.some((existingGuest) => guest.id === existingGuest.id));
 };
 
+export const findRoomOfGuest = (guest: Guest, rooms: readonly NotEmptyRooms[]): NotEmptyRooms => {
+  const maybeRoom = tryFindRoomOfGuest(guest, rooms);
+  if (maybeRoom === undefined) {
+    throw new Error(`Cannot find guest ${guest.id} in rooms ${rooms}. Guest is not in rooms`);
+  }
+  return maybeRoom;
+};
+
 export const removeGuest = (
   guest: Guest,
   rooms: readonly NotEmptyRooms[],
 ): readonly NotEmptyRooms[] => {
-  const maybeRoom = findRoomOfGuest(guest, rooms);
+  const maybeRoom = tryFindRoomOfGuest(guest, rooms);
 
   if (maybeRoom === undefined)
     throw new Error(`Could not remove guest. Guest ${guest.id} does not exist in rooms`);

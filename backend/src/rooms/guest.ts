@@ -1,3 +1,3 @@
 export interface Guest {
-  id: number;
+  id: string;
 }

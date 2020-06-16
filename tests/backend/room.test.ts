@@ -2,6 +2,7 @@ import {
   startRooms,
   addGuestToRooms,
   removeGuest,
+  findRoomOfGuest,
 } from './../../backend/src/rooms/room-operations';
 import type { Guest } from '../../backend/src/rooms/guest';
 describe('Room tests', () => {
@@ -13,7 +14,7 @@ describe('Room tests', () => {
   test('Can add a guest', () => {
     let rooms = startRooms();
     const guest: Guest = {
-      id: 0,
+      id: '0',
     };
 
     rooms = addGuestToRooms(guest, rooms);
@@ -24,7 +25,7 @@ describe('Room tests', () => {
   test('Can remove a guest', () => {
     let rooms = startRooms();
     const guest: Guest = {
-      id: 0,
+      id: '0',
     };
 
     rooms = addGuestToRooms(guest, rooms);
@@ -35,7 +36,7 @@ describe('Room tests', () => {
   test("Can't add duplicate guests", () => {
     let rooms = startRooms();
     const guest: Guest = {
-      id: 0,
+      id: '0',
     };
 
     rooms = addGuestToRooms(guest, rooms);
@@ -48,7 +49,7 @@ describe('Room tests', () => {
     const amount = 8;
     const guests: Guest[] = [...new Array(amount)].map((_, index) => {
       return {
-        id: index,
+        id: index.toString(),
       };
     });
 
@@ -68,7 +69,7 @@ describe('Room tests', () => {
     const amount = 8;
     const guests: Guest[] = [...new Array(amount)].map((_, index) => {
       return {
-        id: index,
+        id: index.toString(),
       };
     });
 
@@ -96,7 +97,7 @@ describe('Room tests', () => {
 
     const guests: Guest[] = [...new Array(amount)].map((_, index) => {
       return {
-        id: index,
+        id: index.toString(),
       };
     });
 
@@ -129,5 +130,40 @@ describe('Room tests', () => {
       randomlyRemove();
       expect(actualGuestsInGame()).toHaveLength(expectedGuestsInGame.length);
     });
+  });
+
+  test('Can find room of guest', () => {
+    const guest: Guest = { id: '0' };
+    let rooms = startRooms();
+    rooms = addGuestToRooms(guest, rooms);
+
+    const guestsRoom = findRoomOfGuest(guest, rooms);
+
+    expect(guestsRoom).toBeDefined();
+    expect(guestsRoom?.guests).toContain(guest);
+  });
+
+  test('Guests room never changes', () => {
+    const guest: Guest = { id: '0' };
+    let rooms = startRooms();
+    rooms = addGuestToRooms(guest, rooms);
+
+    const amount = 400;
+
+    const guests: Guest[] = [...new Array(amount)].map((_, index) => {
+      return {
+        id: (index + 1).toString(),
+      };
+    });
+
+    const expectedGuestsRoom = findRoomOfGuest(guest, rooms);
+
+    guests.forEach((guest) => {
+      rooms = addGuestToRooms(guest, rooms);
+    });
+
+    const guestsRoom = findRoomOfGuest(guest, rooms);
+    expect(guestsRoom).toBeDefined();
+    expect(guestsRoom?.name).toEqual(expectedGuestsRoom?.name);
   });
 });
