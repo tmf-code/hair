@@ -1,4 +1,4 @@
-import { friendLayer } from './../../utilities/constants';
+import { friendLayer, offscreen } from './../../utilities/constants';
 import { Player } from './player';
 import { sampleInterval } from '../../utilities/constants';
 import { PlayerData } from '../../../@types/messages';
@@ -14,12 +14,25 @@ export class FriendPlayer extends Player {
   }
 
   private startPlayingBackPlayerData(): void {
-    setInterval(() => requestAnimationFrame(this.playbackPlayerData.bind(this)), sampleInterval);
+    setTimeout(() => {
+      this.tickPlayback();
+    }, sampleInterval);
+  }
+
+  private tickPlayback() {
+    const thisExists = this !== undefined;
+    if (!thisExists) return;
+
+    requestAnimationFrame(this.playbackPlayerData.bind(this));
+    setTimeout(this.tickPlayback.bind(this), sampleInterval);
   }
 
   private playbackPlayerData() {
     const data = this.getPlayerData();
-    if (data === undefined) return;
+    if (data === undefined) {
+      this.playbackPointerPosition = offscreen;
+      return;
+    }
     const { position, rotation, state } = data;
 
     this.playbackPointerPosition = position;
