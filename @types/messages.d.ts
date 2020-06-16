@@ -15,6 +15,7 @@ export type ServerToSocket = {
   updateClientGrid: [number, number][];
   updateClientRotations: number[];
   updateClientLengths: number[];
+  updateClientRoom: string;
 };
 
 export type ServerToSockets = {

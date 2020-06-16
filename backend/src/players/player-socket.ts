@@ -1,7 +1,7 @@
 import { BufferedPlayerData } from './../../../@types/messages.d';
-import { IplayerData } from './i-player-data';
-import SocketIO from 'socket.io';
+import { IPlayerData } from './i-player-data';
 import { IPlayerSocket } from './i-player-socket';
+import { ServerSocketOverload } from '../../../@types/socketio-overloads';
 
 export type PlayerSocketCallbacks = {
   receiveCuts: (cuts: boolean[]) => void;
@@ -9,50 +9,59 @@ export type PlayerSocketCallbacks = {
 
 export class PlayerSocket implements IPlayerSocket {
   private readonly id: string;
-  private playerLocations: BufferedPlayerData = [];
-  private readonly socket: SocketIO.Socket;
+  private bufferedPlayerData: BufferedPlayerData = [];
+  private readonly socket: ServerSocketOverload;
   private readonly receiveCuts: (cuts: boolean[]) => void;
+  private readonly room: string;
 
   constructor(
-    socket: SocketIO.Socket,
+    socket: ServerSocketOverload,
     receiveCuts: (cuts: boolean[]) => void,
     positions: [number, number][],
     rotations: number[],
     lengths: number[],
+    room: string,
   ) {
     this.id = socket.id;
     this.socket = socket;
     this.receiveCuts = receiveCuts;
+    this.room = room;
 
     this.addHandlers();
-    this.emitOnce(positions, rotations, lengths);
+    this.emitOnce(positions, rotations, lengths, room);
+
+    console.log(`Guest connected to room ${this.room} with id:${this.id}`);
   }
 
   private addHandlers() {
-    const socketEventHandlers = {
-      updateServerCuts: this.receiveCuts.bind(this),
-      updatePlayerLocation: this.updatePlayerLocation.bind(this),
-    };
-
-    Object.entries(socketEventHandlers).forEach(([name, handler]) => {
-      this.socket.on(name, handler);
-    });
+    this.socket.on('updateServerCuts', this.receiveCuts.bind(this));
+    this.socket.on('updatePlayerLocation', this.updatePlayerLocation.bind(this));
   }
 
-  private updatePlayerLocation(playerLocations: BufferedPlayerData) {
-    this.playerLocations = playerLocations;
+  private updatePlayerLocation(bufferedPlayerData: BufferedPlayerData) {
+    this.bufferedPlayerData = bufferedPlayerData;
   }
 
-  private emitOnce(positions: [number, number][], rotations: number[], lengths: number[]) {
+  private emitOnce(
+    positions: [number, number][],
+    rotations: number[],
+    lengths: number[],
+    room: string,
+  ) {
     this.socket.emit('updateClientGrid', positions);
     this.socket.emit('updateClientRotations', rotations);
     this.socket.emit('updateClientLengths', lengths);
+    this.socket.emit('updateClientRoom', room);
   }
 
-  getPlayerData(): IplayerData {
+  clearPlayerData(): void {
+    this.bufferedPlayerData = [];
+  }
+
+  getPlayerData(): IPlayerData {
     return {
       id: this.id,
-      playerLocations: this.playerLocations,
+      bufferedPlayerData: this.bufferedPlayerData,
     };
   }
 }

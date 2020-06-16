@@ -1,12 +1,14 @@
-import { PlayersDataMessage } from './../../@types/messages.d';
+import { NotEmptyRooms } from './rooms/room';
+import { PlayersDataMessage, BufferedPlayerData } from './../../@types/messages.d';
 import { SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
 import { ServerSocketOverload, ServerIoOverload } from '../../@types/socketio-overloads';
 
 export type ServerSocketCallbacks = {
   onPlayerConnected: (socket: ServerSocketOverload) => void;
-  onPlayerDisconnected: (playerId: string) => void;
-  onEmitPlayerLocations: () => PlayersDataMessage;
+  onPlayerDisconnected: (socket: ServerSocketOverload) => void;
+  onEmitPlayerData: () => [PlayersDataMessage, readonly NotEmptyRooms[]];
+  onSentPlayerData: () => void;
   onReceiveCuts: (cuts: boolean[]) => void;
 };
 
@@ -26,12 +28,12 @@ export class SocketServer {
       this.serverSocketCallbacks.onPlayerConnected(socket);
 
       socket.on('disconnect', () => {
-        this.serverSocketCallbacks.onPlayerDisconnected(socket.id);
+        this.serverSocketCallbacks.onPlayerDisconnected(socket);
       });
     });
   }
 
-  public recieveCuts(incomingCuts: boolean[]): void {
+  public receiveCuts(incomingCuts: boolean[]): void {
     this.serverSocketCallbacks.onReceiveCuts(incomingCuts);
   }
   private startEmitting() {
@@ -47,7 +49,13 @@ export class SocketServer {
   }
 
   private emitPlayerLocations() {
-    const playerLocations = this.serverSocketCallbacks.onEmitPlayerLocations();
-    this.io.emit('updatePlayersData', playerLocations);
+    const [playerLocations, rooms] = this.serverSocketCallbacks.onEmitPlayerData();
+    rooms.forEach((room) => {
+      const data = room.guests.reduce((guestLocationsInRoom, guest) => {
+        return { ...guestLocationsInRoom, [guest.id]: playerLocations[guest.id] };
+      }, {} as Record<string, BufferedPlayerData>);
+      this.io.to(room.name).emit('updatePlayersData', data);
+    });
+    this.serverSocketCallbacks.onSentPlayerData();
   }
 }

@@ -1,5 +1,5 @@
 import { BufferedPlayerData } from './../../../@types/messages.d';
-import { IplayerData } from './i-player-data';
+import { IPlayerData } from './i-player-data';
 import { IPlayerSocket } from './i-player-socket';
 
 export class GhostPlayerSocket implements IPlayerSocket {
@@ -12,14 +12,18 @@ export class GhostPlayerSocket implements IPlayerSocket {
     this.currentGhostIndex = startOffset;
   }
 
-  getPlayerData(): IplayerData {
+  clearPlayerData(): void {
+    // NOOP
+  }
+
+  getPlayerData(): IPlayerData {
     this.currentGhostIndex++;
     this.currentGhostIndex %= ghostData.length;
 
     const playerLocations = ghostData[this.currentGhostIndex];
     return {
       id: this.id,
-      playerLocations,
+      bufferedPlayerData: playerLocations,
     };
   }
 }

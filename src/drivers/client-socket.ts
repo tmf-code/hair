@@ -10,6 +10,7 @@ export type SocketCallbacks = {
   sendLocalCuts: () => boolean[];
   sentLocalCuts: () => void;
   sendLocation: () => BufferedPlayerData;
+  sentLocation: () => void;
 };
 
 export class ClientSocket {
@@ -36,8 +37,8 @@ export class ClientSocket {
 
   private connectSocket(io: SocketIOClientStatic, mode: 'production' | 'development') {
     return (mode === 'production'
-      ? io()
-      : io('http://192.168.178.41:3001')) as ClientSocketOverload;
+      ? (io() as ClientSocketOverload)
+      : io('http://192.168.178.41:8080')) as ClientSocketOverload;
   }
 
   private attachSocketHandlers() {
@@ -52,6 +53,10 @@ export class ClientSocket {
     this.socket.on('updateClientRotations', (serverHairRotations: number[]) =>
       this.socketCallbacks.setRotations(serverHairRotations),
     );
+
+    this.socket.on('updateClientRoom', (room: string) => {
+      window.location.replace(`#${room}`);
+    });
 
     this.socket.on('updatePlayersData', (playerData: PlayersDataMessage) => {
       if (playerData !== null) {
@@ -84,6 +89,10 @@ export class ClientSocket {
   }
 
   private updatePlayerLocation(location: BufferedPlayerData) {
-    this.socket.emit('updatePlayerLocation', location);
+    if (location.length !== 0) {
+      this.socket.emit('updatePlayerLocation', location);
+    }
+
+    this.socketCallbacks.sentLocation();
   }
 }
