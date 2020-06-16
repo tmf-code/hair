@@ -7,6 +7,21 @@ export const getRandomRoomName = (): string => {
   return `${first}-${second}-${third}-${fourth}`;
 };
 
+export const isValidRoomName = (room: string): boolean => {
+  const words = room.split('-');
+
+  if (words.length !== 4) return false;
+
+  const [first, second, third, fourth] = room.split('-');
+
+  const validFirst = firstWord.includes(first);
+  const validSecond = secondWord.includes(second);
+  const validThird = thirdWord.includes(third);
+  const validFourth = fourthWord.includes(fourth);
+
+  return validFirst && validSecond && validThird && validFourth;
+};
+
 const getRandomElement = <T>(list: T[]) => list[Math.floor(Math.random() * list.length)];
 
 const firstWord = [

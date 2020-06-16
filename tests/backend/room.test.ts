@@ -47,11 +47,7 @@ describe('Room tests', () => {
   test('Can add many guests and they fill up properly', () => {
     let rooms = startRooms();
     const amount = 8;
-    const guests: Guest[] = [...new Array(amount)].map((_, index) => {
-      return {
-        id: index.toString(),
-      };
-    });
+    const guests: Guest[] = makeGuests(amount);
 
     const expectedRoomSizesSequence = [[1], [2], [3], [4], [4, 1], [4, 2], [4, 3], [4, 4]];
     const expectedLengthSequence = [1, 1, 1, 1, 2, 2, 2, 2];
@@ -67,12 +63,7 @@ describe('Room tests', () => {
   test('Removing guests closes rooms', () => {
     let rooms = startRooms();
     const amount = 8;
-    const guests: Guest[] = [...new Array(amount)].map((_, index) => {
-      return {
-        id: index.toString(),
-      };
-    });
-
+    const guests: Guest[] = makeGuests(amount);
     const expectedRoomSizesSequence = [[], [1], [2], [3], [4], [4, 1], [4, 2], [4, 3]].reverse();
     const expectedLengthSequence = [0, 1, 1, 1, 1, 2, 2, 2].reverse();
 
@@ -95,11 +86,7 @@ describe('Room tests', () => {
     const chanceToAdd = 0.5;
     const chanceToRemove = 0.5;
 
-    const guests: Guest[] = [...new Array(amount)].map((_, index) => {
-      return {
-        id: index.toString(),
-      };
-    });
+    const guests: Guest[] = makeGuests(amount);
 
     const expectedGuestsInGame: Guest[] = [];
     const actualGuestsInGame = () =>
@@ -150,11 +137,7 @@ describe('Room tests', () => {
 
     const amount = 400;
 
-    const guests: Guest[] = [...new Array(amount)].map((_, index) => {
-      return {
-        id: (index + 1).toString(),
-      };
-    });
+    const guests: Guest[] = makeGuests(amount, 1);
 
     const expectedGuestsRoom = findRoomOfGuest(guest, rooms);
 
@@ -167,3 +150,13 @@ describe('Room tests', () => {
     expect(guestsRoom?.name).toEqual(expectedGuestsRoom?.name);
   });
 });
+
+const makeGuests = (amount: number, startIndex = 0) => {
+  const guests: Guest[] = [...new Array(amount)].map((_, index) => {
+    return {
+      id: (index + startIndex).toString(),
+    };
+  });
+
+  return guests;
+};
