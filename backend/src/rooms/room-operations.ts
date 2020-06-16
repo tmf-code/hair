@@ -8,7 +8,7 @@ import {
   RoomOne,
   RoomEmptied,
 } from './room';
-import { getRandomRoomName } from './get-random-room-name';
+import { getRandomRoomName } from './room-names';
 export const startRooms = (): readonly NotEmptyRooms[] => [];
 
 export const addGuestToRooms = (
