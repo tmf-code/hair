@@ -18,7 +18,7 @@ export class HairMap {
     return this.positions.map(() => false);
   }
 
-  recieveCuts(cuts: boolean[]): void {
+  receiveCuts(cuts: boolean[]): void {
     this.addCuts(cuts);
   }
 

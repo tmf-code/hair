@@ -21,10 +21,10 @@ const serverSocketCallbacks: ServerSocketCallbacks = {
   onPlayerConnected: (socket: ServerSocketOverload) => players.addPlayer(socket),
   onPlayerDisconnected: (playerId: string) => players.removePlayer(playerId),
   onEmitPlayerLocations: () => players.getPlayerLocations(),
-  onReceiveCuts: (cuts: boolean[]) => hairMap.recieveCuts(cuts),
+  onReceiveCuts: (cuts: boolean[]) => hairMap.receiveCuts(cuts),
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const socket = new SocketServer(server, serverSocketCallbacks);
 
-players.setRecieveCuts(socket.recieveCuts.bind(socket));
+players.setReceiveCuts(socket.receiveCuts.bind(socket));

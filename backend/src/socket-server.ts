@@ -31,7 +31,7 @@ export class SocketServer {
     });
   }
 
-  public recieveCuts(incomingCuts: boolean[]): void {
+  public receiveCuts(incomingCuts: boolean[]): void {
     this.serverSocketCallbacks.onReceiveCuts(incomingCuts);
   }
   private startEmitting() {

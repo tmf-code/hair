@@ -10,7 +10,7 @@ export class Players {
     rotations: number[];
     lengths: number[];
   };
-  private recieveCuts: (cuts: boolean[]) => void = (cuts) => null;
+  private receiveCuts: (cuts: boolean[]) => void = (cuts) => null;
 
   constructor(
     getMapState: () => { positions: [number, number][]; rotations: number[]; lengths: number[] },
@@ -19,15 +19,15 @@ export class Players {
     this.getMapState = getMapState;
   }
 
-  setRecieveCuts(recieveCuts: (cuts: boolean[]) => void): void {
-    this.recieveCuts = recieveCuts;
+  setReceiveCuts(receiveCuts: (cuts: boolean[]) => void): void {
+    this.receiveCuts = receiveCuts;
   }
 
   addPlayer(socket: SocketIO.Socket): void {
     const { positions, rotations, lengths } = this.getMapState();
     this.players[socket.id] = new PlayerSocket(
       socket,
-      this.recieveCuts,
+      this.receiveCuts,
       positions,
       rotations,
       lengths,
