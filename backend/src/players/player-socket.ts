@@ -54,6 +54,10 @@ export class PlayerSocket implements IPlayerSocket {
     this.socket.emit('updateClientRoom', room);
   }
 
+  clearPlayerData(): void {
+    this.bufferedPlayerData = [];
+  }
+
   getPlayerData(): IPlayerData {
     return {
       id: this.id,

@@ -81,4 +81,8 @@ export class Players {
   getRooms(): readonly NotEmptyRooms[] {
     return this.rooms;
   }
+
+  clearPlayerData(): void {
+    Object.values(this.players).forEach((player) => player.clearPlayerData());
+  }
 }

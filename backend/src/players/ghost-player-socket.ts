@@ -12,6 +12,10 @@ export class GhostPlayerSocket implements IPlayerSocket {
     this.currentGhostIndex = startOffset;
   }
 
+  clearPlayerData(): void {
+    // NOOP
+  }
+
   getPlayerData(): IPlayerData {
     this.currentGhostIndex++;
     this.currentGhostIndex %= ghostData.length;

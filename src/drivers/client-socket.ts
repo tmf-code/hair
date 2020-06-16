@@ -10,6 +10,7 @@ export type SocketCallbacks = {
   sendLocalCuts: () => boolean[];
   sentLocalCuts: () => void;
   sendLocation: () => BufferedPlayerData;
+  sentLocation: () => void;
 };
 
 export class ClientSocket {
@@ -89,5 +90,6 @@ export class ClientSocket {
 
   private updatePlayerLocation(location: BufferedPlayerData) {
     this.socket.emit('updatePlayerLocation', location);
+    this.socketCallbacks.sentLocation();
   }
 }

@@ -8,6 +8,7 @@ export type ServerSocketCallbacks = {
   onPlayerConnected: (socket: ServerSocketOverload) => void;
   onPlayerDisconnected: (socket: ServerSocketOverload) => void;
   onEmitPlayerData: () => [PlayersDataMessage, readonly NotEmptyRooms[]];
+  onSentPlayerData: () => void;
   onReceiveCuts: (cuts: boolean[]) => void;
 };
 
@@ -55,5 +56,6 @@ export class SocketServer {
       }, {} as Record<string, BufferedPlayerData>);
       this.io.to(room.name).emit('updatePlayersData', data);
     });
+    this.serverSocketCallbacks.onSentPlayerData();
   }
 }

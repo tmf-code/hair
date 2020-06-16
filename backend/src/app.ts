@@ -29,6 +29,10 @@ const serverSocketCallbacks: ServerSocketCallbacks = {
     return [players.getPlayerData(), players.getRooms()];
   },
 
+  onSentPlayerData: () => {
+    players.clearPlayerData();
+  },
+
   onReceiveCuts: (cuts: boolean[]) => hairMap.receiveCuts(cuts),
 };
 

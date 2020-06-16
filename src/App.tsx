@@ -43,6 +43,7 @@ const socketCallbacks: SocketCallbacks = {
   sendLocalCuts: hairCuts.getClientCuts.bind(hairCuts),
   sentLocalCuts: hairCuts.clearClientCuts.bind(hairCuts),
   sendLocation: currentPlayer.getBufferedPlayerData.bind(currentPlayer),
+  sentLocation: currentPlayer.clearBufferedPlayerData.bind(currentPlayer),
 };
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

@@ -81,6 +81,10 @@ export abstract class Player {
     return this.bufferedPlayerData;
   }
 
+  clearBufferedPlayerData(): void {
+    this.bufferedPlayerData = [];
+  }
+
   protected getPlayerData(): PlayerData | undefined {
     return this.bufferedPlayerData.pop();
   }
