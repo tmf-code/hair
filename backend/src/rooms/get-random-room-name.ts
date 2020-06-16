@@ -46,7 +46,7 @@ const firstWord = [
 ];
 
 const secondWord = [
-  '  bearded',
+  'bearded',
   'bushy',
   'combed',
   'curly',
@@ -81,7 +81,7 @@ const secondWord = [
 const thirdWord = ['lower', 'upper'];
 
 const fourthWord = [
-  '  abdomen',
+  'abdomen',
   'arm',
   'armpit',
   'back',
