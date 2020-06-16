@@ -6,18 +6,24 @@ type ColofonProps = {
   url: string;
 };
 
-const Colofon = ({ roomName, url }: ColofonProps) => {
+const Colofon = ({ roomName, url }: ColofonProps): React.ReactElement => {
   const [display, showColofon] = useState(false);
   // react hook useState
   const ToggleColofonState = () => showColofon(!display);
   return (
     <div className="colofon">
-      {display && <ColofonText roomName={roomName} url={url} />}
+      {display && <ColofonText roomName={formattedRoomName()} url={window.location.href} />}
       <button id="colofonButton" onClick={ToggleColofonState}>
         ?
       </button>
     </div>
   );
+};
+
+const formattedRoomName = () => {
+  const removedHash = window.location.hash.replace('#', '');
+  const selectDash = new RegExp(/(-)/, 'g');
+  return removedHash.replace(selectDash, ' ');
 };
 
 export { Colofon };

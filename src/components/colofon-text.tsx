@@ -5,7 +5,7 @@ type ColofonTextProps = {
   url: string;
 };
 
-const ColofonText = ({ roomName, url }: ColofonTextProps) => {
+const ColofonText = ({ roomName, url }: ColofonTextProps): React.ReactElement => {
   return (
     <div className="colofon-text">
       <h1>Come Shave With Me</h1>
