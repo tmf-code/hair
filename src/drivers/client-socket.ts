@@ -53,6 +53,10 @@ export class ClientSocket {
       this.socketCallbacks.setRotations(serverHairRotations),
     );
 
+    this.socket.on('updateClientRoom', (room: string) => {
+      window.location.replace(`#${room}`);
+    });
+
     this.socket.on('updatePlayersData', (playerData: PlayersDataMessage) => {
       if (playerData !== null) {
         if (playerData[this.clientID] !== undefined) {

@@ -14,6 +14,7 @@ export const makeProductionServer = (): Server => {
   return Express()
     .use(Express.static(path.join(appRoot, 'build')))
     .use(Express.static(appRoot))
+    .get('/', (req, res) => res.redirect('/test'))
     .use((req, res) => res.sendFile(path.join(appRoot, 'build', 'index.html')))
     .listen(PORT, () => console.log(`${process.env.NODE_ENV}: Listening on ${PORT}`));
 };

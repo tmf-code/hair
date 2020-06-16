@@ -18,9 +18,17 @@ const hairMap = HairMapFactory.createFrom(
 const players = new Players(hairMap.getMapState.bind(hairMap));
 
 const serverSocketCallbacks: ServerSocketCallbacks = {
-  onPlayerConnected: (socket: ServerSocketOverload) => players.addPlayer(socket),
-  onPlayerDisconnected: (playerId: string) => players.removePlayer(playerId),
-  onEmitPlayerLocations: () => players.getPlayerLocations(),
+  onPlayerConnected: (socket: ServerSocketOverload) => {
+    return players.addPlayer(socket);
+  },
+  onPlayerDisconnected: (socket: ServerSocketOverload) => {
+    return players.removePlayer(socket);
+  },
+
+  onEmitPlayerData: () => {
+    return [players.getPlayerData(), players.getRooms()];
+  },
+
   onReceiveCuts: (cuts: boolean[]) => hairMap.receiveCuts(cuts),
 };
 
