@@ -89,7 +89,10 @@ export class ClientSocket {
   }
 
   private updatePlayerLocation(location: BufferedPlayerData) {
-    this.socket.emit('updatePlayerLocation', location);
+    if (location.length !== 0) {
+      this.socket.emit('updatePlayerLocation', location);
+    }
+
     this.socketCallbacks.sentLocation();
   }
 }

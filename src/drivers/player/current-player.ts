@@ -18,6 +18,7 @@ export class CurrentPlayer extends Player {
 
   private recordPlayerData() {
     if (document.hidden) return;
+
     const data: PlayerData = {
       rotation: this.getRotation(),
       position: this.getPointerPosition(),
