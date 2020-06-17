@@ -1,28 +1,78 @@
-export const getRandomRoomName = (): string => {
-  const first = getRandomElement(firstWord);
-  const second = getRandomElement(secondWord);
-  const third = getRandomElement(thirdWord);
-  const fourth = getRandomElement(fourthWord);
-
-  return `${first}-${second}-${third}-${fourth}`;
-};
-
-export const isValidRoomName = (room: string): boolean => {
-  const words = room.split('-');
-
-  if (words.length !== 4) return false;
-
-  const [first, second, third, fourth] = room.split('-');
-
-  const validFirst = firstWord.includes(first);
-  const validSecond = secondWord.includes(second);
-  const validThird = thirdWord.includes(third);
-  const validFourth = fourthWord.includes(fourth);
-
-  return validFirst && validSecond && validThird && validFourth;
-};
-
 const getRandomElement = <T>(list: T[]) => list[Math.floor(Math.random() * list.length)];
+export class RoomNames {
+  static createFromStandardNames(): RoomNames {
+    const aToBCombinations = (a: string[], b: string[]): string[][] =>
+      a.map((first) => b.map((second) => first + '-' + second));
+
+    const firstToSecond = aToBCombinations(firstWord, secondWord).flat();
+    const firstToThird = aToBCombinations(firstToSecond, thirdWord).flat();
+    const firstWordToFourthWord = aToBCombinations(firstToThird, fourthWord).flat();
+
+    return new RoomNames(new Set(firstWordToFourthWord));
+  }
+  private roomNames: Set<string>;
+  private checkedOutRooms: Set<string>;
+  private checkedInRooms: Set<string>;
+  constructor(roomNames: Set<string>) {
+    this.roomNames = roomNames;
+    this.checkedOutRooms = new Set();
+    this.checkedInRooms = new Set(this.roomNames);
+  }
+
+  checkOutRoom(name: string): string {
+    this.throwIfInvalid(name);
+    this.throwIfCheckedOut(name);
+    this.throwIfNotCheckedIn(name);
+
+    this.checkedOutRooms.add(name);
+    this.checkedInRooms.delete(name);
+
+    return name;
+  }
+
+  checkInRoom(name: string): string {
+    this.throwIfInvalid(name);
+    this.throwIfCheckedIn(name);
+    this.throwIfNotCheckedOut(name);
+
+    this.checkedInRooms.add(name);
+    this.checkedOutRooms.delete(name);
+
+    return name;
+  }
+
+  getFreeRandomRoomName(): string {
+    return getRandomElement([...this.checkedInRooms]);
+  }
+
+  private throwIfNotCheckedIn(name: string) {
+    if (!this.checkedInRooms.has(name))
+      throw new Error(`Could not check out room ${name}. Room isn't checked in.`);
+  }
+  private throwIfCheckedOut(name: string) {
+    if (this.checkedOutRooms.has(name))
+      throw new Error(`Could not check out room ${name}. Room is already checked out.`);
+  }
+  private throwIfCheckedIn(name: string) {
+    if (this.checkedInRooms.has(name))
+      throw new Error(`Could not check in room ${name}. Room is already checked in.`);
+  }
+
+  private throwIfNotCheckedOut(name: string) {
+    if (!this.checkedOutRooms.has(name))
+      throw new Error(`Could not check in room ${name}. Room isn't checked out.`);
+  }
+  private throwIfInvalid(name: string) {
+    if (!this.roomNames.has(name))
+      throw new Error(`Invalid room name ${name}. Does not exist in set`);
+  }
+
+  canCheckIn = (room: string): boolean => this.isTaken(room) && this.isValidRoomName(room);
+  canCheckOut = (room: string): boolean => this.isFree(room) && this.isValidRoomName(room);
+  isTaken = (room: string): boolean => this.checkedOutRooms.has(room);
+  isFree = (room: string): boolean => this.checkedInRooms.has(room);
+  isValidRoomName = (room: string): boolean => this.roomNames.has(room);
+}
 
 const firstWord = [
   'absurdly',
@@ -59,7 +109,6 @@ const firstWord = [
   'wildly',
   'woefully',
 ];
-
 const secondWord = [
   'bearded',
   'bushy',
@@ -92,9 +141,7 @@ const secondWord = [
   'wild',
   'woolly',
 ];
-
 const thirdWord = ['lower', 'upper'];
-
 const fourthWord = [
   'abdomen',
   'arm',

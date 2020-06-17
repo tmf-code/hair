@@ -8,7 +8,8 @@ import {
   RoomOne,
   RoomEmptied,
 } from './room';
-import { getRandomRoomName } from './room-names';
+import { RoomNames } from './room-names';
+const roomNames = RoomNames.createFromStandardNames();
 export const startRooms = (): readonly NotEmptyRooms[] => [];
 
 export const addGuestToRooms = (
@@ -29,7 +30,7 @@ export const addGuestToRooms = (
   const filledThreeRoom = tryFillThreeRooms(rooms, guest);
   if (filledThreeRoom !== undefined) return filledThreeRoom;
 
-  return addNewGuestToRooms(rooms, getRandomRoomName(), guest);
+  return addNewGuestToRooms(rooms, roomNames.getFreeRandomRoomName(), guest);
 };
 
 const tryFillOneRooms = (
