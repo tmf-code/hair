@@ -7,7 +7,7 @@ const config = {
       tsConfig: {
         module: 'commonjs',
         target: 'ES2019',
-        lib: ['es5', 'es6'],
+        lib: ['es5', 'es6', 'es2019'],
         moduleResolution: 'node',
         esModuleInterop: true,
         allowSyntheticDefaultImports: true,

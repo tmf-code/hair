@@ -1,18 +1,11 @@
-import { NotEmptyRooms } from './../rooms/room';
-import {
-  findRoomOfGuest,
-  addGuestToRooms,
-  startRooms,
-  removeGuest,
-} from './../rooms/room-operations';
-import { GhostPlayerSocket } from './ghost-player-socket';
-import { PlayerSocket } from './player-socket';
-import { IPlayerSocket } from './i-player-socket';
-import { PlayersDataMessage } from '../../../@types/messages';
+import { SocketPlayer } from './../rooms/socket-player';
+import { ServerIoOverload } from './../../../@types/socketio-overloads.d';
+import { RoomNames } from './../rooms/room-names';
 import { ServerSocketOverload } from '../../../@types/socketio-overloads';
+import { SocketRooms } from './../rooms/socket-rooms';
 
 export class Players {
-  private players: Record<string, IPlayerSocket>;
+  private readonly io: ServerIoOverload;
   private getMapState: () => {
     positions: [number, number][];
     rotations: number[];
@@ -20,13 +13,20 @@ export class Players {
   };
   private receiveCuts: (cuts: boolean[]) => void = (cuts) => null;
 
-  private rooms = startRooms();
+  private rooms: SocketRooms;
 
   constructor(
+    io: ServerIoOverload,
     getMapState: () => { positions: [number, number][]; rotations: number[]; lengths: number[] },
   ) {
-    this.players = {};
+    this.io = io;
     this.getMapState = getMapState;
+
+    this.rooms = new SocketRooms(this.io, {
+      playerCapacity: 200,
+      roomCapacity: 4,
+      roomNames: RoomNames.createFromStandardNames(),
+    });
   }
 
   setReceiveCuts(receiveCuts: (cuts: boolean[]) => void): void {
@@ -35,54 +35,51 @@ export class Players {
 
   addPlayer(socket: ServerSocketOverload): void {
     const { positions, rotations, lengths } = this.getMapState();
+    const room = this.placePlayerInNextRoom(socket, positions, rotations, lengths);
 
-    const room = this.placePlayerInRoom(socket);
-    this.players[socket.id] = new PlayerSocket(
-      socket,
-      this.receiveCuts,
-      positions,
-      rotations,
-      lengths,
-      room.name,
-    );
+    console.log(`ADD RANDOM: Player ${socket.id} to room ${room.getName()}`);
   }
 
-  private placePlayerInRoom(socket: ServerSocketOverload) {
-    const guest = socket;
-    this.rooms = addGuestToRooms(guest, this.rooms);
-    const guestsRoom = findRoomOfGuest(guest, this.rooms);
-    socket.join(guestsRoom.name);
-    return guestsRoom;
-  }
-
-  private addGhostPlayers(count: number) {
-    for (let index = 0; index < count; index++) {
-      const id = 'IAMTHEGHOSTNAMEDNUM' + index;
-      this.players[id] = new GhostPlayerSocket(id, index, count);
-    }
+  private placePlayerInNextRoom(
+    socket: ServerSocketOverload,
+    positions: [number, number][],
+    rotations: number[],
+    lengths: number[],
+  ) {
+    const player = new SocketPlayer(socket, this.receiveCuts, positions, rotations, lengths);
+    return this.rooms.addToNextRoom(player);
   }
 
   removePlayer(socket: ServerSocketOverload): void {
-    const guest = socket;
-    const guestsRoom = findRoomOfGuest(guest, this.rooms);
+    const player = socket;
 
-    this.rooms = removeGuest(guest, this.rooms);
-    console.log(`Guest disconnected from room ${guestsRoom.name} with id:${socket.id}`);
-    delete this.players[socket.id];
+    try {
+      const guestsRoom = this.rooms.getRoomNameOfPlayer(player);
+      this.rooms.removePlayer(player);
+      console.log(`Guest disconnected from room ${guestsRoom} with id:${socket.id}`);
+    } catch (error) {
+      console.log(error);
+      console.error(`Player ${player.id} connection was not in room. Could not delete.`);
+    }
   }
 
-  getPlayerData(): PlayersDataMessage {
-    return Object.values(this.players).reduce((record, player) => {
-      const playerData = player.getPlayerData();
-      return { ...record, [playerData.id]: playerData.bufferedPlayerData };
-    }, {} as PlayersDataMessage);
+  changeRoom(socket: ServerSocketOverload, name: string): void {
+    this.removePlayer(socket);
+
+    const { positions, rotations, lengths } = this.getMapState();
+    try {
+      const player = new SocketPlayer(socket, this.receiveCuts, positions, rotations, lengths);
+      const room = this.rooms.addToNamedRoom(name, player);
+      console.log(`ADD CHOSEN: ${socket.id} to room ${room.getName()}`);
+    } catch (error) {
+      console.log(error);
+      console.error(`Unable to add Player ${socket.id} to custom room ${name}.`);
+      console.log(` Adding player ${socket.id} to random room`);
+      this.addPlayer(socket);
+    }
   }
 
-  getRooms(): readonly NotEmptyRooms[] {
-    return this.rooms;
-  }
-
-  clearPlayerData(): void {
-    Object.values(this.players).forEach((player) => player.clearPlayerData());
+  emitPlayerLocations(): void {
+    this.rooms.emitPlayerData();
   }
 }

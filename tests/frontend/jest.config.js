@@ -8,7 +8,7 @@ module.exports = {
   globals: {
     'ts-jest': {
       tsConfig: {
-        target: 'ES2020',
+        target: 'ES2019',
         lib: ['dom', 'dom.iterable', 'esnext'],
         allowJs: true,
         checkJs: true,
@@ -17,7 +17,7 @@ module.exports = {
         allowSyntheticDefaultImports: true,
         strict: true,
         forceConsistentCasingInFileNames: true,
-        module: 'ES2020',
+        module: 'esnext',
         moduleResolution: 'node',
         resolveJsonModule: true,
         isolatedModules: true,

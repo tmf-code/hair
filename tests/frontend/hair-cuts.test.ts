@@ -45,25 +45,6 @@ describe('HairCut Actions', () => {
     expect(hairCuts.getNewCuts()).toStrictEqual(allFalse);
   });
 
-  test('addFromServer updates cuts', () => {
-    const cuts = [true, false, true];
-
-    hairCuts.addFromServer(cuts);
-    expect(hairCuts.hasNewCuts()).toBeTruthy();
-    expect(hairCuts.hasClientCuts()).toBeFalsy();
-    expect(hairCuts.getNewCuts()).toStrictEqual(cuts);
-  });
-
-  test('addFromServer combines cuts', () => {
-    const cutsFirst = [true, false, false];
-    const cutsSecond = [false, false, true];
-    const cutsExpected = [true, false, true];
-
-    hairCuts.addFromServer(cutsFirst);
-    hairCuts.addFromServer(cutsSecond);
-    expect(hairCuts.getNewCuts()).toStrictEqual(cutsExpected);
-  });
-
   test('addFromClient updates cuts', () => {
     const cuts = [true, false, true];
 
@@ -80,26 +61,6 @@ describe('HairCut Actions', () => {
 
     hairCuts.addFromClient(cutsFirst);
     hairCuts.addFromClient(cutsSecond);
-    expect(hairCuts.getNewCuts()).toStrictEqual(cutsExpected);
-  });
-
-  test('addFromClient then addFromServer combines cuts', () => {
-    const cutsFirst = [true, false, false];
-    const cutsSecond = [false, false, true];
-    const cutsExpected = [true, false, true];
-
-    hairCuts.addFromClient(cutsFirst);
-    hairCuts.addFromServer(cutsSecond);
-    expect(hairCuts.getNewCuts()).toStrictEqual(cutsExpected);
-  });
-
-  test('addFromServer then addFromClient combines cuts', () => {
-    const cutsFirst = [true, false, false];
-    const cutsSecond = [false, false, true];
-    const cutsExpected = [true, false, true];
-
-    hairCuts.addFromServer(cutsSecond);
-    hairCuts.addFromClient(cutsFirst);
     expect(hairCuts.getNewCuts()).toStrictEqual(cutsExpected);
   });
 });

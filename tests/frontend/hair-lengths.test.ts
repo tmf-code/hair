@@ -1,7 +1,7 @@
 import { HairLengths } from '../../src/drivers/hairs/hair-lengths';
 
 const hairLengths = new HairLengths(0);
-describe('Hairlength Initial State', () => {
+describe('HairLength Initial State', () => {
   test('Size should be zero', () => {
     expect(hairLengths.size()).toEqual(0);
   });
@@ -33,7 +33,7 @@ describe('Hairlength Initial State', () => {
   });
 });
 
-describe('Hairlength Actions', () => {
+describe('HairLength Actions', () => {
   beforeEach(() => {
     hairLengths.updateLengths([]);
   });

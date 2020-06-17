@@ -1,115 +1,44 @@
-import { Guest } from './guest';
+import { IPlayer } from './i-player';
 
-export type PossibleRoomSizes = 0 | 1 | 2 | 3 | 4;
-export type PossibleRooms = RoomEmptied | RoomOne | RoomTwo | RoomThree | RoomFull;
-export type PossibleRoomMap = [RoomEmptied, RoomOne, RoomTwo, RoomThree, RoomFull];
-export type NotEmptyRooms = Exclude<PossibleRooms, RoomEmptied>;
+export class Room {
+  name: string;
+  players: IPlayer[];
+  capacity: number;
 
-interface Room<T extends number> {
-  readonly name: string;
-  readonly size: T;
-  readonly guests: Guest[];
-}
-
-type PossibleUpgradedRooms = RoomOne | RoomTwo | RoomThree | RoomFull;
-export interface Upgradable {
-  getUpgradedRoom(guest: Guest): PossibleUpgradedRooms;
-}
-
-type PossibleDowngradedRooms = RoomEmptied | RoomOne | RoomTwo | RoomThree;
-export interface Downgradable {
-  getDowngradedRoom(guest: Guest): PossibleDowngradedRooms;
-}
-
-export class RoomEmptied implements Room<0> {
-  readonly name: string;
-  readonly guests: Guest[] = [];
-  readonly size: 0 = 0;
-
-  constructor(name: string) {
+  constructor(name: string, firstPlayer: IPlayer, capacity: number) {
     this.name = name;
-  }
-}
-
-export class RoomOne implements Room<1>, Upgradable, Downgradable {
-  readonly name: string;
-  readonly guests: Guest[];
-  readonly size: 1 = 1;
-
-  static openRoom(name: string, guest: Guest): RoomOne {
-    const emptyRoom = new RoomEmptied(name);
-    return new RoomOne(emptyRoom, [guest]);
+    this.players = [firstPlayer];
+    this.capacity = capacity;
   }
 
-  constructor(previousRoom: Room<0> | Room<2>, guests: Guest[]) {
-    this.name = previousRoom.name;
-    this.guests = guests;
+  addPlayer(player: IPlayer): this {
+    if (this.isFull())
+      throw new Error(`Cannot add player ${player.id} to room ${this.name}. Room is full`);
+
+    this.players.push(player);
+    return this;
   }
 
-  getUpgradedRoom(guest: Guest): RoomTwo {
-    const guests = [...this.guests, guest];
-    return new RoomTwo(this, guests);
+  removePlayer(player: IPlayer): void {
+    const maybePlayerIndex = this.players.findIndex(
+      (currentPlayer) => currentPlayer.id === player.id,
+    );
+
+    const playerNotInRoom = maybePlayerIndex === -1;
+    if (playerNotInRoom)
+      throw new Error(
+        `Cannot remove player ${player.id} from room ${this.name}. Room does not contain player.`,
+      );
+
+    this.players.splice(maybePlayerIndex, 1);
   }
 
-  getDowngradedRoom(): RoomEmptied {
-    return new RoomEmptied(this.name);
-  }
-}
-
-class RoomTwo implements Room<2>, Upgradable, Downgradable {
-  readonly name: string;
-  readonly guests: Guest[];
-  readonly size: 2 = 2;
-
-  constructor(previousRoom: Room<1> | Room<3>, guests: Guest[]) {
-    this.name = previousRoom.name;
-    this.guests = guests;
-  }
-
-  getUpgradedRoom(guest: Guest): RoomThree {
-    const guests = [...this.guests, guest];
-    return new RoomThree(this, guests);
-  }
-
-  getDowngradedRoom(guest: Guest): RoomOne {
-    const guests = this.guests.filter((existingGuest) => existingGuest !== guest);
-    return new RoomOne(this, guests);
-  }
-}
-
-class RoomThree implements Room<3>, Upgradable, Downgradable {
-  readonly name: string;
-  readonly guests: Guest[];
-  readonly size: 3 = 3;
-
-  constructor(previousRoom: Room<2> | Room<4>, guests: Guest[]) {
-    this.name = previousRoom.name;
-    this.guests = guests;
-  }
-
-  getUpgradedRoom(guest: Guest): RoomFull {
-    const guests = [...this.guests, guest];
-    return new RoomFull(this, guests);
-  }
-
-  getDowngradedRoom(guest: Guest): RoomTwo {
-    const guests = this.guests.filter((existingGuest) => existingGuest !== guest);
-    return new RoomTwo(this, guests);
-  }
-}
-
-class RoomFull implements Room<4>, Downgradable {
-  readonly name: string;
-  readonly guests: Guest[];
-  readonly size: 4 = 4;
-
-  constructor(previousRoom: Room<3>, guests: Guest[]) {
-    this.name = previousRoom.name;
-    this.guests = guests;
-  }
-
-  getDowngradedRoom(guest: Guest): RoomThree {
-    const guests = this.guests.filter((existingGuest) => existingGuest !== guest);
-    return new RoomThree(this, guests);
-  }
+  getPlayers = (): readonly string[] => this.players.map((players) => players.id);
+  hasPlayer = (player: IPlayer): boolean =>
+    this.players.find((currentPlayer) => player.id === currentPlayer.id) !== undefined;
+  isAvailable = (): boolean => !this.isFull() && !this.isEmpty();
+  isFull = (): boolean => this.players.length >= this.capacity;
+  isEmpty = (): boolean => this.players.length === 0;
+  getSize = (): number => this.players.length;
+  getName = (): string => this.name;
 }
