@@ -28,6 +28,5 @@ type PlayerData = {
   state: 'CUTTING' | 'NOT_CUTTING';
 };
 
-export type PlayerIdentity = string;
 export type BufferedPlayerData = PlayerData[];
-export type PlayersDataMessage = Record<PlayerIdentity, BufferedPlayerData>;
+export type PlayersDataMessage = Record<string, BufferedPlayerData>;

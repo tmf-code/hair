@@ -23,7 +23,13 @@ export class SocketRooms extends Rooms {
   }
 
   protected makeRoom(name: string, player: SocketPlayer, roomCapacity: number): SocketRoom {
-    return new SocketRoom(this.io, name, player, roomCapacity);
+    const room = new SocketRoom(this.io, name, player, roomCapacity);
+    return room;
+  }
+
+  addToNextRoom(player: SocketPlayer): SocketRoom {
+    const room = super.addToNextRoom(player) as SocketRoom;
+    return room;
   }
 
   getRoomToPlayerMap(): string[] {

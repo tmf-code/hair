@@ -9,6 +9,7 @@ export class SocketRoom extends Room {
   constructor(io: ServerIoOverload, name: string, firstPlayer: SocketPlayer, capacity: number) {
     super(name, firstPlayer, capacity);
     this.io = io;
+    firstPlayer.join(this.name);
   }
 
   addPlayer(player: SocketPlayer): this {

@@ -1,6 +1,6 @@
-import { PlayerIdentity, BufferedPlayerData } from '../../../@types/messages';
+import { BufferedPlayerData } from '../../../@types/messages';
 
 export interface IPlayerData {
-  id: PlayerIdentity;
+  id: string;
   bufferedPlayerData: BufferedPlayerData;
 }
