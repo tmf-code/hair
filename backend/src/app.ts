@@ -26,7 +26,7 @@ const serverSocketCallbacks: ServerSocketCallbacks = {
   },
 
   onEmitPlayerData: () => {
-    return [players.getPlayerData(), players.getRooms()];
+    return [players.getPlayerData(), players.getPlayerIdPerRoom()];
   },
 
   onSentPlayerData: () => {

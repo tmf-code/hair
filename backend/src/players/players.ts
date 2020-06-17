@@ -1,10 +1,5 @@
-import { NotEmptyRooms } from './../rooms/room';
-import {
-  findRoomOfGuest,
-  addGuestToRooms,
-  startRooms,
-  removeGuest,
-} from './../rooms/room-operations';
+import { RoomNames } from './../rooms/room-names';
+import { PlayerRooms } from './../rooms/player-rooms';
 import { GhostPlayerSocket } from './ghost-player-socket';
 import { PlayerSocket } from './player-socket';
 import { IPlayerSocket } from './i-player-socket';
@@ -20,7 +15,11 @@ export class Players {
   };
   private receiveCuts: (cuts: boolean[]) => void = (cuts) => null;
 
-  private rooms = startRooms();
+  private rooms = new PlayerRooms({
+    playerCapacity: 100,
+    roomCapacity: 4,
+    roomNames: RoomNames.createFromStandardNames(),
+  });
 
   constructor(
     getMapState: () => { positions: [number, number][]; rotations: number[]; lengths: number[] },
@@ -43,15 +42,15 @@ export class Players {
       positions,
       rotations,
       lengths,
-      room.name,
+      room,
     );
   }
 
   private placePlayerInRoom(socket: ServerSocketOverload) {
-    const guest = socket;
-    this.rooms = addGuestToRooms(guest, this.rooms);
-    const guestsRoom = findRoomOfGuest(guest, this.rooms);
-    socket.join(guestsRoom.name);
+    const player = socket;
+    this.rooms.addToNextRoom(player);
+    const guestsRoom = this.rooms.getRoomNameOfPlayer(player);
+    socket.join(guestsRoom);
     return guestsRoom;
   }
 
@@ -63,11 +62,11 @@ export class Players {
   }
 
   removePlayer(socket: ServerSocketOverload): void {
-    const guest = socket;
-    const guestsRoom = findRoomOfGuest(guest, this.rooms);
+    const player = socket;
+    const guestsRoom = this.rooms.getRoomNameOfPlayer(player);
 
-    this.rooms = removeGuest(guest, this.rooms);
-    console.log(`Guest disconnected from room ${guestsRoom.name} with id:${socket.id}`);
+    this.rooms.removePlayer(player);
+    console.log(`Guest disconnected from room ${guestsRoom} with id:${socket.id}`);
     delete this.players[socket.id];
   }
 
@@ -78,8 +77,8 @@ export class Players {
     }, {} as PlayersDataMessage);
   }
 
-  getRooms(): readonly NotEmptyRooms[] {
-    return this.rooms;
+  getPlayerIdPerRoom(): Record<string, readonly string[]> {
+    return this.rooms.getPlayerIdPerRoom();
   }
 
   clearPlayerData(): void {

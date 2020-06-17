@@ -56,7 +56,7 @@ export class PlayerRooms {
   private throwIfFull(player: IPlayer) {
     if (this.isFull())
       throw new Error(
-        `Cannot add player ${player.getId()}. PlayerRooms is at capacity ${this.playerCapacity}`,
+        `Cannot add player ${player.id}. PlayerRooms is at capacity ${this.playerCapacity}`,
       );
   }
 
@@ -78,7 +78,7 @@ export class PlayerRooms {
 
   private throwIfPlayerNotInRooms(player: IPlayer, maybeRoom: RoomClass | undefined) {
     if (maybeRoom === undefined)
-      throw new Error(`Cannot get room of player ${player.getId()}. Player is not in rooms`);
+      throw new Error(`Cannot get room of player ${player.id}. Player is not in rooms`);
   }
 
   private findAvailableRooms = () => this.rooms.filter((room) => room.isAvailable());
@@ -101,9 +101,7 @@ export class PlayerRooms {
   private createNamedRoom(name: string, player: IPlayer) {
     const roomExists = this.isExistingRoomName(name);
     if (roomExists)
-      throw new Error(
-        `Cannot create room ${name} for player ${player.getId()}. Room exists already.`,
-      );
+      throw new Error(`Cannot create room ${name} for player ${player.id}. Room exists already.`);
 
     this.roomNames.checkOutRoom(name);
     const room = new RoomClass(name, player, this.roomCapacity);
@@ -139,4 +137,8 @@ export class PlayerRooms {
   getPlayerCount = (): number =>
     this.rooms.reduce((playerCount, currentRoom) => playerCount + currentRoom.getSize(), 0);
   getRoomCount = (): number => this.rooms.length;
+  getPlayerIdPerRoom = (): Record<string, readonly string[]> =>
+    this.rooms.reduce((roomsRecord, currentRoom) => {
+      return { ...roomsRecord, [currentRoom.getName()]: currentRoom.getPlayers() };
+    }, {} as Record<string, readonly string[]>);
 }

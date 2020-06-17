@@ -1,4 +1,3 @@
-import { NotEmptyRooms } from './rooms/room';
 import { PlayersDataMessage, BufferedPlayerData } from './../../@types/messages.d';
 import { SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
@@ -7,7 +6,7 @@ import { ServerSocketOverload, ServerIoOverload } from '../../@types/socketio-ov
 export type ServerSocketCallbacks = {
   onPlayerConnected: (socket: ServerSocketOverload) => void;
   onPlayerDisconnected: (socket: ServerSocketOverload) => void;
-  onEmitPlayerData: () => [PlayersDataMessage, readonly NotEmptyRooms[]];
+  onEmitPlayerData: () => [PlayersDataMessage, Record<string, readonly string[]>];
   onSentPlayerData: () => void;
   onReceiveCuts: (cuts: boolean[]) => void;
 };
@@ -50,12 +49,14 @@ export class SocketServer {
 
   private emitPlayerLocations() {
     const [playerLocations, rooms] = this.serverSocketCallbacks.onEmitPlayerData();
-    rooms.forEach((room) => {
-      const data = room.guests.reduce((guestLocationsInRoom, guest) => {
-        return { ...guestLocationsInRoom, [guest.id]: playerLocations[guest.id] };
+    Object.entries(rooms).forEach(([roomName, playersInRoom]) => {
+      const data = playersInRoom.reduce((guestLocationsInRoom, player) => {
+        return { ...guestLocationsInRoom, [player]: playerLocations[player] };
       }, {} as Record<string, BufferedPlayerData>);
-      this.io.to(room.name).emit('updatePlayersData', data);
+
+      this.io.to(roomName).emit('updatePlayersData', data);
     });
+
     this.serverSocketCallbacks.onSentPlayerData();
   }
 }

@@ -1,3 +1,3 @@
 export interface IPlayer {
-  getId(): string;
+  readonly id: string;
 }
