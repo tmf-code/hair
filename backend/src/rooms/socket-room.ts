@@ -22,6 +22,7 @@ export class SocketRoom extends Room {
   removePlayer(player: SocketPlayer): void {
     super.removePlayer(player);
     player.leave(this.name);
+    if (player.destroy) player.destroy();
   }
 
   emitPlayerData(): void {

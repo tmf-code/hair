@@ -35,12 +35,12 @@ export class Players {
 
   addPlayer(socket: ServerSocketOverload): void {
     const { positions, rotations, lengths } = this.getMapState();
-    const room = this.placePlayerInRoom(socket, positions, rotations, lengths);
+    const room = this.placePlayerInNextRoom(socket, positions, rotations, lengths);
 
-    console.log(`Adding player ${socket.id} to room ${room.getName()}`);
+    console.log(`ADD RANDOM: Player ${socket.id} to room ${room.getName()}`);
   }
 
-  private placePlayerInRoom(
+  private placePlayerInNextRoom(
     socket: ServerSocketOverload,
     positions: [number, number][],
     rotations: number[],
@@ -60,6 +60,22 @@ export class Players {
     } catch (error) {
       console.log(error);
       console.error(`Player ${player.id} connection was not in room. Could not delete.`);
+    }
+  }
+
+  changeRoom(socket: ServerSocketOverload, name: string): void {
+    this.removePlayer(socket);
+
+    const { positions, rotations, lengths } = this.getMapState();
+    try {
+      const player = new SocketPlayer(socket, this.receiveCuts, positions, rotations, lengths);
+      const room = this.rooms.addToNamedRoom(name, player);
+      console.log(`ADD CHOSEN: ${socket.id} to room ${room.getName()}`);
+    } catch (error) {
+      console.log(error);
+      console.error(`Unable to add Player ${socket.id} to custom room ${name}.`);
+      console.log(` Adding player ${socket.id} to random room`);
+      this.addPlayer(socket);
     }
   }
 

@@ -8,6 +8,7 @@ export type ClientToSocket = {
   disconnect: void;
   updateServerCuts: boolean[];
   updatePlayerLocation: BufferedPlayerData;
+  requestRoom: string;
 };
 
 export type ServerToSocket = {

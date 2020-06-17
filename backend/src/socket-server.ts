@@ -8,6 +8,7 @@ type SocketServerMessages = {
   playerDisconnected: ServerSocketOverload;
   receivedCuts: boolean[];
   sendPlayerData: ServerIoOverload;
+  requestRoom: [ServerSocketOverload, string];
 };
 
 export class SocketServer extends EventEmitter {
@@ -40,6 +41,10 @@ export class SocketServer extends EventEmitter {
 
       socket.on('disconnect', () => {
         this.emit('playerDisconnected', socket);
+      });
+
+      socket.on('requestRoom', (name) => {
+        this.emit('requestRoom', [socket, name]);
       });
     });
   }

@@ -21,4 +21,5 @@ socket.on('playerConnected', (socket) => players.addPlayer(socket));
 socket.on('playerDisconnected', (socket) => players.removePlayer(socket));
 socket.on('receivedCuts', (cuts) => hairMap.receiveCuts(cuts));
 socket.on('sendPlayerData', () => players.emitPlayerLocations());
+socket.on('requestRoom', ([socket, name]) => players.changeRoom(socket, name));
 players.setReceiveCuts(socket.receiveCuts.bind(socket));

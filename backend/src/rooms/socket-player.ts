@@ -23,11 +23,19 @@ export class SocketPlayer implements IPlayer {
     this.receiveCuts = receiveCuts;
     this.addHandlers();
     this.emitOnce(positions, rotations, lengths);
+
+    this.receiveCuts = this.receiveCuts.bind(this);
+    this.updatePlayerLocation = this.updatePlayerLocation.bind(this);
+  }
+
+  destroy(): void {
+    this.socket.removeListener('updateServerCuts', this.receiveCuts);
+    this.socket.removeListener('updatePlayerLocation', this.updatePlayerLocation);
   }
 
   private addHandlers() {
-    this.socket.on('updateServerCuts', this.receiveCuts.bind(this));
-    this.socket.on('updatePlayerLocation', this.updatePlayerLocation.bind(this));
+    this.socket.on('updateServerCuts', this.receiveCuts);
+    this.socket.on('updatePlayerLocation', this.updatePlayerLocation);
   }
 
   private updatePlayerLocation(bufferedPlayerData: BufferedPlayerData) {

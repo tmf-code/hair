@@ -23,11 +23,21 @@ export class ClientSocket {
       this.socket = this.connectSocket(io, mode);
       this.attachSocketHandlers();
       this.createSocketEmitters();
+      this.maybeRequestRoom();
+      window.addEventListener('hashchange', (event) => this.maybeRequestRoom(event));
     } else {
       throw new Error(`Mode should be either 'production' or 'development', got ${mode}`);
     }
 
     this.socketCallbacks = socketCallbacks;
+  }
+
+  private maybeRequestRoom(event?: HashChangeEvent) {
+    if (window.location.hash === '') return;
+    if (event?.oldURL === event?.newURL) return;
+
+    const requestedRoom = window.location.hash.replace('#', '');
+    this.socket.emit('requestRoom', requestedRoom);
   }
 
   private validateMode(mode: string): mode is 'production' | 'development' {
