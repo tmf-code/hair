@@ -23,7 +23,7 @@ export class Players {
     this.getMapState = getMapState;
 
     this.rooms = new SocketRooms(this.io, {
-      playerCapacity: 100,
+      playerCapacity: 200,
       roomCapacity: 4,
       roomNames: RoomNames.createFromStandardNames(),
     });
