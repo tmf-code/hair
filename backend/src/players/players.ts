@@ -1,12 +1,14 @@
+import { ServerIoOverload } from './../../../@types/socketio-overloads.d';
 import { RoomNames } from './../rooms/room-names';
-import { Rooms } from '../rooms/rooms';
 import { GhostPlayerSocket } from './ghost-player-socket';
 import { PlayerSocket } from './player-socket';
 import { IPlayerSocket } from './i-player-socket';
-import { PlayersDataMessage } from '../../../@types/messages';
+import { PlayersDataMessage, BufferedPlayerData } from '../../../@types/messages';
 import { ServerSocketOverload } from '../../../@types/socketio-overloads';
+import { SocketRooms } from './../rooms/socket-rooms';
 
 export class Players {
+  private readonly io: ServerIoOverload;
   private players: Record<string, IPlayerSocket>;
   private getMapState: () => {
     positions: [number, number][];
@@ -15,17 +17,21 @@ export class Players {
   };
   private receiveCuts: (cuts: boolean[]) => void = (cuts) => null;
 
-  private rooms = new Rooms({
-    playerCapacity: 100,
-    roomCapacity: 4,
-    roomNames: RoomNames.createFromStandardNames(),
-  });
+  private rooms: SocketRooms;
 
   constructor(
+    io: ServerIoOverload,
     getMapState: () => { positions: [number, number][]; rotations: number[]; lengths: number[] },
   ) {
+    this.io = io;
     this.players = {};
     this.getMapState = getMapState;
+
+    this.rooms = new SocketRooms(this.io, {
+      playerCapacity: 100,
+      roomCapacity: 4,
+      roomNames: RoomNames.createFromStandardNames(),
+    });
   }
 
   setReceiveCuts(receiveCuts: (cuts: boolean[]) => void): void {
@@ -50,7 +56,6 @@ export class Players {
     const player = socket;
     this.rooms.addToNextRoom(player);
     const guestsRoom = this.rooms.getRoomNameOfPlayer(player);
-    socket.join(guestsRoom);
     return guestsRoom;
   }
 
@@ -70,18 +75,31 @@ export class Players {
     delete this.players[socket.id];
   }
 
-  getPlayerData(): PlayersDataMessage {
+  private getPlayerData(): PlayersDataMessage {
     return Object.values(this.players).reduce((record, player) => {
       const playerData = player.getPlayerData();
       return { ...record, [playerData.id]: playerData.bufferedPlayerData };
     }, {} as PlayersDataMessage);
   }
 
-  getPlayerIdPerRoom(): Record<string, readonly string[]> {
+  private getPlayerIdPerRoom(): Record<string, readonly string[]> {
     return this.rooms.getPlayerIdPerRoom();
   }
 
-  clearPlayerData(): void {
+  private clearPlayerData(): void {
     Object.values(this.players).forEach((player) => player.clearPlayerData());
+  }
+
+  emitPlayerLocations(): void {
+    const [playerLocations, rooms] = [this.getPlayerData(), this.getPlayerIdPerRoom()];
+    Object.entries(rooms).forEach(([roomName, playersInRoom]) => {
+      const data = playersInRoom.reduce((guestLocationsInRoom, player) => {
+        return { ...guestLocationsInRoom, [player]: playerLocations[player] };
+      }, {} as Record<string, BufferedPlayerData>);
+
+      this.io.to(roomName).emit('updatePlayersData', data);
+    });
+
+    this.clearPlayerData();
   }
 }

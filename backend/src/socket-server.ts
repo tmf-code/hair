@@ -1,39 +1,51 @@
-import { PlayersDataMessage, BufferedPlayerData } from './../../@types/messages.d';
+import { EventEmitter } from 'events';
 import { SERVER_EMIT_INTERVAL } from './constants';
 import SocketIO from 'socket.io';
 import { ServerSocketOverload, ServerIoOverload } from '../../@types/socketio-overloads';
 
-export type ServerSocketCallbacks = {
-  onPlayerConnected: (socket: ServerSocketOverload) => void;
-  onPlayerDisconnected: (socket: ServerSocketOverload) => void;
-  onEmitPlayerData: () => [PlayersDataMessage, Record<string, readonly string[]>];
-  onSentPlayerData: () => void;
-  onReceiveCuts: (cuts: boolean[]) => void;
+type SocketServerMessages = {
+  playerConnected: ServerSocketOverload;
+  playerDisconnected: ServerSocketOverload;
+  receivedCuts: boolean[];
+  sendPlayerData: ServerIoOverload;
 };
 
-export class SocketServer {
-  private io: ServerIoOverload;
-  private serverSocketCallbacks: ServerSocketCallbacks;
+export class SocketServer extends EventEmitter {
+  io: ServerIoOverload;
 
-  constructor(server: import('http').Server, serverSocketCallbacks: ServerSocketCallbacks) {
+  constructor(server: import('http').Server) {
+    super();
     this.io = SocketIO(server);
-    this.serverSocketCallbacks = serverSocketCallbacks;
     this.attachSocketServerHandlers();
     this.startEmitting();
   }
 
+  on<T extends keyof SocketServerMessages>(
+    event: T,
+    listener: (...args: [SocketServerMessages[T]]) => void,
+  ): this {
+    return super.on(event, listener);
+  }
+
+  emit<T extends keyof SocketServerMessages>(
+    event: T,
+    ...args: [SocketServerMessages[T]]
+  ): boolean {
+    return super.emit(event, ...args);
+  }
+
   private attachSocketServerHandlers() {
     this.io.on('connect', (socket) => {
-      this.serverSocketCallbacks.onPlayerConnected(socket);
+      this.emit('playerConnected', socket);
 
       socket.on('disconnect', () => {
-        this.serverSocketCallbacks.onPlayerDisconnected(socket);
+        this.emit('playerDisconnected', socket);
       });
     });
   }
 
   public receiveCuts(incomingCuts: boolean[]): void {
-    this.serverSocketCallbacks.onReceiveCuts(incomingCuts);
+    this.emit('receivedCuts', incomingCuts);
   }
   private startEmitting() {
     const emit = () => {
@@ -48,15 +60,6 @@ export class SocketServer {
   }
 
   private emitPlayerLocations() {
-    const [playerLocations, rooms] = this.serverSocketCallbacks.onEmitPlayerData();
-    Object.entries(rooms).forEach(([roomName, playersInRoom]) => {
-      const data = playersInRoom.reduce((guestLocationsInRoom, player) => {
-        return { ...guestLocationsInRoom, [player]: playerLocations[player] };
-      }, {} as Record<string, BufferedPlayerData>);
-
-      this.io.to(roomName).emit('updatePlayersData', data);
-    });
-
-    this.serverSocketCallbacks.onSentPlayerData();
+    this.emit('sendPlayerData', this.io);
   }
 }

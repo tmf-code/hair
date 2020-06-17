@@ -9,7 +9,7 @@ export interface RoomsOptions {
 }
 
 export class Rooms {
-  private rooms: readonly Room[] = [];
+  protected rooms: readonly Room[] = [];
   private readonly playerCapacity: number;
   private readonly roomCapacity: number;
   private readonly roomNames: RoomNames;
@@ -104,8 +104,12 @@ export class Rooms {
       throw new Error(`Cannot create room ${name} for player ${player.id}. Room exists already.`);
 
     this.roomNames.checkOutRoom(name);
-    const room = new Room(name, player, this.roomCapacity);
+    const room = this.makeRoom(name, player, this.roomCapacity);
     this.rooms = [...this.rooms, room];
+  }
+
+  protected makeRoom(name: string, player: IPlayer, roomCapacity: number): Room {
+    return new Room(name, player, roomCapacity);
   }
 
   private isExistingRoomName = (name: string) => {
