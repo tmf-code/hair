@@ -1,9 +1,8 @@
+import { SocketPlayer } from './socket-player';
 import { ServerIoOverload } from './../../../@types/socketio-overloads.d';
 import { SocketRoom } from './socket-room';
 import { Rooms } from './rooms';
 import { RoomNames } from './room-names';
-import { Room } from './room';
-import { ServerSocketOverload } from '../../../@types/socketio-overloads';
 
 export interface SocketRoomsOptions {
   playerCapacity: number;
@@ -12,7 +11,7 @@ export interface SocketRoomsOptions {
 }
 
 export class SocketRooms extends Rooms {
-  protected rooms: readonly Room[] = [];
+  protected rooms: readonly SocketRoom[] = [];
   private readonly io: ServerIoOverload;
 
   constructor(
@@ -23,7 +22,15 @@ export class SocketRooms extends Rooms {
     this.io = io;
   }
 
-  protected makeRoom(name: string, player: ServerSocketOverload, roomCapacity: number): SocketRoom {
+  protected makeRoom(name: string, player: SocketPlayer, roomCapacity: number): SocketRoom {
     return new SocketRoom(this.io, name, player, roomCapacity);
+  }
+
+  getRoomToPlayerMap(): string[] {
+    return this.rooms.map((room) => `${room.getName()} - ${room.getPlayers()}`);
+  }
+
+  emitPlayerData(): void {
+    this.rooms.forEach((room) => room.emitPlayerData());
   }
 }

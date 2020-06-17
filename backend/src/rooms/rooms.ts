@@ -20,20 +20,20 @@ export class Rooms {
     this.roomNames = roomNames;
   }
 
-  addToNextRoom(player: IPlayer): void {
+  addToNextRoom(player: IPlayer): Room {
     this.throwIfFull(player);
     const [maybeChosenRoom] = this.findAvailableRooms();
 
     const roomCanFitPlayer = maybeChosenRoom !== undefined;
     if (roomCanFitPlayer) {
       this.addToRoom(maybeChosenRoom, player);
-      return;
+      return maybeChosenRoom;
     }
 
-    this.createRandomRoom(player);
+    return this.createRandomRoom(player);
   }
 
-  addToNamedRoom(name: string, player: IPlayer): void {
+  addToNamedRoom(name: string, player: IPlayer): Room {
     this.throwIfFull(player);
     this.throwIfNameInvalid(name);
 
@@ -41,16 +41,15 @@ export class Rooms {
     const roomDoesNotExist = maybeRoom === undefined;
 
     if (roomDoesNotExist) {
-      this.createNamedRoom(name, player);
-      return;
+      return this.createNamedRoom(name, player);
     }
 
     if (maybeRoom?.isAvailable()) {
       this.addToRoom(maybeRoom, player);
-      return;
+      return maybeRoom;
     }
 
-    this.addToNextRoom(player);
+    return this.addToNextRoom(player);
   }
 
   private throwIfFull(player: IPlayer) {
@@ -69,6 +68,10 @@ export class Rooms {
     return this.getRoomOfPlayer(player).name;
   }
 
+  tryGetRoomNameOfPlayer(player: IPlayer): string | undefined {
+    return this.rooms.find((room) => room.hasPlayer(player))?.name;
+  }
+
   private getRoomOfPlayer(player: IPlayer): Room {
     const maybeRoom = this.rooms.find((room) => room.hasPlayer(player));
     this.throwIfPlayerNotInRooms(player, maybeRoom);
@@ -84,21 +87,23 @@ export class Rooms {
   private findAvailableRooms = () => this.rooms.filter((room) => room.isAvailable());
   private findRoomByName = (name: string) => this.rooms.find((room) => room.getName() === name);
 
-  private addToRoom(room: Room, player: IPlayer): void {
+  private addToRoom(room: Room, player: IPlayer): Room {
     try {
       room.addPlayer(player);
     } catch (error) {
       console.error(error);
       this.createRandomRoom(player);
     }
+
+    return room;
   }
 
-  private createRandomRoom(player: IPlayer): void {
+  private createRandomRoom(player: IPlayer): Room {
     const name = this.roomNames.getFreeRandomRoomName();
-    this.createNamedRoom(name, player);
+    return this.createNamedRoom(name, player);
   }
 
-  private createNamedRoom(name: string, player: IPlayer) {
+  private createNamedRoom(name: string, player: IPlayer): Room {
     const roomExists = this.isExistingRoomName(name);
     if (roomExists)
       throw new Error(`Cannot create room ${name} for player ${player.id}. Room exists already.`);
@@ -106,6 +111,8 @@ export class Rooms {
     this.roomNames.checkOutRoom(name);
     const room = this.makeRoom(name, player, this.roomCapacity);
     this.rooms = [...this.rooms, room];
+
+    return room;
   }
 
   protected makeRoom(name: string, player: IPlayer, roomCapacity: number): Room {

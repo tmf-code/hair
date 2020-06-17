@@ -11,15 +11,18 @@ export class Room {
     this.capacity = capacity;
   }
 
-  addPlayer(player: IPlayer): void {
+  addPlayer(player: IPlayer): this {
     if (this.isFull())
       throw new Error(`Cannot add player ${player.id} to room ${this.name}. Room is full`);
 
     this.players.push(player);
+    return this;
   }
 
   removePlayer(player: IPlayer): void {
-    const maybePlayerIndex = this.players.findIndex((currentPlayer) => currentPlayer === player);
+    const maybePlayerIndex = this.players.findIndex(
+      (currentPlayer) => currentPlayer.id === player.id,
+    );
 
     const playerNotInRoom = maybePlayerIndex === -1;
     if (playerNotInRoom)
@@ -31,7 +34,8 @@ export class Room {
   }
 
   getPlayers = (): readonly string[] => this.players.map((players) => players.id);
-  hasPlayer = (player: IPlayer): boolean => this.players.includes(player);
+  hasPlayer = (player: IPlayer): boolean =>
+    this.players.find((currentPlayer) => player.id === currentPlayer.id) !== undefined;
   isAvailable = (): boolean => !this.isFull() && !this.isEmpty();
   isFull = (): boolean => this.players.length >= this.capacity;
   isEmpty = (): boolean => this.players.length === 0;
