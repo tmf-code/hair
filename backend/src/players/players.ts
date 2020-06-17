@@ -1,5 +1,5 @@
 import { RoomNames } from './../rooms/room-names';
-import { PlayerRooms } from './../rooms/player-rooms';
+import { Rooms } from '../rooms/rooms';
 import { GhostPlayerSocket } from './ghost-player-socket';
 import { PlayerSocket } from './player-socket';
 import { IPlayerSocket } from './i-player-socket';
@@ -15,7 +15,7 @@ export class Players {
   };
   private receiveCuts: (cuts: boolean[]) => void = (cuts) => null;
 
-  private rooms = new PlayerRooms({
+  private rooms = new Rooms({
     playerCapacity: 100,
     roomCapacity: 4,
     roomNames: RoomNames.createFromStandardNames(),

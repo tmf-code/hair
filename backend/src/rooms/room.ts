@@ -1,6 +1,6 @@
 import { IPlayer } from './i-player';
 
-export class RoomClass {
+export class Room {
   name: string;
   players: IPlayer[];
   capacity: number;
@@ -15,7 +15,6 @@ export class RoomClass {
     if (this.isFull())
       throw new Error(`Cannot add player ${player.id} to room ${this.name}. Room is full`);
 
-    console.log(this.capacity, this.players.length);
     this.players.push(player);
   }
 

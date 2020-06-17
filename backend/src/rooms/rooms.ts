@@ -1,20 +1,20 @@
 import { RoomNames } from './room-names';
-import { RoomClass } from './room-class';
+import { Room } from './room';
 import { IPlayer } from './i-player';
 
-export interface PlayerRoomsOptions {
+export interface RoomsOptions {
   playerCapacity: number;
   roomCapacity: number;
   roomNames: RoomNames;
 }
 
-export class PlayerRooms {
-  private rooms: readonly RoomClass[] = [];
+export class Rooms {
+  private rooms: readonly Room[] = [];
   private readonly playerCapacity: number;
   private readonly roomCapacity: number;
   private readonly roomNames: RoomNames;
 
-  constructor({ playerCapacity, roomCapacity, roomNames }: PlayerRoomsOptions) {
+  constructor({ playerCapacity, roomCapacity, roomNames }: RoomsOptions) {
     this.playerCapacity = playerCapacity;
     this.roomCapacity = roomCapacity;
     this.roomNames = roomNames;
@@ -69,14 +69,14 @@ export class PlayerRooms {
     return this.getRoomOfPlayer(player).name;
   }
 
-  private getRoomOfPlayer(player: IPlayer): RoomClass {
+  private getRoomOfPlayer(player: IPlayer): Room {
     const maybeRoom = this.rooms.find((room) => room.hasPlayer(player));
     this.throwIfPlayerNotInRooms(player, maybeRoom);
 
     return maybeRoom!;
   }
 
-  private throwIfPlayerNotInRooms(player: IPlayer, maybeRoom: RoomClass | undefined) {
+  private throwIfPlayerNotInRooms(player: IPlayer, maybeRoom: Room | undefined) {
     if (maybeRoom === undefined)
       throw new Error(`Cannot get room of player ${player.id}. Player is not in rooms`);
   }
@@ -84,7 +84,7 @@ export class PlayerRooms {
   private findAvailableRooms = () => this.rooms.filter((room) => room.isAvailable());
   private findRoomByName = (name: string) => this.rooms.find((room) => room.getName() === name);
 
-  private addToRoom(room: RoomClass, player: IPlayer): void {
+  private addToRoom(room: Room, player: IPlayer): void {
     try {
       room.addPlayer(player);
     } catch (error) {
@@ -104,7 +104,7 @@ export class PlayerRooms {
       throw new Error(`Cannot create room ${name} for player ${player.id}. Room exists already.`);
 
     this.roomNames.checkOutRoom(name);
-    const room = new RoomClass(name, player, this.roomCapacity);
+    const room = new Room(name, player, this.roomCapacity);
     this.rooms = [...this.rooms, room];
   }
 
@@ -120,7 +120,7 @@ export class PlayerRooms {
     if (room.isEmpty()) this.removeRoom(room);
   }
 
-  private removeRoom(room: RoomClass) {
+  private removeRoom(room: Room) {
     const roomExists = this.isExistingRoom(room);
     if (!roomExists) throw new Error(`Cannot remove room ${room.getName()}. Room does not exist.`);
 
@@ -128,7 +128,7 @@ export class PlayerRooms {
     this.roomNames.checkInRoom(room.getName());
   }
 
-  private isExistingRoom = (room: RoomClass) => {
+  private isExistingRoom = (room: Room) => {
     const maybeExistingRoom = this.rooms.find((currentRoom) => currentRoom === room);
     return maybeExistingRoom !== undefined;
   };
