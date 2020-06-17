@@ -1,8 +1,7 @@
 import { BufferedPlayerData } from './../../../@types/messages.d';
 import { IPlayerData } from './i-player-data';
-import { IPlayerSocket } from './i-player-socket';
 
-export class GhostPlayerSocket implements IPlayerSocket {
+export class GhostPlayerSocket {
   private readonly id: string;
   private currentGhostIndex: number;
 
