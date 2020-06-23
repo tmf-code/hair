@@ -1,4 +1,5 @@
 import React from 'react';
+import { ColofonLinkButton } from './colofon-link-button';
 
 type ColofonTextProps = {
   roomName: string;
@@ -10,14 +11,13 @@ const ColofonText = ({ roomName, url }: ColofonTextProps): React.ReactElement =>
     <div className="colofon-text">
       <h1>Come Shave With Me</h1>
       <p>Shave close with up to 5 friends.</p>
+      <p>Share this {roomName}:</p>
+      {<ColofonLinkButton buttonText={'Copy link to share'} copyLink={url} />}
       <p>
-        Share this {roomName} at <a href={url}>{url}</a>
+        Come Shave With Me is a project by{' '}
+        <a href={'https://www.tmf.design/about'}>Alexandra Barancová & Jae Perris</a> in
+        collaboration with <a href={'https://studiomoniker.com/about'}>Moniker</a>.
       </p>
-      <p>A project by</p>
-      <ul>
-        <li>Alexandra Barancová & Jae Perris</li>
-        <li>in collaboration with Moniker</li>
-      </ul>
       <p>
         Sheared silky smooth, maintained mildly prickly or kept rough and bushy… There are countless
         ways you might like it. You won’t know until you try.
@@ -27,8 +27,8 @@ const ColofonText = ({ roomName, url }: ColofonTextProps): React.ReactElement =>
         proposes an outlet for social grooming in a time of distancing.
       </p>
       <p>
-        With public events and gatherings cut down around the world, bodily self-care is - let’s be
-        honest - not necessarily a top-most priority. Your arms, armpits, chest, back, genitals, or
+        With public events and gatherings cut down around the world, bodily self-care is – let’s be
+        honest – not necessarily a top-most priority. Your arms, armpits, chest, back, genitals, or
         legs are (usually) tucked away during video chats and conferences after all. What part of it
         is just for others’ eyes to see and skins to feel? What do we make of our physical bodies in
         isolation?
@@ -45,7 +45,7 @@ const ColofonText = ({ roomName, url }: ColofonTextProps): React.ReactElement =>
       </p>
       <img
         className="logo-image"
-        src={'/fund-logo-3.png'}
+        src={'/fund-logo-1.png'}
         alt={'Creative Industries Fund NL'}
       ></img>
     </div>

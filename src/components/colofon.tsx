@@ -13,9 +13,12 @@ const Colofon = ({ roomName, url }: ColofonProps): React.ReactElement => {
   return (
     <div className="colofon">
       {display && <ColofonText roomName={formattedRoomName()} url={window.location.href} />}
-      <button id="colofonButton" onClick={ToggleColofonState}>
-        ?
-      </button>
+      {display && <button className="closeButton" onClick={ToggleColofonState}></button>}
+      {!display && (
+        <button className="questionmarkButton" id="colofonButton" onClick={ToggleColofonState}>
+          ?
+        </button>
+      )}
     </div>
   );
 };
