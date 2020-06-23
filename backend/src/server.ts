@@ -3,6 +3,7 @@ import Express from 'express';
 import { Server } from 'http';
 
 import compression from 'compression';
+import enforce from 'express-sslify';
 
 const appRoot = process.env.PWD;
 
@@ -14,6 +15,7 @@ const PORT = process.env.PORT || 8080;
 
 export const makeProductionServer = (): Server => {
   return Express()
+    .use(enforce.HTTPS({ trustProtoHeader: true }))
     .use(compression())
     .use(Express.static(path.join(appRoot, 'build')))
     .use(Express.static(appRoot))
