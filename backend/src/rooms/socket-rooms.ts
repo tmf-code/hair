@@ -165,4 +165,7 @@ export class SocketRooms {
   emitPlayerData(): void {
     this.rooms.forEach((room) => room.emitPlayerData());
   }
+
+  logRooms = (): void =>
+    console.log(this.rooms.map((room) => `${room.name} - ${room.getPlayers()}`).toString());
 }
