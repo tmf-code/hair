@@ -1,22 +1,23 @@
 import { ServerSocketOverload } from './../../../@types/socketio-overloads.d';
-import { IPlayer } from './i-player';
 import { BufferedPlayerData } from '../../../@types/messages';
-import { IPlayerData } from 'src/players/i-player-data';
+import { IPlayerData } from '../players/i-player-data';
 
-export class SocketPlayer implements IPlayer {
+interface SocketPlayerOptions {
+  socket: ServerSocketOverload;
+  receiveCuts: (cuts: boolean[]) => void;
+  positions: [number, number][];
+  rotations: number[];
+  lengths: number[];
+}
+
+export class SocketPlayer {
   private readonly socket: ServerSocketOverload;
   private readonly receiveCuts: (cuts: boolean[]) => void;
   readonly id: string;
 
   private bufferedPlayerData: BufferedPlayerData = [];
 
-  constructor(
-    socket: ServerSocketOverload,
-    receiveCuts: (cuts: boolean[]) => void,
-    positions: [number, number][],
-    rotations: number[],
-    lengths: number[],
-  ) {
+  constructor({ socket, receiveCuts, positions, rotations, lengths }: SocketPlayerOptions) {
     this.socket = socket;
     this.id = socket.id;
 
