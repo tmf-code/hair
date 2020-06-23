@@ -70,10 +70,15 @@ export class Players {
   }
 
   changeRoom(socket: ServerSocketOverload, name: string): void {
-    this.removePlayer(socket);
+    const { id: playerId } = socket;
 
-    const { positions, rotations, lengths } = this.getMapState();
     try {
+      const guestsRoom = this.rooms.getRoomNameOfPlayer(playerId);
+      const needsToChangeRoom = guestsRoom !== name;
+      if (!needsToChangeRoom) return;
+
+      this.removePlayer(socket);
+      const { positions, rotations, lengths } = this.getMapState();
       const player = new SocketPlayer({
         socket,
         receiveCuts: this.receiveCuts,
