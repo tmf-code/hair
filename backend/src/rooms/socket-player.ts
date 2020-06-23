@@ -22,11 +22,11 @@ export class SocketPlayer {
     this.id = socket.id;
 
     this.receiveCuts = receiveCuts;
-    this.addHandlers();
-    this.emitOnce(positions, rotations, lengths);
-
     this.receiveCuts = this.receiveCuts.bind(this);
     this.updatePlayerLocation = this.updatePlayerLocation.bind(this);
+    this.emitOnce(positions, rotations, lengths);
+
+    this.addHandlers();
   }
 
   destroy(): void {
@@ -40,7 +40,7 @@ export class SocketPlayer {
   }
 
   private updatePlayerLocation(bufferedPlayerData: BufferedPlayerData) {
-    this.bufferedPlayerData = bufferedPlayerData;
+    this.bufferedPlayerData = [...bufferedPlayerData];
   }
 
   private emitOnce(positions: [number, number][], rotations: number[], lengths: number[]) {
