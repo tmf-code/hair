@@ -46,9 +46,12 @@ export class ClientSocket {
   }
 
   private connectSocket(io: SocketIOClientStatic, mode: 'production' | 'development') {
+    const options: SocketIOClient.ConnectOpts = {
+      transports: ['websocket'],
+    };
     return (mode === 'production'
-      ? (io() as ClientSocketOverload)
-      : io('http://192.168.178.41:8080')) as ClientSocketOverload;
+      ? io(options)
+      : io('http://192.168.178.41:8080', options)) as ClientSocketOverload;
   }
 
   private attachSocketHandlers() {
@@ -79,6 +82,12 @@ export class ClientSocket {
 
     this.socket.on('connect', () => {
       this.clientID = this.socket.id;
+    });
+
+    // on reconnection, reset the transports option, as the Websocket
+    // connection may have failed (caused by proxy, firewall, browser, ...)
+    this.socket.on('reconnect_attempt', () => {
+      this.socket.io.opts.transports = ['polling', 'websocket'];
     });
   }
 

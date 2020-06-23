@@ -13,6 +13,7 @@ export type ClientToSocket = {
 
 export type ServerToSocket = {
   connect: void;
+  reconnect_attempt;
   updateClientGrid: [number, number][];
   updateClientRotations: number[];
   updateClientLengths: number[];

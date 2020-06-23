@@ -44,7 +44,7 @@ describe('Socket Initial state', () => {
 
   test('Socket establishes production connection', () => {
     const socket = new ClientSocket(io, 'production', socketCallbacks);
-    expect(io).toBeCalledWith();
+    expect(io).toBeCalled();
   });
 
   test('Socket has event handlers', () => {
