@@ -3,6 +3,7 @@ import { ServerIoOverload } from './../../../@types/socketio-overloads.d';
 import { RoomNames } from './../rooms/room-names';
 import { ServerSocketOverload } from '../../../@types/socketio-overloads';
 import { SocketRooms } from './../rooms/socket-rooms';
+import { PLAYER_CAPACITY, ROOM_CAPACITY } from './../constants';
 
 export class Players {
   private readonly io: ServerIoOverload;
@@ -23,8 +24,8 @@ export class Players {
     this.getMapState = getMapState;
 
     this.rooms = new SocketRooms(this.io, {
-      playerCapacity: 200,
-      roomCapacity: 4,
+      playerCapacity: PLAYER_CAPACITY,
+      roomCapacity: ROOM_CAPACITY,
       roomNames: RoomNames.createFromStandardNames(),
     });
   }
