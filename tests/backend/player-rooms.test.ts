@@ -1,25 +1,48 @@
+// eslint-disable-next-line @typescript-eslint/triple-slash-reference
+/// <reference path="./socket.io-mock.d.ts" />
+import MockedSocket from 'socket.io-mock';
+import { ServerIoOverload, ServerSocketOverload } from './../../@types/socketio-overloads.d';
+import { SocketRooms, SocketRoomsOptions } from './../../backend/src/rooms/socket-rooms';
 import { RoomNames } from '../../backend/src/rooms/room-names';
-import { RoomsOptions } from '../../backend/src/rooms/rooms';
-import { Player } from '../../backend/src/rooms/player';
-import { Rooms } from '../../backend/src/rooms/rooms';
+import { SocketPlayer } from '../../backend/src/rooms/socket-player';
 
 const roomNames = RoomNames.createFromStandardNames();
-const playerRoomOptions: RoomsOptions = {
+const playerRoomOptions: SocketRoomsOptions = {
   playerCapacity: 10,
   roomCapacity: 10,
   roomNames: roomNames,
 };
+
+const createPlayer = (id: string) => {
+  const socket = new MockedSocket() as ServerSocketOverload;
+  socket.id = id;
+  const player = new SocketPlayer({
+    socket,
+    lengths: [],
+    rotations: [],
+    positions: [],
+    receiveCuts: () => null,
+  });
+
+  return player;
+};
+
+jest.mock('socket.io');
+// eslint-disable-next-line @typescript-eslint/no-var-requires
+const SocketIO = require('socket.io');
+const io = SocketIO() as ServerIoOverload;
+
 describe('PlayerRooms tests', () => {
   test('Can create Rooms', () => {
-    const rooms = new Rooms(playerRoomOptions);
+    const rooms = new SocketRooms(io, playerRoomOptions);
 
     expect(rooms.getRoomCount()).toBe(0);
     expect(rooms.getPlayerCount()).toBe(0);
   });
 
   test('Can add player to next room', () => {
-    const player = new Player('0');
-    const rooms = new Rooms({ ...playerRoomOptions, roomCapacity: 1 });
+    const player = createPlayer('1');
+    const rooms = new SocketRooms(io, { ...playerRoomOptions, roomCapacity: 1 });
 
     rooms.addToNextRoom(player);
 
@@ -28,9 +51,9 @@ describe('PlayerRooms tests', () => {
   });
 
   test('Can add two players to next room', () => {
-    const player1 = new Player('1');
-    const player2 = new Player('2');
-    const rooms = new Rooms(playerRoomOptions);
+    const player1 = createPlayer('1');
+    const player2 = createPlayer('2');
+    const rooms = new SocketRooms(io, playerRoomOptions);
 
     rooms.addToNextRoom(player1);
     rooms.addToNextRoom(player2);
@@ -41,9 +64,9 @@ describe('PlayerRooms tests', () => {
 
   test('Exceeding room capacity adds another room', () => {
     const roomCapacity = 1;
-    const player1 = new Player('1');
-    const player2 = new Player('2');
-    const rooms = new Rooms({ ...playerRoomOptions, roomCapacity });
+    const player1 = createPlayer('1');
+    const player2 = createPlayer('2');
+    const rooms = new SocketRooms(io, { ...playerRoomOptions, roomCapacity });
 
     rooms.addToNextRoom(player1);
     rooms.addToNextRoom(player2);
@@ -55,8 +78,8 @@ describe('PlayerRooms tests', () => {
   test('Can add many players to next room', () => {
     const playerCount = 10;
     const roomCapacity = 4;
-    const players = createAmount(10, (index) => new Player(index.toString()));
-    const rooms = new Rooms({ ...playerRoomOptions, roomCapacity });
+    const players = createAmount(10, (index) => createPlayer(index.toString()));
+    const rooms = new SocketRooms(io, { ...playerRoomOptions, roomCapacity });
 
     const expectedRoomCount = Math.ceil(playerCount / roomCapacity);
     players.forEach((player) => rooms.addToNextRoom(player));
@@ -66,9 +89,9 @@ describe('PlayerRooms tests', () => {
   });
 
   test('Adding a player to incorrect room name fails', () => {
-    const player = new Player('0');
+    const player = createPlayer('0');
     const roomName = 'ugly-monkey-string';
-    const rooms = new Rooms(playerRoomOptions);
+    const rooms = new SocketRooms(io, playerRoomOptions);
 
     const expectToThrow = () => rooms.addToNamedRoom(roomName, player);
 
@@ -76,74 +99,74 @@ describe('PlayerRooms tests', () => {
   });
 
   test('Can create a specific room with valid name for player', () => {
-    const player = new Player('0');
+    const player = createPlayer('0');
     const roomName = roomNames.getFreeRandomRoomName();
-    const rooms = new Rooms(playerRoomOptions);
+    const rooms = new SocketRooms(io, playerRoomOptions);
 
     rooms.addToNamedRoom(roomName, player);
 
     expect(rooms.getRoomCount()).toBe(1);
     expect(rooms.getPlayerCount()).toBe(1);
-    expect(rooms.getRoomNameOfPlayer(player)).toBe(roomName);
+    expect(rooms.getRoomNameOfPlayer(player.id)).toBe(roomName);
   });
 
   test('Can add player to an available existing specific room', () => {
-    const player1 = new Player('1');
-    const player2 = new Player('2');
-    const rooms = new Rooms(playerRoomOptions);
+    const player1 = createPlayer('1');
+    const player2 = createPlayer('2');
+    const rooms = new SocketRooms(io, playerRoomOptions);
 
     rooms.addToNextRoom(player1);
-    const roomName = rooms.getRoomNameOfPlayer(player1);
+    const roomName = rooms.getRoomNameOfPlayer(player1.id);
 
     rooms.addToNamedRoom(roomName, player2);
 
     expect(rooms.getRoomCount()).toBe(1);
     expect(rooms.getPlayerCount()).toBe(2);
-    expect(rooms.getRoomNameOfPlayer(player2)).toBe(roomName);
+    expect(rooms.getRoomNameOfPlayer(player2.id)).toBe(roomName);
   });
 
   test('Can add player to a random room if requested room is full', () => {
-    const player1 = new Player('1');
-    const player2 = new Player('2');
-    const rooms = new Rooms({ ...playerRoomOptions, roomCapacity: 1 });
+    const player1 = createPlayer('1');
+    const player2 = createPlayer('2');
+    const rooms = new SocketRooms(io, { ...playerRoomOptions, roomCapacity: 1 });
 
     rooms.addToNextRoom(player1);
-    const roomName = rooms.getRoomNameOfPlayer(player1);
+    const roomName = rooms.getRoomNameOfPlayer(player1.id);
     rooms.addToNamedRoom(roomName, player2);
 
     expect(rooms.getRoomCount()).toBe(2);
     expect(rooms.getPlayerCount()).toBe(2);
-    expect(rooms.getRoomNameOfPlayer(player2)).not.toBe(roomName);
+    expect(rooms.getRoomNameOfPlayer(player2.id)).not.toBe(roomName);
   });
 
   test('Can add player to a random room if requested room is full', () => {
-    const player1 = new Player('1');
-    const player2 = new Player('2');
-    const rooms = new Rooms({ ...playerRoomOptions, roomCapacity: 1 });
+    const player1 = createPlayer('1');
+    const player2 = createPlayer('2');
+    const rooms = new SocketRooms(io, { ...playerRoomOptions, roomCapacity: 1 });
 
     rooms.addToNextRoom(player1);
-    const roomName = rooms.getRoomNameOfPlayer(player1);
+    const roomName = rooms.getRoomNameOfPlayer(player1.id);
     rooms.addToNamedRoom(roomName, player2);
 
     expect(rooms.getRoomCount()).toBe(2);
     expect(rooms.getPlayerCount()).toBe(2);
-    expect(rooms.getRoomNameOfPlayer(player2)).not.toBe(roomName);
+    expect(rooms.getRoomNameOfPlayer(player2.id)).not.toBe(roomName);
   });
 
   test('Can remove player from rooms', () => {
-    const player1 = new Player('1');
-    const rooms = new Rooms({ ...playerRoomOptions, roomCapacity: 1 });
+    const player1 = createPlayer('1');
+    const rooms = new SocketRooms(io, { ...playerRoomOptions, roomCapacity: 1 });
 
     rooms.addToNextRoom(player1);
-    rooms.removePlayer(player1);
+    rooms.removePlayer(player1.id);
     expect(rooms.getPlayerCount()).toBe(0);
   });
 
   test('Removing a player and leaving an empty room closes the room', () => {
-    const player1 = new Player('1');
-    const player2 = new Player('2');
-    const player3 = new Player('3');
-    const rooms = new Rooms({ ...playerRoomOptions, roomCapacity: 2 });
+    const player1 = createPlayer('1');
+    const player2 = createPlayer('2');
+    const player3 = createPlayer('3');
+    const rooms = new SocketRooms(io, { ...playerRoomOptions, roomCapacity: 2 });
     rooms.addToNextRoom(player1);
     rooms.addToNextRoom(player2);
     rooms.addToNextRoom(player3);
@@ -151,23 +174,23 @@ describe('PlayerRooms tests', () => {
     expect(rooms.getRoomCount()).toBe(2);
     expect(rooms.getPlayerCount()).toBe(3);
 
-    rooms.removePlayer(player1);
+    rooms.removePlayer(player1.id);
     expect(rooms.getRoomCount()).toBe(2);
     expect(rooms.getPlayerCount()).toBe(2);
 
-    rooms.removePlayer(player3);
+    rooms.removePlayer(player3.id);
     expect(rooms.getRoomCount()).toBe(1);
     expect(rooms.getPlayerCount()).toBe(1);
 
-    rooms.removePlayer(player2);
+    rooms.removePlayer(player2.id);
     expect(rooms.getRoomCount()).toBe(0);
     expect(rooms.getPlayerCount()).toBe(0);
   });
 
   test('Removing a non exiting player throws', () => {
-    const rooms = new Rooms({ ...playerRoomOptions, roomCapacity: 2 });
-    const player1 = new Player('1');
-    expect(() => rooms.removePlayer(player1)).toThrow();
+    const rooms = new SocketRooms(io, { ...playerRoomOptions, roomCapacity: 2 });
+    const player1 = createPlayer('1');
+    expect(() => rooms.removePlayer(player1.id)).toThrow();
   });
 });
 
