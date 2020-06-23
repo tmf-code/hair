@@ -36,9 +36,7 @@ export class Players {
 
   addPlayer(socket: ServerSocketOverload): void {
     const { positions, rotations, lengths } = this.getMapState();
-    const room = this.placePlayerInNextRoom(socket, positions, rotations, lengths);
-
-    console.log(`ADD RANDOM: Player ${socket.id} to room ${room.getName()}`);
+    this.placePlayerInNextRoom(socket, positions, rotations, lengths);
   }
 
   private placePlayerInNextRoom(
@@ -54,7 +52,14 @@ export class Players {
       rotations,
       lengths,
     });
-    return this.rooms.addToNextRoom(player);
+    try {
+      const room = this.rooms.addToNextRoom(player);
+      console.log(`ADD RANDOM: Player ${socket.id} to room ${room.getName()}`);
+    } catch (error) {
+      console.log(error);
+      console.log('Something went wrong, muting player');
+      player.destroy();
+    }
   }
 
   removePlayer(socket: ServerSocketOverload): void {

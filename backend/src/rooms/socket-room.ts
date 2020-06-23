@@ -39,7 +39,7 @@ export class SocketRoom {
 
     const [player] = this.players.splice(maybePlayerIndex, 1);
     player.leave(this.name);
-    if (player.destroy) player.destroy();
+    player.destroy();
   }
 
   emitPlayerData(): void {
