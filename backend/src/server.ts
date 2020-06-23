@@ -14,8 +14,8 @@ const PORT = process.env.PORT || 8080;
 
 export const makeProductionServer = (): Server => {
   return Express()
-    .use(Express.static(path.join(appRoot, 'build')))
     .use(compression())
+    .use(Express.static(path.join(appRoot, 'build')))
     .use(Express.static(appRoot))
     .use((req, res) => res.sendFile(path.join(appRoot, 'build', 'index.html')))
     .listen(PORT, () => console.log(`${process.env.NODE_ENV}: Listening on ${PORT}`));
