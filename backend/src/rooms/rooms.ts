@@ -1,5 +1,5 @@
 import { SocketPlayer } from './socket-player';
-import { ServerIoOverload } from './../../../@types/socketio-overloads.d';
+import { ServerIoOverload } from '../../../@types/socketio-overloads';
 import { Room } from './room';
 import { RoomNames } from './room-names';
 
@@ -9,7 +9,7 @@ export interface SocketRoomsOptions {
   roomNames: RoomNames;
 }
 
-export class SocketRooms {
+export class Rooms {
   protected rooms: readonly Room[] = [];
   private readonly io: ServerIoOverload;
   private readonly playerCapacity: number;

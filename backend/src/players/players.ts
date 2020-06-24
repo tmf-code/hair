@@ -2,7 +2,7 @@ import { SocketPlayer } from './../rooms/socket-player';
 import { ServerIoOverload } from './../../../@types/socketio-overloads.d';
 import { RoomNames } from './../rooms/room-names';
 import { ServerSocketOverload } from '../../../@types/socketio-overloads';
-import { SocketRooms } from './../rooms/socket-rooms';
+import { Rooms } from '../rooms/rooms';
 import { PLAYER_CAPACITY, ROOM_CAPACITY } from './../constants';
 
 export class Players {
@@ -14,7 +14,7 @@ export class Players {
   };
   private receiveCuts: (cuts: boolean[]) => void = (cuts) => null;
 
-  private rooms: SocketRooms;
+  private rooms: Rooms;
 
   constructor(
     io: ServerIoOverload,
@@ -23,7 +23,7 @@ export class Players {
     this.io = io;
     this.getMapState = getMapState;
 
-    this.rooms = new SocketRooms(this.io, {
+    this.rooms = new Rooms(this.io, {
       playerCapacity: PLAYER_CAPACITY,
       roomCapacity: ROOM_CAPACITY,
       roomNames: RoomNames.createFromStandardNames(),
