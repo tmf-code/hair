@@ -157,9 +157,9 @@ export class Players {
   private tryRemoveFromRoom(playerId: string) {
     try {
       const room = this.rooms.removePlayer(playerId);
-      console.log(`REMOVE: Player ${playerId} disconnected from room ${room.name}`);
+      this.verbose && console.log(`REMOVE: Player ${playerId} disconnected from room ${room.name}`);
     } catch (error) {
-      console.error(error);
+      this.verbose && console.error(error);
       this.verbose &&
         console.error(`Player ${playerId} connection was not in room. Could not delete.`);
     }
