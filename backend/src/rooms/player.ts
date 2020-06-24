@@ -59,7 +59,6 @@ export class Player {
   leave(room: string): void {
     this.room = undefined;
     this.socket.leave(room);
-    this.socket.emit('updateClientRoom', '');
   }
 
   clearPlayerData(): void {
