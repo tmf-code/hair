@@ -1,30 +1,13 @@
-// eslint-disable-next-line @typescript-eslint/triple-slash-reference
-/// <reference path="./socket.io-mock.d.ts" />
-import MockedSocket from 'socket.io-mock';
-import { ServerIoOverload, ServerSocketOverload } from '../../@types/socketio-overloads';
+import { ServerIoOverload } from '../../@types/socketio-overloads';
 import { Rooms, SocketRoomsOptions } from '../../backend/src/rooms/rooms';
 import { RoomNames } from '../../backend/src/rooms/room-names';
-import { Player } from '../../backend/src/rooms/player';
+import { createPlayer } from './create-player';
 
 const roomNames = RoomNames.createFromStandardNames();
 const playerRoomOptions: SocketRoomsOptions = {
   playerCapacity: 10,
   roomCapacity: 10,
   roomNames: roomNames,
-};
-
-const createPlayer = (id: string) => {
-  const socket = new MockedSocket() as ServerSocketOverload;
-  socket.id = id;
-  const player = new Player({
-    socket,
-    lengths: [],
-    rotations: [],
-    positions: [],
-    receiveCuts: () => null,
-  });
-
-  return player;
 };
 
 jest.mock('socket.io');
