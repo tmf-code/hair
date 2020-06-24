@@ -21,9 +21,11 @@ const players = new Players({
   io: socket.io,
   getMapState: hairMap.getMapState.bind(hairMap),
   roomNames: RoomNames.createFromStandardNames(),
+  verbose: true,
 });
-socket.on('playerDisconnected', (socket) => players.removePlayer(socket));
+socket.on('playerConnected', (socket) => players.connectSocket(socket));
+socket.on('playerDisconnected', (socket) => players.disconnectSocket(socket));
 socket.on('receivedCuts', (cuts) => hairMap.receiveCuts(cuts));
 socket.on('sendPlayerData', () => players.emitPlayerLocations());
-socket.on('requestRoom', ([socket, name]) => players.changeRoom(socket, name));
+socket.on('requestRoom', ([socket, name]) => players.addPlayer(socket.id, name));
 players.setReceiveCuts(socket.receiveCuts.bind(socket));

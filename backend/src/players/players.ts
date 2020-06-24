@@ -3,7 +3,7 @@ import { ServerIoOverload } from './../../../@types/socketio-overloads.d';
 import { RoomNames } from './../rooms/room-names';
 import { ServerSocketOverload } from '../../../@types/socketio-overloads';
 import { Rooms } from '../rooms/rooms';
-import { PLAYER_CAPACITY, ROOM_CAPACITY } from './../constants';
+import { PLAYER_CAPACITY, ROOM_CAPACITY, ROOM_UNDEFINED } from './../constants';
 import { Room } from '../rooms/room';
 
 interface PlayersOptions {
@@ -17,38 +17,31 @@ interface PlayersOptions {
   verbose?: boolean;
 }
 
-const ROOM_UNDEFINED = 'UNDEFINED' as const;
 export class Players {
-  private addToChosenRoom(player: Player, room: string): Room {
-    this.throwIfPlayerHasRoom(player);
-    this.throwIfRoomNameIsInvalid(room);
-
-    this.verbose && console.log(`ADD CHOSEN: Player ${player.id} to room ${room}`);
-    return this.rooms.addToNamedRoom(room, player);
-  }
-
-  private throwIfRoomNameIsInvalid(room: string) {
-    if (!this.isValidRoom(room)) {
-      throw new Error(`Room name ${room} is invalid. Could not add player to chosen room.`);
-    }
-  }
-
-  private isValidRoom(room: string) {
-    return this.roomNames.isValidRoomName(room);
-  }
-
-  private throwIfPlayerHasRoom(player: Player) {
-    if (player.hasRoom()) {
-      throw new Error(`Player ${player.id} already in room ${player.tryGetRoom()}`);
-    }
-  }
-
   private verbose: boolean;
-  private addToRandomRoom(player: Player): Room | undefined {
-    this.throwIfPlayerHasRoom(player);
-    const room = this.rooms.addToNextRoom(player);
-    this.verbose && console.log(`ADD RANDOM: Player ${player.id} to room ${room.getName()}`);
-    return room;
+  private readonly io: ServerIoOverload;
+  private getMapState: () => {
+    positions: [number, number][];
+    rotations: number[];
+    lengths: number[];
+  };
+  private receiveCuts: (cuts: boolean[]) => void = (cuts) => null;
+
+  private roomNames: RoomNames;
+  private rooms: Rooms;
+  private players: Player[] = [];
+
+  constructor({ io, getMapState, verbose = false, roomNames }: PlayersOptions) {
+    this.io = io;
+    this.getMapState = getMapState;
+    this.roomNames = roomNames;
+    this.verbose = verbose;
+    this.rooms = new Rooms(this.io, {
+      playerCapacity: PLAYER_CAPACITY,
+      roomCapacity: ROOM_CAPACITY,
+      roomNames: roomNames,
+      verbose: this.verbose,
+    });
   }
 
   addPlayer(playerId: string, room: typeof ROOM_UNDEFINED | string): Room | undefined {
@@ -76,7 +69,7 @@ export class Players {
     return undefined;
   }
 
-  getPlayer(playerId: string): Player {
+  private getPlayer(playerId: string): Player {
     this.throwIfPlayerMissing(playerId);
     return this.tryGetPlayer(playerId)!;
   }
@@ -90,48 +83,56 @@ export class Players {
     }
   }
 
-  private readonly io: ServerIoOverload;
-  private getMapState: () => {
-    positions: [number, number][];
-    rotations: number[];
-    lengths: number[];
-  };
-  private receiveCuts: (cuts: boolean[]) => void = (cuts) => null;
+  private addToRandomRoom(player: Player): Room | undefined {
+    this.throwIfPlayerHasRoom(player);
+    const room = this.rooms.addToNextRoom(player);
+    this.verbose && console.log(`ADD RANDOM: Player ${player.id} to room ${room.getName()}`);
+    return room;
+  }
 
-  private roomNames: RoomNames;
-  private rooms: Rooms;
-  private players: Player[] = [];
+  private throwIfPlayerHasRoom(player: Player) {
+    if (player.hasRoom()) {
+      throw new Error(`Player ${player.id} already in room ${player.tryGetRoom()}`);
+    }
+  }
 
-  constructor({ io, getMapState, verbose = false, roomNames }: PlayersOptions) {
-    this.io = io;
-    this.getMapState = getMapState;
-    this.roomNames = roomNames;
-    this.verbose = verbose;
-    this.rooms = new Rooms(this.io, {
-      playerCapacity: PLAYER_CAPACITY,
-      roomCapacity: ROOM_CAPACITY,
-      roomNames: roomNames,
-      verbose: this.verbose,
-    });
+  private addToChosenRoom(player: Player, room: string): Room {
+    this.throwIfPlayerHasRoom(player);
+    this.throwIfRoomNameIsInvalid(room);
+
+    this.verbose && console.log(`ADD CHOSEN: Player ${player.id} to room ${room}`);
+    return this.rooms.addToNamedRoom(room, player);
+  }
+
+  private throwIfRoomNameIsInvalid(room: string) {
+    if (!this.isValidRoom(room)) {
+      throw new Error(`Room name ${room} is invalid. Could not add player to chosen room.`);
+    }
   }
 
   setReceiveCuts(receiveCuts: (cuts: boolean[]) => void): void {
     this.receiveCuts = receiveCuts;
   }
 
-  connectSocket(socket: ServerSocketOverload): void {
-    this.throwIfSocketExists(socket);
+  connectSocket(socket: ServerSocketOverload): Player {
+    try {
+      this.throwIfSocketExists(socket);
+      const { positions, rotations, lengths } = this.getMapState();
+      const player = new Player({
+        socket,
+        receiveCuts: this.receiveCuts,
+        positions,
+        rotations,
+        lengths,
+      });
 
-    const { positions, rotations, lengths } = this.getMapState();
-    const player = new Player({
-      socket,
-      receiveCuts: this.receiveCuts,
-      positions,
-      rotations,
-      lengths,
-    });
-
-    this.players.push(player);
+      this.players.push(player);
+      this.verbose && console.log(`CONNECTED: socket ${socket.id}`);
+      return player;
+    } catch (error) {
+      this.verbose && console.error(error);
+      return this.getPlayer(socket.id);
+    }
   }
 
   private throwIfSocketExists(socket: ServerSocketOverload) {
@@ -141,58 +142,28 @@ export class Players {
   }
 
   disconnectSocket(socket: ServerSocketOverload): void {
-    this.throwIfPlayerMissing(socket.id);
-
-    this.players = this.players.filter((currentPlayer) => currentPlayer.id !== socket.id);
-    this.tryRemoveFromRoom(socket.id);
+    try {
+      this.throwIfPlayerMissing(socket.id);
+      this.players = this.players.filter((currentPlayer) => currentPlayer.id !== socket.id);
+      this.tryRemoveFromRoom(socket.id);
+    } catch (error) {
+      this.verbose && console.error(error);
+    }
   }
 
   private tryRemoveFromRoom(playerId: string) {
     try {
-      this.rooms.removePlayer(playerId);
-    } catch {}
-  }
-
-  removePlayer(socket: ServerSocketOverload): void {
-    const { id: playerId } = socket;
-
-    try {
-      const guestsRoom = this.rooms.getRoomNameOfPlayer(playerId);
-      this.rooms.removePlayer(playerId);
-      console.log(`REMOVE: Player ${socket.id} disconnected from room ${guestsRoom}`);
+      const room = this.rooms.removePlayer(playerId);
+      console.log(`REMOVE: Player ${playerId} disconnected from room ${room.name}`);
     } catch (error) {
-      console.log(error);
-      console.error(`Player ${playerId} connection was not in room. Could not delete.`);
-    }
-  }
-
-  private changeRoom(socket: ServerSocketOverload, name: string): void {
-    const { id: playerId } = socket;
-
-    try {
-      const guestsRoom = this.rooms.getRoomNameOfPlayer(playerId);
-      const needsToChangeRoom = guestsRoom !== name;
-      if (!needsToChangeRoom) return;
-
-      this.removePlayer(socket);
-      const { positions, rotations, lengths } = this.getMapState();
-      const player = new Player({
-        socket,
-        receiveCuts: this.receiveCuts,
-        positions,
-        rotations,
-        lengths,
-      });
-      const room = this.rooms.addToNamedRoom(name, player);
-      console.log(`ADD CHOSEN: ${socket.id} to room ${room.getName()}`);
-    } catch (error) {
-      console.error(`Unable to add Player ${socket.id} to custom room ${name}.`);
-      console.log(`Adding player ${socket.id} to random room`);
-      this.connectSocket(socket);
+      console.error(error);
+      this.verbose &&
+        console.error(`Player ${playerId} connection was not in room. Could not delete.`);
     }
   }
 
   emitPlayerLocations = (): void => this.rooms.emitPlayerData();
   doesPlayerExist = (playerId: string): boolean => this.players.some(({ id }) => id === playerId);
   connectionCount = (): number => this.players.length;
+  private isValidRoom = (room: string) => this.roomNames.isValidRoomName(room);
 }

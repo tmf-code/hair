@@ -148,11 +148,13 @@ export class Rooms {
     return maybeExistingRoom !== undefined;
   };
 
-  removePlayer(playerId: string): void {
+  removePlayer(playerId: string): Room {
     const room = this.getRoomOfPlayer(playerId);
     room.removePlayer(playerId);
 
     if (room.isEmpty()) this.removeRoom(room);
+
+    return room;
   }
 
   private removeRoom(room: Room) {

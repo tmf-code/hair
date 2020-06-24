@@ -41,8 +41,6 @@ export class ClientSocket {
   }
 
   private enterFirstRoom() {
-    const userWantsRoom = window.location.hash !== '';
-    if (!userWantsRoom) return;
     const requestedRoom = window.location.hash.replace('#', '');
     this.socket.emit('requestRoom', requestedRoom);
   }

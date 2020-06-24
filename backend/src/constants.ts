@@ -9,3 +9,4 @@ export const SERVER_EMIT_INTERVAL = 1000;
 export const growthInterval = 100;
 export const ROOM_CAPACITY = 5;
 export const PLAYER_CAPACITY = 200;
+export const ROOM_UNDEFINED = 'UNDEFINED' as const;

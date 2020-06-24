@@ -37,36 +37,34 @@ describe('Players tests', () => {
     expect(players.doesPlayerExist(socket.id)).toBeFalsy();
   });
 
-  test('Cannot add duplicate sockets', () => {
+  test('Adding duplicate sockets doesnt create more connections', () => {
     const players = createPlayers();
     const socket = createSocket();
     players.connectSocket(socket);
 
-    expect(() => players.connectSocket(socket)).toThrow();
     expect(players.connectionCount()).toBe(1);
     expect(players.doesPlayerExist(socket.id)).toBeTruthy();
   });
 
-  test('Cannot remove a non existing socket', () => {
+  test('Can remove a non existing socket', () => {
     const players = createPlayers();
     const socket = createSocket();
 
-    expect(() => players.disconnectSocket(socket)).toThrow();
+    expect(() => players.disconnectSocket(socket)).not.toThrow();
   });
 
   test('Can get player after socket connected', () => {
     const players = createPlayers();
     const socket = createSocket();
-    players.connectSocket(socket);
+    const player = players.connectSocket(socket);
 
-    expect(players.getPlayer(socket.id).id).toBe(socket.id);
+    expect(player.id).toBe(socket.id);
   });
 
   test('Can add player to random room', () => {
     const players = createPlayers();
     const socket = createSocket();
-    players.connectSocket(socket);
-    const player = players.getPlayer(socket.id);
+    const player = players.connectSocket(socket);
     players.addPlayer(socket.id, 'UNDEFINED');
 
     expect(player.tryGetRoom()).toBeDefined();
@@ -93,8 +91,7 @@ describe('Players tests', () => {
     const roomNames = ['roomA', 'roomB', 'roomC'];
     const players = createPlayers({ rooms: roomNames, verbose: false });
     const socket = createSocket();
-    players.connectSocket(socket);
-    const player = players.getPlayer(socket.id);
+    const player = players.connectSocket(socket);
     const roomName = roomNames[0];
     players.addPlayer(socket.id, roomName);
     expect(player.tryGetRoom()).toBe(roomName);
@@ -103,8 +100,7 @@ describe('Players tests', () => {
   test('Can remove player from room', () => {
     const socket = createSocket();
     const players = createPlayers();
-    players.connectSocket(socket);
-    const player = players.getPlayer(socket.id);
+    const player = players.connectSocket(socket);
     players.addPlayer(socket.id, 'UNDEFINED');
     players.disconnectSocket(socket);
     expect(player.tryGetRoom()).toBeUndefined();
