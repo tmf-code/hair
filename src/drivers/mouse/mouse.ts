@@ -1,3 +1,4 @@
+import { MouseTarget } from './mouse-target';
 import {
   mouseVelocitySampleInterval,
   mouseDirectionSampleInterval,
@@ -19,6 +20,7 @@ export class Mouse {
     mouseVelocitySampleInterval,
     this.position.getPosition.bind(this.position),
   );
+  private target: MouseTarget = new MouseTarget();
 
   private direction: MouseDirection = new MouseDirection(
     mouseDirectionSampleInterval,
@@ -55,5 +57,9 @@ export class Mouse {
 
   static reset(): void {
     this.instance = new Mouse();
+  }
+
+  static getTarget(): string {
+    return this.instance.target.getTarget();
   }
 }

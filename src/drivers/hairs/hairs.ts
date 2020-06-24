@@ -137,7 +137,8 @@ class Hairs {
     const positions = this.hairPositions.getScreenPositions();
     const friendPlayerCuts = this.friendPlayerCuts(positions);
 
-    const playerWantsToCut = Mouse.isClicked() || Mouse.isSingleTouched();
+    const playerWantsToCut =
+      (Mouse.isClicked() || Mouse.isSingleTouched()) && Mouse.getTarget() === 'CANVAS';
     if (playerWantsToCut) {
       const currentPlayerCuts = this.currentPlayerCuts(positions);
       return {
