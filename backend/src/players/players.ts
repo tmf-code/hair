@@ -27,6 +27,7 @@ export class Players {
       playerCapacity: PLAYER_CAPACITY,
       roomCapacity: ROOM_CAPACITY,
       roomNames: RoomNames.createFromStandardNames(),
+      verbose: true,
     });
   }
 
@@ -68,7 +69,7 @@ export class Players {
     try {
       const guestsRoom = this.rooms.getRoomNameOfPlayer(playerId);
       this.rooms.removePlayer(playerId);
-      console.log(`Guest disconnected from room ${guestsRoom} with id:${socket.id}`);
+      console.log(`REMOVE: Player ${socket.id} disconnected from room ${guestsRoom}`);
     } catch (error) {
       console.log(error);
       console.error(`Player ${playerId} connection was not in room. Could not delete.`);
@@ -95,9 +96,8 @@ export class Players {
       const room = this.rooms.addToNamedRoom(name, player);
       console.log(`ADD CHOSEN: ${socket.id} to room ${room.getName()}`);
     } catch (error) {
-      console.log(error);
       console.error(`Unable to add Player ${socket.id} to custom room ${name}.`);
-      console.log(` Adding player ${socket.id} to random room`);
+      console.log(`Adding player ${socket.id} to random room`);
       this.addPlayer(socket);
     }
   }

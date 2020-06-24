@@ -7,6 +7,7 @@ interface RoomOptions {
   name: string;
   capacity: number;
   upgradedCapacity: number;
+  verbose?: boolean;
 }
 
 export class Room {
@@ -16,6 +17,7 @@ export class Room {
   capacity: number;
   normalCapacity: number;
   upgradedCapacity: number;
+  verbose: boolean;
 
   static withPlayer(options: RoomOptions, firstPlayer: Player): Room {
     const room = new Room(options);
@@ -24,16 +26,20 @@ export class Room {
     return room;
   }
 
-  constructor({ io, name, capacity, upgradedCapacity }: RoomOptions) {
+  constructor({ io, name, capacity, upgradedCapacity, verbose = false }: RoomOptions) {
     this.name = name;
     this.capacity = capacity;
     this.normalCapacity = this.capacity;
     this.upgradedCapacity = upgradedCapacity;
     this.io = io;
+    this.verbose = verbose;
+
+    this.verbose && console.log(`CREATED: ${this.name}`);
   }
 
   upgrade(): void {
     this.capacity = this.upgradedCapacity;
+    this.verbose && console.log(`UPGRADED: ${this.name}`);
   }
 
   private downgrade(): void {
@@ -45,6 +51,7 @@ export class Room {
       );
     }
     this.capacity = this.normalCapacity;
+    this.verbose && console.log(`DOWNGRADED: ${this.name}`);
   }
 
   addPlayer(player: Player): this {

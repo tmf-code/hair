@@ -7,6 +7,7 @@ export interface SocketRoomsOptions {
   playerCapacity: number;
   roomCapacity: number;
   roomNames: RoomNames;
+  verbose?: boolean;
 }
 
 export class Rooms {
@@ -15,20 +16,28 @@ export class Rooms {
   private readonly playerCapacity: number;
   private readonly roomCapacity: number;
   private readonly roomNames: RoomNames;
+  private readonly verbose: boolean;
 
   constructor(
     io: ServerIoOverload,
-    { playerCapacity, roomCapacity, roomNames }: SocketRoomsOptions,
+    { playerCapacity, roomCapacity, roomNames, verbose = false }: SocketRoomsOptions,
   ) {
     this.playerCapacity = playerCapacity;
     this.roomCapacity = roomCapacity;
     this.roomNames = roomNames;
     this.io = io;
+    this.verbose = verbose;
   }
 
   private makeRoom(name: string, player: Player, roomCapacity: number): Room {
     const room = Room.withPlayer(
-      { io: this.io, name, capacity: roomCapacity, upgradedCapacity: roomCapacity * 4 },
+      {
+        io: this.io,
+        name,
+        capacity: roomCapacity,
+        upgradedCapacity: roomCapacity * 4,
+        verbose: this.verbose,
+      },
       player,
     );
     return room;
@@ -55,11 +64,14 @@ export class Rooms {
     const roomDoesNotExist = maybeRoom === undefined;
 
     if (roomDoesNotExist) {
-      return this.createNamedRoom(name, player);
+      const room = this.createNamedRoom(name, player);
+      room.upgrade();
+      return room;
     }
 
     if (maybeRoom?.isAvailable()) {
       this.addToRoom(maybeRoom, player);
+      maybeRoom.upgrade();
       return maybeRoom;
     }
 
