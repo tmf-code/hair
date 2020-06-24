@@ -1,14 +1,14 @@
 import { PlayersDataMessage } from '../../../@types/messages';
-import { SocketPlayer } from './socket-player';
+import { Player } from './player';
 import { ServerIoOverload } from '../../../@types/socketio-overloads';
 
 export class Room {
   io: ServerIoOverload;
   name: string;
-  players: SocketPlayer[];
+  players: Player[];
   capacity: number;
 
-  constructor(io: ServerIoOverload, name: string, firstPlayer: SocketPlayer, capacity: number) {
+  constructor(io: ServerIoOverload, name: string, firstPlayer: Player, capacity: number) {
     this.name = name;
     this.players = [firstPlayer];
     this.capacity = capacity;
@@ -16,7 +16,7 @@ export class Room {
     firstPlayer.join(this.name);
   }
 
-  addPlayer(player: SocketPlayer): this {
+  addPlayer(player: Player): this {
     if (this.isFull())
       throw new Error(`Cannot add player ${player.id} to room ${this.name}. Room is full`);
 
@@ -46,11 +46,11 @@ export class Room {
     const data = this.players.reduce((record, player) => {
       return {
         ...record,
-        [player.id]: (player as SocketPlayer).getPlayerData().bufferedPlayerData,
+        [player.id]: (player as Player).getPlayerData().bufferedPlayerData,
       };
     }, {} as PlayersDataMessage);
     this.io.to(this.name).emit('updatePlayersData', data);
-    this.players.forEach((player) => (player as SocketPlayer).clearPlayerData());
+    this.players.forEach((player) => (player as Player).clearPlayerData());
   }
 
   getPlayers = (): readonly string[] => this.players.map((players) => players.id);

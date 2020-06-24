@@ -1,4 +1,4 @@
-import { SocketPlayer } from './socket-player';
+import { Player } from './player';
 import { ServerIoOverload } from '../../../@types/socketio-overloads';
 import { Room } from './room';
 import { RoomNames } from './room-names';
@@ -26,12 +26,12 @@ export class Rooms {
     this.io = io;
   }
 
-  private makeRoom(name: string, player: SocketPlayer, roomCapacity: number): Room {
+  private makeRoom(name: string, player: Player, roomCapacity: number): Room {
     const room = new Room(this.io, name, player, roomCapacity);
     return room;
   }
 
-  addToNextRoom(player: SocketPlayer): Room {
+  addToNextRoom(player: Player): Room {
     this.throwIfFull(player);
     const [maybeChosenRoom] = this.findAvailableRooms();
 
@@ -44,7 +44,7 @@ export class Rooms {
     return this.createRandomRoom(player);
   }
 
-  addToNamedRoom(name: string, player: SocketPlayer): Room {
+  addToNamedRoom(name: string, player: Player): Room {
     this.throwIfFull(player);
     this.throwIfNameInvalid(name);
 
@@ -63,7 +63,7 @@ export class Rooms {
     return this.addToNextRoom(player);
   }
 
-  private throwIfFull(player: SocketPlayer) {
+  private throwIfFull(player: Player) {
     if (this.isFull())
       throw new Error(
         `Cannot add player ${player.id}. PlayerRooms is at capacity ${this.playerCapacity}`,
@@ -78,7 +78,7 @@ export class Rooms {
   getRoomNameOfPlayer(playerId: string): string {
     return this.getRoomOfPlayer(playerId).name;
   }
-  tryGetRoomNameOfPlayer(player: SocketPlayer): string | undefined {
+  tryGetRoomNameOfPlayer(player: Player): string | undefined {
     return this.rooms.find((room) => room.hasPlayer(player.id))?.name;
   }
 
@@ -97,7 +97,7 @@ export class Rooms {
   private findAvailableRooms = () => this.rooms.filter((room) => room.isAvailable());
   private findRoomByName = (name: string) => this.rooms.find((room) => room.getName() === name);
 
-  private addToRoom(room: Room, player: SocketPlayer): Room {
+  private addToRoom(room: Room, player: Player): Room {
     try {
       room.addPlayer(player);
     } catch (error) {
@@ -108,12 +108,12 @@ export class Rooms {
     return room;
   }
 
-  private createRandomRoom(player: SocketPlayer): Room {
+  private createRandomRoom(player: Player): Room {
     const name = this.roomNames.getFreeRandomRoomName();
     return this.createNamedRoom(name, player);
   }
 
-  private createNamedRoom(name: string, player: SocketPlayer): Room {
+  private createNamedRoom(name: string, player: Player): Room {
     const roomExists = this.isExistingRoomName(name);
     if (roomExists)
       throw new Error(

@@ -1,4 +1,4 @@
-import { SocketPlayer } from './../rooms/socket-player';
+import { Player } from '../rooms/player';
 import { ServerIoOverload } from './../../../@types/socketio-overloads.d';
 import { RoomNames } from './../rooms/room-names';
 import { ServerSocketOverload } from '../../../@types/socketio-overloads';
@@ -45,7 +45,7 @@ export class Players {
     rotations: number[],
     lengths: number[],
   ) {
-    const player = new SocketPlayer({
+    const player = new Player({
       socket,
       receiveCuts: this.receiveCuts,
       positions,
@@ -85,7 +85,7 @@ export class Players {
 
       this.removePlayer(socket);
       const { positions, rotations, lengths } = this.getMapState();
-      const player = new SocketPlayer({
+      const player = new Player({
         socket,
         receiveCuts: this.receiveCuts,
         positions,

@@ -4,7 +4,7 @@ import MockedSocket from 'socket.io-mock';
 import { ServerIoOverload, ServerSocketOverload } from './../../@types/socketio-overloads.d';
 import { Rooms, SocketRoomsOptions } from '../../backend/src/rooms/rooms';
 import { RoomNames } from '../../backend/src/rooms/room-names';
-import { SocketPlayer } from '../../backend/src/rooms/socket-player';
+import { Player } from '../../backend/src/rooms/player';
 
 const roomNames = RoomNames.createFromStandardNames();
 const playerRoomOptions: SocketRoomsOptions = {
@@ -16,7 +16,7 @@ const playerRoomOptions: SocketRoomsOptions = {
 const createPlayer = (id: string) => {
   const socket = new MockedSocket() as ServerSocketOverload;
   socket.id = id;
-  const player = new SocketPlayer({
+  const player = new Player({
     socket,
     lengths: [],
     rotations: [],
