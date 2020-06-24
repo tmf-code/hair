@@ -1,8 +1,8 @@
-import { PlayersDataMessage } from './../../../@types/messages.d';
+import { PlayersDataMessage } from '../../../@types/messages';
 import { SocketPlayer } from './socket-player';
-import { ServerIoOverload } from './../../../@types/socketio-overloads.d';
+import { ServerIoOverload } from '../../../@types/socketio-overloads';
 
-export class SocketRoom {
+export class Room {
   io: ServerIoOverload;
   name: string;
   players: SocketPlayer[];

@@ -1,6 +1,6 @@
 import { SocketPlayer } from './socket-player';
 import { ServerIoOverload } from './../../../@types/socketio-overloads.d';
-import { SocketRoom } from './socket-room';
+import { Room } from './room';
 import { RoomNames } from './room-names';
 
 export interface SocketRoomsOptions {
@@ -10,7 +10,7 @@ export interface SocketRoomsOptions {
 }
 
 export class SocketRooms {
-  protected rooms: readonly SocketRoom[] = [];
+  protected rooms: readonly Room[] = [];
   private readonly io: ServerIoOverload;
   private readonly playerCapacity: number;
   private readonly roomCapacity: number;
@@ -26,12 +26,12 @@ export class SocketRooms {
     this.io = io;
   }
 
-  private makeRoom(name: string, player: SocketPlayer, roomCapacity: number): SocketRoom {
-    const room = new SocketRoom(this.io, name, player, roomCapacity);
+  private makeRoom(name: string, player: SocketPlayer, roomCapacity: number): Room {
+    const room = new Room(this.io, name, player, roomCapacity);
     return room;
   }
 
-  addToNextRoom(player: SocketPlayer): SocketRoom {
+  addToNextRoom(player: SocketPlayer): Room {
     this.throwIfFull(player);
     const [maybeChosenRoom] = this.findAvailableRooms();
 
@@ -44,7 +44,7 @@ export class SocketRooms {
     return this.createRandomRoom(player);
   }
 
-  addToNamedRoom(name: string, player: SocketPlayer): SocketRoom {
+  addToNamedRoom(name: string, player: SocketPlayer): Room {
     this.throwIfFull(player);
     this.throwIfNameInvalid(name);
 
@@ -82,14 +82,14 @@ export class SocketRooms {
     return this.rooms.find((room) => room.hasPlayer(player.id))?.name;
   }
 
-  private getRoomOfPlayer(playerId: string): SocketRoom {
+  private getRoomOfPlayer(playerId: string): Room {
     const maybeRoom = this.rooms.find((room) => room.hasPlayer(playerId));
     this.throwIfPlayerNotInRooms(playerId, maybeRoom);
 
     return maybeRoom!;
   }
 
-  private throwIfPlayerNotInRooms(playerId: string, maybeRoom: SocketRoom | undefined) {
+  private throwIfPlayerNotInRooms(playerId: string, maybeRoom: Room | undefined) {
     if (maybeRoom === undefined)
       throw new Error(`Cannot get room of player ${playerId}. Player is not in rooms`);
   }
@@ -97,7 +97,7 @@ export class SocketRooms {
   private findAvailableRooms = () => this.rooms.filter((room) => room.isAvailable());
   private findRoomByName = (name: string) => this.rooms.find((room) => room.getName() === name);
 
-  private addToRoom(room: SocketRoom, player: SocketPlayer): SocketRoom {
+  private addToRoom(room: Room, player: SocketPlayer): Room {
     try {
       room.addPlayer(player);
     } catch (error) {
@@ -108,12 +108,12 @@ export class SocketRooms {
     return room;
   }
 
-  private createRandomRoom(player: SocketPlayer): SocketRoom {
+  private createRandomRoom(player: SocketPlayer): Room {
     const name = this.roomNames.getFreeRandomRoomName();
     return this.createNamedRoom(name, player);
   }
 
-  private createNamedRoom(name: string, player: SocketPlayer): SocketRoom {
+  private createNamedRoom(name: string, player: SocketPlayer): Room {
     const roomExists = this.isExistingRoomName(name);
     if (roomExists)
       throw new Error(
@@ -139,7 +139,7 @@ export class SocketRooms {
     if (room.isEmpty()) this.removeRoom(room);
   }
 
-  private removeRoom(room: SocketRoom) {
+  private removeRoom(room: Room) {
     const roomExists = this.isExistingRoom(room);
     if (!roomExists)
       throw new Error(`Cannot remove room ${room.getName()}. SocketRoom does not exist.`);
@@ -148,7 +148,7 @@ export class SocketRooms {
     this.roomNames.checkInRoom(room.getName());
   }
 
-  private isExistingRoom = (room: SocketRoom) => {
+  private isExistingRoom = (room: Room) => {
     const maybeExistingRoom = this.rooms.find((currentRoom) => currentRoom === room);
     return maybeExistingRoom !== undefined;
   };
