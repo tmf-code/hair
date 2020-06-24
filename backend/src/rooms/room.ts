@@ -2,28 +2,26 @@ import { PlayersDataMessage } from '../../../@types/messages';
 import { Player } from './player';
 import { ServerIoOverload } from '../../../@types/socketio-overloads';
 
+interface RoomOptions {
+  io: ServerIoOverload;
+  name: string;
+  firstPlayer?: Player;
+  capacity: number;
+}
+
 export class Room {
   io: ServerIoOverload;
   name: string;
-  players: Player[];
+  players: Player[] = [];
   capacity: number;
 
-  constructor({
-    io,
-    name,
-    firstPlayer,
-    capacity,
-  }: {
-    io: ServerIoOverload;
-    name: string;
-    firstPlayer: Player;
-    capacity: number;
-  }) {
+  constructor({ io, name, firstPlayer, capacity }: RoomOptions) {
     this.name = name;
-    this.players = [firstPlayer];
     this.capacity = capacity;
     this.io = io;
-    firstPlayer.join(this.name);
+
+    if (!firstPlayer) return;
+    this.addPlayer(firstPlayer);
   }
 
   addPlayer(player: Player): this {
