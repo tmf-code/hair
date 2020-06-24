@@ -75,7 +75,9 @@ describe('Players tests', () => {
     const socket = createSocket();
     players.connectSocket(socket);
     const firstRoom = players.addPlayer(socket.id, 'UNDEFINED');
-    expect(players.addPlayer(socket.id, 'UNDEFINED')).toStrictEqual(firstRoom);
+    const secondRoom = players.addPlayer(socket.id, 'UNDEFINED');
+
+    expect(players.connectionCount()).toBe(1);
   });
 
   test('Adding players to invalid rooms places them in a random room', () => {
