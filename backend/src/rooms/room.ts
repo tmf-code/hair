@@ -8,7 +8,17 @@ export class Room {
   players: Player[];
   capacity: number;
 
-  constructor(io: ServerIoOverload, name: string, firstPlayer: Player, capacity: number) {
+  constructor({
+    io,
+    name,
+    firstPlayer,
+    capacity,
+  }: {
+    io: ServerIoOverload;
+    name: string;
+    firstPlayer: Player;
+    capacity: number;
+  }) {
     this.name = name;
     this.players = [firstPlayer];
     this.capacity = capacity;
