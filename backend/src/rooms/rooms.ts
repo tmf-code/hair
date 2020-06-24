@@ -161,7 +161,7 @@ export class Rooms {
     const roomExists = this.isExistingRoom(room);
     if (!roomExists)
       throw new Error(`Cannot remove room ${room.getName()}. SocketRoom does not exist.`);
-
+    this.verbose && console.log(`DELETE: room ${room.name}`);
     this.rooms = this.rooms.filter((currentRoom) => currentRoom !== room);
     this.roomNames.checkInRoom(room.getName());
   }
