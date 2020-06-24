@@ -35,6 +35,7 @@ export class Players {
   private roomNames: RoomNames;
   private rooms: Rooms;
   private players: Player[] = [];
+  private maxPlayers = 0;
 
   constructor({ io, getMapState, verbose = false, roomNames }: PlayersOptions) {
     this.io = io;
@@ -136,7 +137,11 @@ export class Players {
       });
 
       this.players.push(player);
-      this.verbose && console.log(`CONNECTED: socket ${socket.id}`);
+      this.maxPlayers = Math.max(this.maxPlayers, this.players.length);
+      this.verbose &&
+        console.log(
+          `CONNECTED: socket ${socket.id}. Max players ${this.maxPlayers}. Current Players ${this.players.length}`,
+        );
       return player;
     } catch (error) {
       this.verbose && console.error(error);
