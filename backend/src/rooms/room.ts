@@ -106,11 +106,11 @@ export class Room {
     const data = this.players.reduce((record, player) => {
       return {
         ...record,
-        [player.id]: (player as Player).getPlayerData().bufferedPlayerData,
+        [player.id]: player.getPlayerData().bufferedPlayerData,
       };
     }, {} as PlayersDataMessage);
     this.io.to(this.name).emit('updatePlayersData', data);
-    this.players.forEach((player) => (player as Player).clearPlayerData());
+    this.players.forEach((player) => player.clearPlayerData());
   }
 
   getPlayers = (): readonly string[] => this.players.map((players) => players.id);

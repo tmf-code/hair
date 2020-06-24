@@ -26,8 +26,6 @@ export class Player {
     this.receiveCuts = this.receiveCuts.bind(this);
     this.updatePlayerLocation = this.updatePlayerLocation.bind(this);
     this.emitOnce(positions, rotations, lengths);
-
-    this.addHandlers();
   }
 
   destroy(): void {
@@ -54,11 +52,14 @@ export class Player {
     this.room = room;
     this.socket.join(room);
     this.socket.emit('updateClientRoom', room);
+    this.destroy();
+    this.addHandlers();
   }
 
   leave(room: string): void {
     this.room = undefined;
     this.socket.leave(room);
+    this.destroy();
   }
 
   clearPlayerData(): void {
