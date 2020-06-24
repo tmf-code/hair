@@ -19,8 +19,8 @@ const ColofonText = ({ roomName, url }: ColofonTextProps): React.ReactElement =>
         collaboration with <a href={'https://studiomoniker.com/about'}>Moniker</a>.
       </p>
       <p>
-        Come Shave With Me is a virtual skin that people can groom together, online. The project
-        proposes an outlet for social grooming in a time of distancing.
+        The project proposes an outlet for social grooming in a time of distancing; Come Shave With
+        Me is a virtual skin that people can groom together, online.
       </p>
       <p>
         Sheared silky smooth, maintained mildly prickly or kept rough and bushy… There are countless
