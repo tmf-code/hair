@@ -17,14 +17,15 @@ export class ClientSocket {
   private socket: ClientSocketOverload;
   private socketCallbacks: SocketCallbacks;
   private clientID = '';
+  private serverSetHashTo = '';
 
   constructor(io: SocketIOClientStatic, mode: string, socketCallbacks: SocketCallbacks) {
     if (this.validateMode(mode)) {
       this.socket = this.connectSocket(io, mode);
       this.attachSocketHandlers();
       this.createSocketEmitters();
-      this.maybeRequestRoom();
-      window.addEventListener('hashchange', (event) => this.maybeRequestRoom(event));
+      this.enterFirstRoom();
+      window.addEventListener('hashchange', (event) => this.requestRoom(event));
     } else {
       throw new Error(`Mode should be either 'production' or 'development', got ${mode}`);
     }
@@ -32,10 +33,15 @@ export class ClientSocket {
     this.socketCallbacks = socketCallbacks;
   }
 
-  private maybeRequestRoom(event?: HashChangeEvent) {
-    if (window.location.hash === '') return;
-    if (event?.oldURL === event?.newURL) return;
+  private requestRoom(event: HashChangeEvent) {
+    if (event.oldURL === event.newURL) return;
+    const requestedRoom = window.location.hash.replace('#', '');
+    if (requestedRoom === this.serverSetHashTo.replace('#', '')) return;
 
+    this.socket.emit('requestRoom', requestedRoom);
+  }
+
+  private enterFirstRoom() {
     const requestedRoom = window.location.hash.replace('#', '');
     this.socket.emit('requestRoom', requestedRoom);
   }
@@ -68,7 +74,9 @@ export class ClientSocket {
     );
 
     this.socket.on('updateClientRoom', (room: string) => {
-      window.location.replace(`#${room}`);
+      if (`#${room}` === window.location.hash) return;
+      window.location.hash = `#${room}`;
+      this.serverSetHashTo = `#${room}`;
     });
 
     this.socket.on('updatePlayersData', (playerData: PlayersDataMessage) => {

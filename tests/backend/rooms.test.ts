@@ -1,12 +1,13 @@
 import { ServerIoOverload } from '../../@types/socketio-overloads';
 import { Rooms, SocketRoomsOptions } from '../../backend/src/rooms/rooms';
 import { RoomNames } from '../../backend/src/rooms/room-names';
-import { createPlayer } from './create-player';
+import { createPlayer } from './fixtures/create-player';
 
 const roomNames = RoomNames.createFromStandardNames();
 const playerRoomOptions: SocketRoomsOptions = {
   playerCapacity: 10,
-  roomCapacity: 10,
+  lowRoomCapacity: 10,
+  highRoomCapacity: 20,
   roomNames: roomNames,
 };
 
@@ -23,36 +24,36 @@ describe('Rooms tests', () => {
     expect(rooms.getPlayerCount()).toBe(0);
   });
 
-  test('Can add player to next room', () => {
+  test('Can add player to random room', () => {
     const player = createPlayer('1');
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity: 1 });
+    const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity: 1 });
 
-    rooms.addToNextRoom(player);
+    rooms.addToRandomRoom(player);
 
     expect(rooms.getRoomCount()).toBe(1);
     expect(rooms.getPlayerCount()).toBe(1);
   });
 
-  test('Can add two players to next room', () => {
+  test('Can add two players to random room', () => {
     const player1 = createPlayer('1');
     const player2 = createPlayer('2');
     const rooms = new Rooms(io, playerRoomOptions);
 
-    rooms.addToNextRoom(player1);
-    rooms.addToNextRoom(player2);
+    rooms.addToRandomRoom(player1);
+    rooms.addToRandomRoom(player2);
 
     expect(rooms.getRoomCount()).toBe(1);
     expect(rooms.getPlayerCount()).toBe(2);
   });
 
-  test('Exceeding room capacity adds another room', () => {
-    const roomCapacity = 1;
+  test('Exceeding low room capacity adds another room', () => {
+    const lowRoomCapacity = 1;
     const player1 = createPlayer('1');
     const player2 = createPlayer('2');
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity });
+    const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity });
 
-    rooms.addToNextRoom(player1);
-    rooms.addToNextRoom(player2);
+    rooms.addToRandomRoom(player1);
+    rooms.addToRandomRoom(player2);
 
     expect(rooms.getRoomCount()).toBe(2);
     expect(rooms.getPlayerCount()).toBe(2);
@@ -60,12 +61,44 @@ describe('Rooms tests', () => {
 
   test('Can add many players to next room', () => {
     const playerCount = 10;
-    const roomCapacity = 4;
+    const lowRoomCapacity = 4;
     const players = createAmount(10, (index) => createPlayer(index.toString()));
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity });
+    const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity });
 
-    const expectedRoomCount = Math.ceil(playerCount / roomCapacity);
-    players.forEach((player) => rooms.addToNextRoom(player));
+    const expectedRoomCount = Math.ceil(playerCount / lowRoomCapacity);
+    players.forEach((player) => rooms.addToRandomRoom(player));
+
+    expect(rooms.getRoomCount()).toBe(expectedRoomCount);
+    expect(rooms.getPlayerCount()).toBe(playerCount);
+  });
+
+  test('Exceeding high room capacity adds another room', () => {
+    const lowRoomCapacity = 1;
+    const highRoomCapacity = 3;
+    const player1 = createPlayer('1');
+    const player2 = createPlayer('2');
+    const player3 = createPlayer('3');
+    const player4 = createPlayer('4');
+    const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity, highRoomCapacity });
+
+    const firstRoom = rooms.addToRandomRoom(player1);
+    rooms.addToNamedRoom(firstRoom.name, player2);
+    rooms.addToNamedRoom(firstRoom.name, player3);
+    const lastRoom = rooms.addToNamedRoom(firstRoom.name, player4);
+
+    expect(rooms.getRoomCount()).toBe(2);
+    expect(rooms.getPlayerCount()).toBe(4);
+    expect(lastRoom.name).not.toBe(firstRoom.name);
+  });
+
+  test('Can add many players to next room', () => {
+    const playerCount = 10;
+    const lowRoomCapacity = 4;
+    const players = createAmount(10, (index) => createPlayer(index.toString()));
+    const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity });
+
+    const expectedRoomCount = Math.ceil(playerCount / lowRoomCapacity);
+    players.forEach((player) => rooms.addToRandomRoom(player));
 
     expect(rooms.getRoomCount()).toBe(expectedRoomCount);
     expect(rooms.getPlayerCount()).toBe(playerCount);
@@ -98,7 +131,7 @@ describe('Rooms tests', () => {
     const player2 = createPlayer('2');
     const rooms = new Rooms(io, playerRoomOptions);
 
-    rooms.addToNextRoom(player1);
+    rooms.addToRandomRoom(player1);
     const roomName = rooms.getRoomNameOfPlayer(player1.id);
 
     rooms.addToNamedRoom(roomName, player2);
@@ -108,39 +141,11 @@ describe('Rooms tests', () => {
     expect(rooms.getRoomNameOfPlayer(player2.id)).toBe(roomName);
   });
 
-  test('Can add player to a random room if requested room is full', () => {
-    const player1 = createPlayer('1');
-    const player2 = createPlayer('2');
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity: 1 });
-
-    rooms.addToNextRoom(player1);
-    const roomName = rooms.getRoomNameOfPlayer(player1.id);
-    rooms.addToNamedRoom(roomName, player2);
-
-    expect(rooms.getRoomCount()).toBe(2);
-    expect(rooms.getPlayerCount()).toBe(2);
-    expect(rooms.getRoomNameOfPlayer(player2.id)).not.toBe(roomName);
-  });
-
-  test('Can add player to a random room if requested room is full', () => {
-    const player1 = createPlayer('1');
-    const player2 = createPlayer('2');
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity: 1 });
-
-    rooms.addToNextRoom(player1);
-    const roomName = rooms.getRoomNameOfPlayer(player1.id);
-    rooms.addToNamedRoom(roomName, player2);
-
-    expect(rooms.getRoomCount()).toBe(2);
-    expect(rooms.getPlayerCount()).toBe(2);
-    expect(rooms.getRoomNameOfPlayer(player2.id)).not.toBe(roomName);
-  });
-
   test('Can remove player from rooms', () => {
     const player1 = createPlayer('1');
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity: 1 });
+    const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity: 1 });
 
-    rooms.addToNextRoom(player1);
+    rooms.addToRandomRoom(player1);
     rooms.removePlayer(player1.id);
     expect(rooms.getPlayerCount()).toBe(0);
   });
@@ -149,10 +154,10 @@ describe('Rooms tests', () => {
     const player1 = createPlayer('1');
     const player2 = createPlayer('2');
     const player3 = createPlayer('3');
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity: 2 });
-    rooms.addToNextRoom(player1);
-    rooms.addToNextRoom(player2);
-    rooms.addToNextRoom(player3);
+    const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity: 2 });
+    rooms.addToRandomRoom(player1);
+    rooms.addToRandomRoom(player2);
+    rooms.addToRandomRoom(player3);
 
     expect(rooms.getRoomCount()).toBe(2);
     expect(rooms.getPlayerCount()).toBe(3);
@@ -171,7 +176,7 @@ describe('Rooms tests', () => {
   });
 
   test('Removing a non exiting player throws', () => {
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity: 2 });
+    const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity: 2 });
     const player1 = createPlayer('1');
     expect(() => rooms.removePlayer(player1.id)).toThrow();
   });

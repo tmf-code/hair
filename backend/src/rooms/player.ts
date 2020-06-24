@@ -14,6 +14,7 @@ export class Player {
   private readonly socket: ServerSocketOverload;
   private readonly receiveCuts: (cuts: boolean[]) => void;
   readonly id: string;
+  private room: string | undefined;
 
   private bufferedPlayerData: BufferedPlayerData = [];
 
@@ -25,8 +26,6 @@ export class Player {
     this.receiveCuts = this.receiveCuts.bind(this);
     this.updatePlayerLocation = this.updatePlayerLocation.bind(this);
     this.emitOnce(positions, rotations, lengths);
-
-    this.addHandlers();
   }
 
   destroy(): void {
@@ -50,13 +49,17 @@ export class Player {
   }
 
   join(room: string): void {
+    this.room = room;
     this.socket.join(room);
     this.socket.emit('updateClientRoom', room);
+    this.destroy();
+    this.addHandlers();
   }
 
   leave(room: string): void {
+    this.room = undefined;
     this.socket.leave(room);
-    this.socket.emit('updateClientRoom', '');
+    this.destroy();
   }
 
   clearPlayerData(): void {
@@ -69,4 +72,7 @@ export class Player {
       bufferedPlayerData: this.bufferedPlayerData,
     };
   }
+
+  hasRoom = (): boolean => this.room !== undefined;
+  tryGetRoom = (): string | undefined => this.room;
 }

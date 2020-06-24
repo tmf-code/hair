@@ -5,7 +5,8 @@ import { RoomNames } from './room-names';
 
 export interface SocketRoomsOptions {
   playerCapacity: number;
-  roomCapacity: number;
+  lowRoomCapacity: number;
+  highRoomCapacity: number;
   roomNames: RoomNames;
   verbose?: boolean;
 }
@@ -14,28 +15,36 @@ export class Rooms {
   protected rooms: readonly Room[] = [];
   private readonly io: ServerIoOverload;
   private readonly playerCapacity: number;
-  private readonly roomCapacity: number;
   private readonly roomNames: RoomNames;
   private readonly verbose: boolean;
+  private readonly lowRoomCapacity: number;
+  private readonly highRoomCapacity: number;
 
   constructor(
     io: ServerIoOverload,
-    { playerCapacity, roomCapacity, roomNames, verbose = false }: SocketRoomsOptions,
+    {
+      playerCapacity,
+      lowRoomCapacity,
+      highRoomCapacity,
+      roomNames,
+      verbose = false,
+    }: SocketRoomsOptions,
   ) {
     this.playerCapacity = playerCapacity;
-    this.roomCapacity = roomCapacity;
+    this.lowRoomCapacity = lowRoomCapacity;
+    this.highRoomCapacity = highRoomCapacity;
     this.roomNames = roomNames;
     this.io = io;
     this.verbose = verbose;
   }
 
-  private makeRoom(name: string, player: Player, roomCapacity: number): Room {
+  private makeRoom(name: string, player: Player): Room {
     const room = Room.withPlayer(
       {
         io: this.io,
         name,
-        capacity: roomCapacity,
-        upgradedCapacity: roomCapacity * 4,
+        lowCapacity: this.lowRoomCapacity,
+        highCapacity: this.highRoomCapacity,
         verbose: this.verbose,
       },
       player,
@@ -43,13 +52,13 @@ export class Rooms {
     return room;
   }
 
-  addToNextRoom(player: Player): Room {
+  addToRandomRoom(player: Player): Room {
     this.throwIfFull(player);
-    const [maybeChosenRoom] = this.findAvailableRooms();
+    const [maybeChosenRoom] = this.findLowAvailableRooms();
 
     const roomCanFitPlayer = maybeChosenRoom !== undefined;
     if (roomCanFitPlayer) {
-      this.addToRoom(maybeChosenRoom, player);
+      this.addToLowRoom(maybeChosenRoom, player);
       return maybeChosenRoom;
     }
 
@@ -65,17 +74,17 @@ export class Rooms {
 
     if (roomDoesNotExist) {
       const room = this.createNamedRoom(name, player);
-      room.upgrade();
       return room;
     }
 
-    if (maybeRoom?.isAvailable()) {
-      this.addToRoom(maybeRoom, player);
-      maybeRoom.upgrade();
+    if (maybeRoom?.isHighAvailable()) {
+      this.addToHighRoom(maybeRoom, player);
       return maybeRoom;
     }
 
-    return this.addToNextRoom(player);
+    const room = this.createRandomRoom(player);
+    this.verbose && console.log(`CHOSEN is FULL: Created room ${room.name}`);
+    return room;
   }
 
   private throwIfFull(player: Player) {
@@ -86,15 +95,15 @@ export class Rooms {
   }
 
   private throwIfNameInvalid(name: string) {
-    if (!this.roomNames.isValidRoomName(name))
+    if (!this.isValidRoomName(name))
       throw new Error(`SocketRoom name ${name} is invalid. Cannot add player to room.`);
   }
 
   getRoomNameOfPlayer(playerId: string): string {
     return this.getRoomOfPlayer(playerId).name;
   }
-  tryGetRoomNameOfPlayer(player: Player): string | undefined {
-    return this.rooms.find((room) => room.hasPlayer(player.id))?.name;
+  tryGetRoomOfPlayer(playerId: string): Room | undefined {
+    return this.rooms.find((room) => room.hasPlayer(playerId));
   }
 
   private getRoomOfPlayer(playerId: string): Room {
@@ -109,17 +118,26 @@ export class Rooms {
       throw new Error(`Cannot get room of player ${playerId}. Player is not in rooms`);
   }
 
-  private findAvailableRooms = () => this.rooms.filter((room) => room.isAvailable());
-  private findRoomByName = (name: string) => this.rooms.find((room) => room.getName() === name);
+  private findLowAvailableRooms = () => this.rooms.filter((room) => !room.isLowFull());
+  findRoomByName = (name: string): Room | undefined =>
+    this.rooms.find((room) => room.getName() === name);
 
-  private addToRoom(room: Room, player: Player): Room {
-    try {
-      room.addPlayer(player);
-    } catch (error) {
-      console.error(error);
-      this.createRandomRoom(player);
+  private addToLowRoom(room: Room, player: Player): Room {
+    if (room.isLowFull()) {
+      return this.createRandomRoom(player);
     }
 
+    room.addLowPlayer(player);
+
+    return room;
+  }
+
+  private addToHighRoom(room: Room, player: Player): Room {
+    if (room.isHighFull()) {
+      return this.createRandomRoom(player);
+    }
+
+    room.addHighPlayer(player);
     return room;
   }
 
@@ -136,34 +154,36 @@ export class Rooms {
       );
 
     this.roomNames.checkOutRoom(name);
-    const room = this.makeRoom(name, player, this.roomCapacity);
+    const room = this.makeRoom(name, player);
     this.rooms = [...this.rooms, room];
 
     return room;
   }
 
-  private isExistingRoomName = (name: string) => {
+  private isExistingRoomName = (name: string): boolean => {
     const maybeExistingRoom = this.findRoomByName(name);
     return maybeExistingRoom !== undefined;
   };
 
-  removePlayer(playerId: string): void {
+  removePlayer(playerId: string): Room {
     const room = this.getRoomOfPlayer(playerId);
     room.removePlayer(playerId);
 
     if (room.isEmpty()) this.removeRoom(room);
+
+    return room;
   }
 
   private removeRoom(room: Room) {
     const roomExists = this.isExistingRoom(room);
     if (!roomExists)
       throw new Error(`Cannot remove room ${room.getName()}. SocketRoom does not exist.`);
-
+    this.verbose && console.log(`DELETE: room ${room.name}`);
     this.rooms = this.rooms.filter((currentRoom) => currentRoom !== room);
     this.roomNames.checkInRoom(room.getName());
   }
 
-  private isExistingRoom = (room: Room) => {
+  private isExistingRoom = (room: Room): boolean => {
     const maybeExistingRoom = this.rooms.find((currentRoom) => currentRoom === room);
     return maybeExistingRoom !== undefined;
   };
@@ -180,6 +200,20 @@ export class Rooms {
   emitPlayerData(): void {
     this.rooms.forEach((room) => room.emitPlayerData());
   }
+
+  isPlayerInRooms = (playerId: string): boolean =>
+    this.rooms.some((room) => room.hasPlayer(playerId));
+
+  isRoomHighAvailable = (name: string): boolean => {
+    if (!this.isValidRoomName(name)) return false;
+
+    const maybeRoom = this.findRoomByName(name);
+    if (!maybeRoom) return true;
+
+    return maybeRoom.isHighAvailable();
+  };
+
+  private isValidRoomName = (name: string) => this.roomNames.isValidRoomName(name);
 
   logRooms = (): void =>
     console.log(this.rooms.map((room) => `${room.name} - ${room.getPlayers()}`).toString());

@@ -23,3 +23,4 @@ export const sampleInterval = Math.floor(emitInterval / cachedMovementCount);
 export const playerLayer = 0.02 as const;
 export const friendLayer = 0.01 as const;
 export const hairLayer = 0 as const;
+export const ROOM_UNDEFINED = 'UNDEFINED' as const;

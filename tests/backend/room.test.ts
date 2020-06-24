@@ -1,31 +1,27 @@
-import { createPlayer, generatePlayers } from './create-player';
-import { ServerIoOverload } from '../../@types/socketio-overloads';
+import { createIo } from './fixtures/create-io';
+import { createPlayer, generatePlayers } from './fixtures/create-player';
 import { Room } from '../../backend/src/rooms/room';
 import { Player } from '../../backend/src/rooms/player';
 
 const createRoom = ({
   name = 'roomOne',
-  capacity = 5,
-  upgradedCapacity = 20,
+  lowCapacity = 5,
+  highCapacity = 20,
 }: {
   name?: string;
-  capacity?: number;
-  upgradedCapacity?: number;
+  lowCapacity?: number;
+  highCapacity?: number;
 } = {}) => {
-  jest.mock('socket.io');
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const SocketIO = require('socket.io');
-  const io = SocketIO() as ServerIoOverload;
-
-  return new Room({ io, name, capacity, upgradedCapacity });
+  const io = createIo();
+  return new Room({ io, name, lowCapacity, highCapacity });
 };
 
 describe('Room tests', () => {
-  test('Can add player', () => {
+  test('Can add low player', () => {
     const player = createPlayer('1');
     const room = createRoom();
 
-    room.addPlayer(player);
+    room.addLowPlayer(player);
     expect(room.hasPlayer(player.id)).toBeTruthy();
   });
 
@@ -33,18 +29,31 @@ describe('Room tests', () => {
     const player = createPlayer('1');
     const room = createRoom();
 
-    room.addPlayer(player);
+    room.addLowPlayer(player);
     room.removePlayer(player.id);
     expect(room.hasPlayer(player.id)).toBeFalsy();
   });
 
-  test('Room can be full', () => {
+  test('Room can be low full', () => {
     const player = createPlayer('1');
-    const room = createRoom({ capacity: 1 });
+    const room = createRoom({ lowCapacity: 1 });
 
-    room.addPlayer(player);
+    room.addLowPlayer(player);
     expect(room.hasPlayer(player.id)).toBeTruthy();
-    expect(room.isFull()).toBeTruthy();
+    expect(room.isLowFull()).toBeTruthy();
+  });
+
+  test('Room can be high full', () => {
+    const player1 = createPlayer('1');
+    const player2 = createPlayer('2');
+    const room = createRoom({ lowCapacity: 1, highCapacity: 2 });
+
+    room.addHighPlayer(player1);
+    room.addHighPlayer(player2);
+    expect(room.hasPlayer(player1.id)).toBeTruthy();
+    expect(room.hasPlayer(player2.id)).toBeTruthy();
+    expect(room.isLowFull()).toBeTruthy();
+    expect(room.isHighFull()).toBeTruthy();
   });
 
   test('Room can be empty', () => {
@@ -56,23 +65,59 @@ describe('Room tests', () => {
     const player = createPlayer('1');
 
     const room = createRoom();
-    room.addPlayer(player);
+    room.addLowPlayer(player);
 
-    const addPlayer = () => room.addPlayer(player);
+    const addPlayer = () => room.addLowPlayer(player);
 
     expect(addPlayer).toThrow();
     expect(room.getSize()).toBe(1);
   });
 
-  test('Room cannot add beyond capacity', () => {
+  test('Room cannot add beyond low capacity', () => {
     const player1 = createPlayer('1');
     const player2 = createPlayer('2');
 
-    const room = createRoom({ capacity: 1 });
-    room.addPlayer(player1);
+    const room = createRoom({ lowCapacity: 1 });
+    room.addLowPlayer(player1);
 
-    const addPlayer = () => room.addPlayer(player2);
+    const addPlayer = () => room.addLowPlayer(player2);
     expect(addPlayer).toThrow();
+  });
+
+  test('Room cannot add beyond high capacity', () => {
+    const player1 = createPlayer('1');
+    const player2 = createPlayer('2');
+    const player3 = createPlayer('3');
+
+    const room = createRoom({ lowCapacity: 1, highCapacity: 2 });
+    room.addHighPlayer(player1);
+    room.addHighPlayer(player2);
+
+    const addPlayer = () => room.addHighPlayer(player3);
+    expect(addPlayer).toThrow();
+  });
+
+  test('Room can be low full and accept high players', () => {
+    const player1 = createPlayer('1');
+    const player2 = createPlayer('2');
+
+    const room = createRoom({ lowCapacity: 1, highCapacity: 2 });
+
+    expect(room.isLowAvailable()).toBeFalsy();
+    expect(room.isHighAvailable()).toBeFalsy();
+
+    room.addLowPlayer(player1);
+
+    expect(room.isLowFull()).toBeTruthy();
+    expect(room.isLowAvailable()).toBeFalsy();
+
+    expect(room.isHighFull()).toBeFalsy();
+    expect(room.isHighAvailable()).toBeTruthy();
+
+    room.addHighPlayer(player2);
+
+    expect(room.isHighFull()).toBeTruthy();
+    expect(room.isHighAvailable()).toBeFalsy();
   });
 
   test('Room cannot remove unknown player', () => {
@@ -82,77 +127,31 @@ describe('Room tests', () => {
     expect(removePlayer).toThrow();
   });
 
-  test('Room can be upgraded to larger capacity', () => {
-    const firstNumberPlayers = 10;
-    const secondNumberPlayers = 5;
-    const lowCapacity = 5;
-    const upgradedCapacity = 10;
-    const playerGenerator = generatePlayers();
-    const room = createRoom({ capacity: lowCapacity, upgradedCapacity });
-
-    const addFirstPlayers = () => {
-      const players = [...new Array(firstNumberPlayers)].map(() => playerGenerator.next().value);
-      players.forEach((player) => room.addPlayer(player));
-    };
-
-    const addSecondPlayers = () => {
-      const players = [...new Array(secondNumberPlayers)].map(() => playerGenerator.next().value);
-      players.forEach((player) => room.addPlayer(player));
-    };
-
-    expect(room.isUpgraded()).toBeFalsy();
-    expect(addFirstPlayers).toThrow();
-    expect(room.isFull()).toBeTruthy();
-    room.upgrade();
-    expect(room.isUpgraded()).toBeTruthy();
-    expect(room.isAvailable()).toBeTruthy();
-    expect(room.isFull()).toBeFalsy();
-    expect(addSecondPlayers).not.toThrow();
-
-    expect(room.isFull()).toBeTruthy();
-    expect(room.getSize()).toBe(upgradedCapacity);
-  });
-
-  test('Room downgrades if size goes below low capacity', () => {
-    const firstNumberPlayers = 10;
-    const lowCapacity = 5;
-    const upgradedCapacity = 10;
-    const playerGenerator = generatePlayers();
-    const room = createRoom({ capacity: lowCapacity, upgradedCapacity });
-    room.upgrade();
-
-    const players = [...new Array(firstNumberPlayers)].map(() => playerGenerator.next().value);
-    players.forEach((player) => room.addPlayer(player));
-
-    expect(room.isFull()).toBeTruthy();
-    expect(room.isUpgraded()).toBeTruthy();
-
-    const firstPlayers = players.slice(0, lowCapacity);
-    firstPlayers.forEach((player) => room.removePlayer(player.id));
-
-    expect(room.isFull()).toBeTruthy();
-    expect(room.isUpgraded()).toBeFalsy();
-  });
-
   test('Can simulating players entering and exiting', () => {
     const simulationTimes = 1000;
     const lowCapacity = 5;
-    const upgradedCapacity = 10;
+    const highCapacity = 10;
     const playerGenerator = generatePlayers();
-    const room = createRoom({ capacity: lowCapacity, upgradedCapacity });
+    const room = createRoom({ lowCapacity, highCapacity });
 
     let addedPlayers: Player[] = [];
     const selectRandom = <T>(list: T[]): T => list[Math.floor(Math.random() * list.length)];
 
     const simulation = () => {
       for (let simulationStep = 0; simulationStep < simulationTimes; simulationStep++) {
-        const shouldAddPlayer = Math.random() < 0.5;
+        const shouldAddLowPlayer = Math.random() < 0.5;
+        const shouldAddHighPlayer = Math.random() < 0.5;
         const shouldRemovePlayer = Math.random() < 0.5;
-        const shouldUpgradeRoom = Math.random() < 0.05;
 
-        if (shouldAddPlayer && !room.isFull()) {
+        if (shouldAddLowPlayer && !room.isLowFull()) {
           const player = playerGenerator.next().value;
-          room.addPlayer(player);
+          room.addLowPlayer(player);
+          addedPlayers.push(player);
+        }
+
+        if (shouldAddHighPlayer && !room.isHighFull()) {
+          const player = playerGenerator.next().value;
+          room.addHighPlayer(player);
           addedPlayers.push(player);
         }
 
@@ -160,10 +159,6 @@ describe('Room tests', () => {
           const player = selectRandom(addedPlayers);
           room.removePlayer(player.id);
           addedPlayers = addedPlayers.filter(({ id }) => id !== player.id);
-        }
-
-        if (shouldUpgradeRoom) {
-          room.upgrade();
         }
       }
     };
