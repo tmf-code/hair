@@ -168,6 +168,7 @@ button:focus {
   border: 1px solid;
   border-radius: 50px;
   box-shadow: -1px 1px black;
+  width: 262px;
 }
 .copyLinkButton:active {
   box-shadow: 0 0 #666;
@@ -184,6 +185,7 @@ button:focus {
   .copyLinkButton {
     -ms-transform: translate(-50%, 0);
     transform: translate(-50%, 0);
+    width: 218px;
   }
   .copyLinkButton:active {
     -ms-transform: translate(calc(-50% - 1px), 1px);

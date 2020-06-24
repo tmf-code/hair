@@ -12,7 +12,7 @@ const ColofonText = ({ roomName, url }: ColofonTextProps): React.ReactElement =>
       <h1>Come Shave With Me</h1>
       <p>Shave close with up to 5 friends.</p>
       <p>Share this {roomName}:</p>
-      {<ColofonLinkButton buttonText={'Copy link to share'} copyLink={url} />}
+      {<ColofonLinkButton defaultButtonText={'Copy link to share'} copyLink={url} />}
       <p>
         Come Shave With Me is a project by{' '}
         <a href={'https://www.tmf.design/about'}>Alexandra Barancová & Jae Perris</a> in
