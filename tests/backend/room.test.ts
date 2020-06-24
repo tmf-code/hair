@@ -1,5 +1,5 @@
-import { createPlayer, generatePlayers } from './create-player';
-import { ServerIoOverload } from '../../@types/socketio-overloads';
+import { createIo } from './fixtures/create-io';
+import { createPlayer, generatePlayers } from './fixtures/create-player';
 import { Room } from '../../backend/src/rooms/room';
 import { Player } from '../../backend/src/rooms/player';
 
@@ -12,11 +12,7 @@ const createRoom = ({
   capacity?: number;
   upgradedCapacity?: number;
 } = {}) => {
-  jest.mock('socket.io');
-  // eslint-disable-next-line @typescript-eslint/no-var-requires
-  const SocketIO = require('socket.io');
-  const io = SocketIO() as ServerIoOverload;
-
+  const io = createIo();
   return new Room({ io, name, capacity, upgradedCapacity });
 };
 

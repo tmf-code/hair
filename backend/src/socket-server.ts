@@ -4,7 +4,6 @@ import SocketIO from 'socket.io';
 import { ServerSocketOverload, ServerIoOverload } from '../../@types/socketio-overloads';
 
 type SocketServerMessages = {
-  playerConnected: ServerSocketOverload;
   playerDisconnected: ServerSocketOverload;
   receivedCuts: boolean[];
   sendPlayerData: ServerIoOverload;
@@ -37,8 +36,6 @@ export class SocketServer extends EventEmitter {
 
   private attachSocketServerHandlers() {
     this.io.on('connect', (socket) => {
-      this.emit('playerConnected', socket);
-
       socket.on('disconnect', () => {
         this.emit('playerDisconnected', socket);
       });

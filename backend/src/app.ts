@@ -3,6 +3,7 @@ import { widthPoints, heightPoints, jitterRange, rotationStart, rotationEnd } fr
 import { HairMapFactory } from './hair-map/hair-map-factory';
 import { SocketServer } from './socket-server';
 import { makeProductionServer } from './server';
+import { RoomNames } from './rooms/room-names';
 
 const server = makeProductionServer();
 
@@ -16,8 +17,11 @@ const hairMap = HairMapFactory.createFrom(
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 const socket = new SocketServer(server);
-const players = new Players(socket.io, hairMap.getMapState.bind(hairMap));
-socket.on('playerConnected', (socket) => players.addPlayer(socket));
+const players = new Players({
+  io: socket.io,
+  getMapState: hairMap.getMapState.bind(hairMap),
+  roomNames: RoomNames.createFromStandardNames(),
+});
 socket.on('playerDisconnected', (socket) => players.removePlayer(socket));
 socket.on('receivedCuts', (cuts) => hairMap.receiveCuts(cuts));
 socket.on('sendPlayerData', () => players.emitPlayerLocations());

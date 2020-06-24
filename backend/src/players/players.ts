@@ -4,8 +4,92 @@ import { RoomNames } from './../rooms/room-names';
 import { ServerSocketOverload } from '../../../@types/socketio-overloads';
 import { Rooms } from '../rooms/rooms';
 import { PLAYER_CAPACITY, ROOM_CAPACITY } from './../constants';
+import { Room } from '../rooms/room';
 
+interface PlayersOptions {
+  io: ServerIoOverload;
+  getMapState: () => {
+    positions: [number, number][];
+    rotations: number[];
+    lengths: number[];
+  };
+  roomNames: RoomNames;
+  verbose?: boolean;
+}
+
+const ROOM_UNDEFINED = 'UNDEFINED' as const;
 export class Players {
+  private addToChosenRoom(player: Player, room: string): Room {
+    this.throwIfPlayerHasRoom(player);
+    this.throwIfRoomNameIsInvalid(room);
+
+    this.verbose && console.log(`ADD CHOSEN: Player ${player.id} to room ${room}`);
+    return this.rooms.addToNamedRoom(room, player);
+  }
+
+  private throwIfRoomNameIsInvalid(room: string) {
+    if (!this.isValidRoom(room)) {
+      throw new Error(`Room name ${room} is invalid. Could not add player to chosen room.`);
+    }
+  }
+
+  private isValidRoom(room: string) {
+    return this.roomNames.isValidRoomName(room);
+  }
+
+  private throwIfPlayerHasRoom(player: Player) {
+    if (player.hasRoom()) {
+      throw new Error(`Player ${player.id} already in room ${player.tryGetRoom()}`);
+    }
+  }
+
+  private verbose: boolean;
+  private addToRandomRoom(player: Player): Room | undefined {
+    this.throwIfPlayerHasRoom(player);
+    const room = this.rooms.addToNextRoom(player);
+    this.verbose && console.log(`ADD RANDOM: Player ${player.id} to room ${room.getName()}`);
+    return room;
+  }
+
+  addPlayer(playerId: string, room: typeof ROOM_UNDEFINED | string): Room | undefined {
+    try {
+      const player = this.getPlayer(playerId);
+
+      if (player.hasRoom()) {
+        return this.rooms.tryGetRoomOfPlayer(player.id)!;
+      }
+
+      if (room === ROOM_UNDEFINED || !this.isValidRoom(room)) {
+        return this.addToRandomRoom(player);
+      }
+
+      if (this.rooms.isRoomAvailable(room)) {
+        return this.addToChosenRoom(player, room);
+      }
+
+      return this.addToRandomRoom(player);
+    } catch (error) {
+      console.error(error);
+      console.log('Did not add player to rooms');
+    }
+
+    return undefined;
+  }
+
+  getPlayer(playerId: string): Player {
+    this.throwIfPlayerMissing(playerId);
+    return this.tryGetPlayer(playerId)!;
+  }
+
+  private tryGetPlayer = (playerId: string): Player | undefined =>
+    this.players.find(({ id }) => id === playerId);
+
+  private throwIfPlayerMissing(playerId: string) {
+    if (!this.doesPlayerExist(playerId)) {
+      throw new Error(`Cannot get player ${playerId}. Player does not exist`);
+    }
+  }
+
   private readonly io: ServerIoOverload;
   private getMapState: () => {
     positions: [number, number][];
@@ -14,20 +98,20 @@ export class Players {
   };
   private receiveCuts: (cuts: boolean[]) => void = (cuts) => null;
 
+  private roomNames: RoomNames;
   private rooms: Rooms;
+  private players: Player[] = [];
 
-  constructor(
-    io: ServerIoOverload,
-    getMapState: () => { positions: [number, number][]; rotations: number[]; lengths: number[] },
-  ) {
+  constructor({ io, getMapState, verbose = false, roomNames }: PlayersOptions) {
     this.io = io;
     this.getMapState = getMapState;
-
+    this.roomNames = roomNames;
+    this.verbose = verbose;
     this.rooms = new Rooms(this.io, {
       playerCapacity: PLAYER_CAPACITY,
       roomCapacity: ROOM_CAPACITY,
-      roomNames: RoomNames.createFromStandardNames(),
-      verbose: true,
+      roomNames: roomNames,
+      verbose: this.verbose,
     });
   }
 
@@ -35,9 +119,38 @@ export class Players {
     this.receiveCuts = receiveCuts;
   }
 
-  addPlayer(socket: ServerSocketOverload): void {
+  connectSocket(socket: ServerSocketOverload): void {
+    this.throwIfSocketExists(socket);
+
     const { positions, rotations, lengths } = this.getMapState();
-    this.placePlayerInNextRoom(socket, positions, rotations, lengths);
+    const player = new Player({
+      socket,
+      receiveCuts: this.receiveCuts,
+      positions,
+      rotations,
+      lengths,
+    });
+
+    this.players.push(player);
+  }
+
+  private throwIfSocketExists(socket: ServerSocketOverload) {
+    if (this.doesPlayerExist(socket.id)) {
+      throw new Error(`Cannot connect socket ${socket.id}. Player already exists`);
+    }
+  }
+
+  disconnectSocket(socket: ServerSocketOverload): void {
+    this.throwIfPlayerMissing(socket.id);
+
+    this.players = this.players.filter((currentPlayer) => currentPlayer.id !== socket.id);
+    this.tryRemoveFromRoom(socket.id);
+  }
+
+  private tryRemoveFromRoom(playerId: string) {
+    try {
+      this.rooms.removePlayer(playerId);
+    } catch {}
   }
 
   private placePlayerInNextRoom(
@@ -76,7 +189,7 @@ export class Players {
     }
   }
 
-  changeRoom(socket: ServerSocketOverload, name: string): void {
+  private changeRoom(socket: ServerSocketOverload, name: string): void {
     const { id: playerId } = socket;
 
     try {
@@ -98,11 +211,11 @@ export class Players {
     } catch (error) {
       console.error(`Unable to add Player ${socket.id} to custom room ${name}.`);
       console.log(`Adding player ${socket.id} to random room`);
-      this.addPlayer(socket);
+      this.connectSocket(socket);
     }
   }
 
-  emitPlayerLocations(): void {
-    this.rooms.emitPlayerData();
-  }
+  emitPlayerLocations = (): void => this.rooms.emitPlayerData();
+  doesPlayerExist = (playerId: string): boolean => this.players.some(({ id }) => id === playerId);
+  connectionCount = (): number => this.players.length;
 }

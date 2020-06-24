@@ -70,12 +70,12 @@ export class Rooms {
     }
 
     if (maybeRoom?.isAvailable()) {
-      this.addToRoom(maybeRoom, player);
       maybeRoom.upgrade();
+      this.addToRoom(maybeRoom, player);
       return maybeRoom;
     }
 
-    return this.addToNextRoom(player);
+    throw new Error(`Cannot add player ${player.id} to room ${name}. Room is unavailable`);
   }
 
   private throwIfFull(player: Player) {
@@ -86,15 +86,15 @@ export class Rooms {
   }
 
   private throwIfNameInvalid(name: string) {
-    if (!this.roomNames.isValidRoomName(name))
+    if (!this.isValidRoomName(name))
       throw new Error(`SocketRoom name ${name} is invalid. Cannot add player to room.`);
   }
 
   getRoomNameOfPlayer(playerId: string): string {
     return this.getRoomOfPlayer(playerId).name;
   }
-  tryGetRoomNameOfPlayer(player: Player): string | undefined {
-    return this.rooms.find((room) => room.hasPlayer(player.id))?.name;
+  tryGetRoomOfPlayer(playerId: string): Room | undefined {
+    return this.rooms.find((room) => room.hasPlayer(playerId));
   }
 
   private getRoomOfPlayer(playerId: string): Room {
@@ -110,7 +110,8 @@ export class Rooms {
   }
 
   private findAvailableRooms = () => this.rooms.filter((room) => room.isAvailable());
-  private findRoomByName = (name: string) => this.rooms.find((room) => room.getName() === name);
+  findRoomByName = (name: string): Room | undefined =>
+    this.rooms.find((room) => room.getName() === name);
 
   private addToRoom(room: Room, player: Player): Room {
     try {
@@ -142,7 +143,7 @@ export class Rooms {
     return room;
   }
 
-  private isExistingRoomName = (name: string) => {
+  private isExistingRoomName = (name: string): boolean => {
     const maybeExistingRoom = this.findRoomByName(name);
     return maybeExistingRoom !== undefined;
   };
@@ -163,7 +164,7 @@ export class Rooms {
     this.roomNames.checkInRoom(room.getName());
   }
 
-  private isExistingRoom = (room: Room) => {
+  private isExistingRoom = (room: Room): boolean => {
     const maybeExistingRoom = this.rooms.find((currentRoom) => currentRoom === room);
     return maybeExistingRoom !== undefined;
   };
@@ -180,6 +181,20 @@ export class Rooms {
   emitPlayerData(): void {
     this.rooms.forEach((room) => room.emitPlayerData());
   }
+
+  isPlayerInRooms = (playerId: string): boolean =>
+    this.rooms.some((room) => room.hasPlayer(playerId));
+
+  isRoomAvailable = (name: string): boolean => {
+    if (!this.isValidRoomName(name)) return false;
+
+    const maybeRoom = this.findRoomByName(name);
+    if (!maybeRoom) return true;
+
+    return maybeRoom.isAvailable();
+  };
+
+  private isValidRoomName = (name: string) => this.roomNames.isValidRoomName(name);
 
   logRooms = (): void =>
     console.log(this.rooms.map((room) => `${room.name} - ${room.getPlayers()}`).toString());

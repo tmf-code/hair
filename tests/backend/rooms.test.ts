@@ -1,7 +1,7 @@
 import { ServerIoOverload } from '../../@types/socketio-overloads';
 import { Rooms, SocketRoomsOptions } from '../../backend/src/rooms/rooms';
 import { RoomNames } from '../../backend/src/rooms/room-names';
-import { createPlayer } from './create-player';
+import { createPlayer } from './fixtures/create-player';
 
 const roomNames = RoomNames.createFromStandardNames();
 const playerRoomOptions: SocketRoomsOptions = {
@@ -106,34 +106,6 @@ describe('Rooms tests', () => {
     expect(rooms.getRoomCount()).toBe(1);
     expect(rooms.getPlayerCount()).toBe(2);
     expect(rooms.getRoomNameOfPlayer(player2.id)).toBe(roomName);
-  });
-
-  test('Can add player to a random room if requested room is full', () => {
-    const player1 = createPlayer('1');
-    const player2 = createPlayer('2');
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity: 1 });
-
-    rooms.addToNextRoom(player1);
-    const roomName = rooms.getRoomNameOfPlayer(player1.id);
-    rooms.addToNamedRoom(roomName, player2);
-
-    expect(rooms.getRoomCount()).toBe(2);
-    expect(rooms.getPlayerCount()).toBe(2);
-    expect(rooms.getRoomNameOfPlayer(player2.id)).not.toBe(roomName);
-  });
-
-  test('Can add player to a random room if requested room is full', () => {
-    const player1 = createPlayer('1');
-    const player2 = createPlayer('2');
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity: 1 });
-
-    rooms.addToNextRoom(player1);
-    const roomName = rooms.getRoomNameOfPlayer(player1.id);
-    rooms.addToNamedRoom(roomName, player2);
-
-    expect(rooms.getRoomCount()).toBe(2);
-    expect(rooms.getPlayerCount()).toBe(2);
-    expect(rooms.getRoomNameOfPlayer(player2.id)).not.toBe(roomName);
   });
 
   test('Can remove player from rooms', () => {

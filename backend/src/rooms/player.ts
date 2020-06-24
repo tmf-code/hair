@@ -14,6 +14,7 @@ export class Player {
   private readonly socket: ServerSocketOverload;
   private readonly receiveCuts: (cuts: boolean[]) => void;
   readonly id: string;
+  private room: string | undefined;
 
   private bufferedPlayerData: BufferedPlayerData = [];
 
@@ -50,11 +51,13 @@ export class Player {
   }
 
   join(room: string): void {
+    this.room = room;
     this.socket.join(room);
     this.socket.emit('updateClientRoom', room);
   }
 
   leave(room: string): void {
+    this.room = undefined;
     this.socket.leave(room);
     this.socket.emit('updateClientRoom', '');
   }
@@ -69,4 +72,7 @@ export class Player {
       bufferedPlayerData: this.bufferedPlayerData,
     };
   }
+
+  hasRoom = (): boolean => this.room !== undefined;
+  tryGetRoom = (): string | undefined => this.room;
 }
