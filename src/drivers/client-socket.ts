@@ -17,6 +17,7 @@ export class ClientSocket {
   private socket: ClientSocketOverload;
   private socketCallbacks: SocketCallbacks;
   private clientID = '';
+  private serverSetHashTo = '';
 
   constructor(io: SocketIOClientStatic, mode: string, socketCallbacks: SocketCallbacks) {
     if (this.validateMode(mode)) {
@@ -34,8 +35,9 @@ export class ClientSocket {
 
   private requestRoom(event: HashChangeEvent) {
     if (event.oldURL === event.newURL) return;
-
     const requestedRoom = window.location.hash.replace('#', '');
+    if (requestedRoom === this.serverSetHashTo.replace('#', '')) return;
+
     this.socket.emit('requestRoom', requestedRoom);
   }
 
@@ -74,6 +76,7 @@ export class ClientSocket {
     this.socket.on('updateClientRoom', (room: string) => {
       if (`#${room}` === window.location.hash) return;
       window.location.hash = `#${room}`;
+      this.serverSetHashTo = `#${room}`;
     });
 
     this.socket.on('updatePlayersData', (playerData: PlayersDataMessage) => {
