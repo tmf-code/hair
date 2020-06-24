@@ -5,7 +5,6 @@ import { ServerIoOverload } from '../../../@types/socketio-overloads';
 interface RoomOptions {
   io: ServerIoOverload;
   name: string;
-  firstPlayer?: Player;
   capacity: number;
 }
 
@@ -15,13 +14,17 @@ export class Room {
   players: Player[] = [];
   capacity: number;
 
-  constructor({ io, name, firstPlayer, capacity }: RoomOptions) {
+  static withPlayer(options: RoomOptions, firstPlayer: Player): Room {
+    const room = new Room(options);
+    room.addPlayer(firstPlayer);
+
+    return room;
+  }
+
+  constructor({ io, name, capacity }: RoomOptions) {
     this.name = name;
     this.capacity = capacity;
     this.io = io;
-
-    if (!firstPlayer) return;
-    this.addPlayer(firstPlayer);
   }
 
   addPlayer(player: Player): this {
