@@ -159,7 +159,6 @@ const fourthWord = [
   'hip',
   'knee',
   'leg',
-  'leg',
   'lip',
   'midriff',
   'nape',
@@ -168,7 +167,8 @@ const fourthWord = [
   'shoulder',
   'thigh',
   'torso',
-  'torso',
   'waist',
   'whisker',
+  'ear',
+  'breast',
 ];
