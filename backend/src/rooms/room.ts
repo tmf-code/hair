@@ -14,22 +14,20 @@ export class Room {
   io: ServerIoOverload;
   name: string;
   players: Player[] = [];
-  capacity: number;
   lowCapacity: number;
   highCapacity: number;
   verbose: boolean;
 
   static withPlayer(options: RoomOptions, firstPlayer: Player): Room {
     const room = new Room(options);
-    room.addPlayer(firstPlayer);
+    room.addLowPlayer(firstPlayer);
 
     return room;
   }
 
   constructor({ io, name, lowCapacity, highCapacity, verbose = false }: RoomOptions) {
     this.name = name;
-    this.capacity = lowCapacity;
-    this.lowCapacity = this.capacity;
+    this.lowCapacity = lowCapacity;
     this.highCapacity = highCapacity;
     this.io = io;
     this.verbose = verbose;
@@ -37,25 +35,8 @@ export class Room {
     this.verbose && console.log(`CREATED: ${this.name}`);
   }
 
-  upgrade(): void {
-    this.capacity = this.highCapacity;
-    this.verbose && console.log(`UPGRADED: ${this.name}`);
-  }
-
-  private downgrade(): void {
-    if (this.getSize() > this.lowCapacity) {
-      throw new Error(
-        `Could not downgrade room ${
-          this.name
-        }. Room had too player players. Got ${this.getSize()}, expected ${this.lowCapacity}`,
-      );
-    }
-    this.capacity = this.lowCapacity;
-    this.verbose && console.log(`DOWNGRADED: ${this.name}`);
-  }
-
-  addPlayer(player: Player): this {
-    this.throwIfFull(player);
+  addHighPlayer(player: Player): this {
+    this.throwIfHighFull(player);
     this.throwIfDuplicate(player);
     this.players.push(player);
     player.join(this.name);
@@ -63,9 +44,22 @@ export class Room {
     return this;
   }
 
-  private throwIfFull(player: Player) {
-    if (this.isFull())
-      throw new Error(`Cannot add player ${player.id} to room ${this.name}. Room is full`);
+  addLowPlayer(player: Player): this {
+    this.throwIfLowFull(player);
+    this.throwIfDuplicate(player);
+    this.players.push(player);
+    player.join(this.name);
+
+    return this;
+  }
+
+  private throwIfHighFull(player: Player) {
+    if (this.isHighFull())
+      throw new Error(`Cannot add player ${player.id} to room ${this.name}. Room is high full`);
+  }
+  private throwIfLowFull(player: Player) {
+    if (this.isLowFull())
+      throw new Error(`Cannot add player ${player.id} to room ${this.name}. Room is low full`);
   }
 
   private throwIfDuplicate(player: Player) {
@@ -83,11 +77,6 @@ export class Room {
     this.players = this.players.filter(({ id }) => id !== player?.id);
     player?.leave(this.name);
     player?.destroy();
-
-    const shouldDowngrade = this.getSize() <= this.lowCapacity && this.isUpgraded();
-    if (shouldDowngrade) {
-      this.downgrade();
-    }
   }
 
   private throwIfUnknown(playerId: string) {
@@ -116,11 +105,10 @@ export class Room {
   getPlayers = (): readonly string[] => this.players.map((players) => players.id);
   hasPlayer = (id: string): boolean =>
     this.players.find((currentPlayer) => id === currentPlayer.id) !== undefined;
-  isAvailable = (): boolean => !this.isFull() && !this.isEmpty();
-  isFull = (): boolean => this.players.length >= this.capacity;
+  isLowAvailable = (): boolean => !this.isLowFull() && !this.isEmpty();
+  isHighAvailable = (): boolean => !this.isHighFull() && !this.isEmpty();
   isLowFull = (): boolean => this.players.length >= this.lowCapacity;
   isHighFull = (): boolean => this.players.length >= this.highCapacity;
-  isUpgraded = (): boolean => this.capacity === this.highCapacity;
   isEmpty = (): boolean => this.players.length === 0;
   getSize = (): number => this.players.length;
   getName = (): string => this.name;

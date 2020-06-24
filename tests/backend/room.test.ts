@@ -21,7 +21,7 @@ describe('Room tests', () => {
     const player = createPlayer('1');
     const room = createRoom();
 
-    room.addPlayer(player);
+    room.addLowPlayer(player);
     expect(room.hasPlayer(player.id)).toBeTruthy();
   });
 
@@ -29,7 +29,7 @@ describe('Room tests', () => {
     const player = createPlayer('1');
     const room = createRoom();
 
-    room.addPlayer(player);
+    room.addLowPlayer(player);
     room.removePlayer(player.id);
     expect(room.hasPlayer(player.id)).toBeFalsy();
   });
@@ -38,9 +38,9 @@ describe('Room tests', () => {
     const player = createPlayer('1');
     const room = createRoom({ lowCapacity: 1 });
 
-    room.addPlayer(player);
+    room.addLowPlayer(player);
     expect(room.hasPlayer(player.id)).toBeTruthy();
-    expect(room.isFull()).toBeTruthy();
+    expect(room.isLowFull()).toBeTruthy();
   });
 
   test('Room can be empty', () => {
@@ -52,9 +52,9 @@ describe('Room tests', () => {
     const player = createPlayer('1');
 
     const room = createRoom();
-    room.addPlayer(player);
+    room.addLowPlayer(player);
 
-    const addPlayer = () => room.addPlayer(player);
+    const addPlayer = () => room.addLowPlayer(player);
 
     expect(addPlayer).toThrow();
     expect(room.getSize()).toBe(1);
@@ -65,9 +65,9 @@ describe('Room tests', () => {
     const player2 = createPlayer('2');
 
     const room = createRoom({ lowCapacity: 1 });
-    room.addPlayer(player1);
+    room.addLowPlayer(player1);
 
-    const addPlayer = () => room.addPlayer(player2);
+    const addPlayer = () => room.addLowPlayer(player2);
     expect(addPlayer).toThrow();
   });
 
@@ -76,58 +76,6 @@ describe('Room tests', () => {
 
     const removePlayer = () => room.removePlayer('1');
     expect(removePlayer).toThrow();
-  });
-
-  test('Room can be upgraded to larger capacity', () => {
-    const firstNumberPlayers = 10;
-    const secondNumberPlayers = 5;
-    const lowCapacity = 5;
-    const highCapacity = 10;
-    const playerGenerator = generatePlayers();
-    const room = createRoom({ lowCapacity, highCapacity });
-
-    const addFirstPlayers = () => {
-      const players = [...new Array(firstNumberPlayers)].map(() => playerGenerator.next().value);
-      players.forEach((player) => room.addPlayer(player));
-    };
-
-    const addSecondPlayers = () => {
-      const players = [...new Array(secondNumberPlayers)].map(() => playerGenerator.next().value);
-      players.forEach((player) => room.addPlayer(player));
-    };
-
-    expect(room.isUpgraded()).toBeFalsy();
-    expect(addFirstPlayers).toThrow();
-    expect(room.isFull()).toBeTruthy();
-    room.upgrade();
-    expect(room.isUpgraded()).toBeTruthy();
-    expect(room.isAvailable()).toBeTruthy();
-    expect(room.isFull()).toBeFalsy();
-    expect(addSecondPlayers).not.toThrow();
-
-    expect(room.isFull()).toBeTruthy();
-    expect(room.getSize()).toBe(highCapacity);
-  });
-
-  test('Room downgrades if size goes below low capacity', () => {
-    const firstNumberPlayers = 10;
-    const lowCapacity = 5;
-    const highCapacity = 10;
-    const playerGenerator = generatePlayers();
-    const room = createRoom({ lowCapacity, highCapacity });
-    room.upgrade();
-
-    const players = [...new Array(firstNumberPlayers)].map(() => playerGenerator.next().value);
-    players.forEach((player) => room.addPlayer(player));
-
-    expect(room.isFull()).toBeTruthy();
-    expect(room.isUpgraded()).toBeTruthy();
-
-    const firstPlayers = players.slice(0, lowCapacity);
-    firstPlayers.forEach((player) => room.removePlayer(player.id));
-
-    expect(room.isFull()).toBeTruthy();
-    expect(room.isUpgraded()).toBeFalsy();
   });
 
   test('Can simulating players entering and exiting', () => {
@@ -144,11 +92,10 @@ describe('Room tests', () => {
       for (let simulationStep = 0; simulationStep < simulationTimes; simulationStep++) {
         const shouldAddPlayer = Math.random() < 0.5;
         const shouldRemovePlayer = Math.random() < 0.5;
-        const shouldUpgradeRoom = Math.random() < 0.05;
 
-        if (shouldAddPlayer && !room.isFull()) {
+        if (shouldAddPlayer && !room.isLowFull()) {
           const player = playerGenerator.next().value;
-          room.addPlayer(player);
+          room.addLowPlayer(player);
           addedPlayers.push(player);
         }
 
@@ -156,10 +103,6 @@ describe('Room tests', () => {
           const player = selectRandom(addedPlayers);
           room.removePlayer(player.id);
           addedPlayers = addedPlayers.filter(({ id }) => id !== player.id);
-        }
-
-        if (shouldUpgradeRoom) {
-          room.upgrade();
         }
       }
     };

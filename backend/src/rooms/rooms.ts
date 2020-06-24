@@ -74,12 +74,10 @@ export class Rooms {
 
     if (roomDoesNotExist) {
       const room = this.createNamedRoom(name, player);
-      room.upgrade();
       return room;
     }
 
-    if (maybeRoom?.isAvailable()) {
-      maybeRoom.upgrade();
+    if (maybeRoom?.isHighAvailable()) {
       this.addToHighRoom(maybeRoom, player);
       return maybeRoom;
     }
@@ -127,7 +125,7 @@ export class Rooms {
       return this.createRandomRoom(player);
     }
 
-    room.addPlayer(player);
+    room.addHighPlayer(player);
 
     return room;
   }
@@ -137,7 +135,7 @@ export class Rooms {
       return this.createRandomRoom(player);
     }
 
-    room.addPlayer(player);
+    room.addHighPlayer(player);
     return room;
   }
 
@@ -210,7 +208,7 @@ export class Rooms {
     const maybeRoom = this.findRoomByName(name);
     if (!maybeRoom) return true;
 
-    return maybeRoom.isAvailable();
+    return maybeRoom.isLowAvailable();
   };
 
   private isValidRoomName = (name: string) => this.roomNames.isValidRoomName(name);
