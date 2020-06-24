@@ -170,5 +170,5 @@ const fourthWord = [
   'torso',
   'torso',
   'waist',
-  'whiskers',
+  'whisker',
 ];
