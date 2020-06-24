@@ -17,7 +17,7 @@ const createRoom = ({
 };
 
 describe('Room tests', () => {
-  test('Can add player', () => {
+  test('Can add low player', () => {
     const player = createPlayer('1');
     const room = createRoom();
 
@@ -34,13 +34,26 @@ describe('Room tests', () => {
     expect(room.hasPlayer(player.id)).toBeFalsy();
   });
 
-  test('Room can be full', () => {
+  test('Room can be low full', () => {
     const player = createPlayer('1');
     const room = createRoom({ lowCapacity: 1 });
 
     room.addLowPlayer(player);
     expect(room.hasPlayer(player.id)).toBeTruthy();
     expect(room.isLowFull()).toBeTruthy();
+  });
+
+  test('Room can be high full', () => {
+    const player1 = createPlayer('1');
+    const player2 = createPlayer('2');
+    const room = createRoom({ lowCapacity: 1, highCapacity: 2 });
+
+    room.addHighPlayer(player1);
+    room.addHighPlayer(player2);
+    expect(room.hasPlayer(player1.id)).toBeTruthy();
+    expect(room.hasPlayer(player2.id)).toBeTruthy();
+    expect(room.isLowFull()).toBeTruthy();
+    expect(room.isHighFull()).toBeTruthy();
   });
 
   test('Room can be empty', () => {
@@ -60,7 +73,7 @@ describe('Room tests', () => {
     expect(room.getSize()).toBe(1);
   });
 
-  test('Room cannot add beyond capacity', () => {
+  test('Room cannot add beyond low capacity', () => {
     const player1 = createPlayer('1');
     const player2 = createPlayer('2');
 
@@ -69,6 +82,42 @@ describe('Room tests', () => {
 
     const addPlayer = () => room.addLowPlayer(player2);
     expect(addPlayer).toThrow();
+  });
+
+  test('Room cannot add beyond high capacity', () => {
+    const player1 = createPlayer('1');
+    const player2 = createPlayer('2');
+    const player3 = createPlayer('3');
+
+    const room = createRoom({ lowCapacity: 1, highCapacity: 2 });
+    room.addHighPlayer(player1);
+    room.addHighPlayer(player2);
+
+    const addPlayer = () => room.addHighPlayer(player3);
+    expect(addPlayer).toThrow();
+  });
+
+  test('Room can be low full and accept high players', () => {
+    const player1 = createPlayer('1');
+    const player2 = createPlayer('2');
+
+    const room = createRoom({ lowCapacity: 1, highCapacity: 2 });
+
+    expect(room.isLowAvailable()).toBeFalsy();
+    expect(room.isHighAvailable()).toBeFalsy();
+
+    room.addLowPlayer(player1);
+
+    expect(room.isLowFull()).toBeTruthy();
+    expect(room.isLowAvailable()).toBeFalsy();
+
+    expect(room.isHighFull()).toBeFalsy();
+    expect(room.isHighAvailable()).toBeTruthy();
+
+    room.addHighPlayer(player2);
+
+    expect(room.isHighFull()).toBeTruthy();
+    expect(room.isHighAvailable()).toBeFalsy();
   });
 
   test('Room cannot remove unknown player', () => {
@@ -90,12 +139,19 @@ describe('Room tests', () => {
 
     const simulation = () => {
       for (let simulationStep = 0; simulationStep < simulationTimes; simulationStep++) {
-        const shouldAddPlayer = Math.random() < 0.5;
+        const shouldAddLowPlayer = Math.random() < 0.5;
+        const shouldAddHighPlayer = Math.random() < 0.5;
         const shouldRemovePlayer = Math.random() < 0.5;
 
-        if (shouldAddPlayer && !room.isLowFull()) {
+        if (shouldAddLowPlayer && !room.isLowFull()) {
           const player = playerGenerator.next().value;
           room.addLowPlayer(player);
+          addedPlayers.push(player);
+        }
+
+        if (shouldAddHighPlayer && !room.isHighFull()) {
+          const player = playerGenerator.next().value;
+          room.addHighPlayer(player);
           addedPlayers.push(player);
         }
 

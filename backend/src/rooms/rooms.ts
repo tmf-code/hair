@@ -82,7 +82,9 @@ export class Rooms {
       return maybeRoom;
     }
 
-    throw new Error(`Cannot add player ${player.id} to room ${name}. Room is unavailable`);
+    const room = this.createRandomRoom(player);
+    this.verbose && console.log(`CHOSEN is FULL: Created room ${room.name}`);
+    return room;
   }
 
   private throwIfFull(player: Player) {
@@ -125,7 +127,7 @@ export class Rooms {
       return this.createRandomRoom(player);
     }
 
-    room.addHighPlayer(player);
+    room.addLowPlayer(player);
 
     return room;
   }
