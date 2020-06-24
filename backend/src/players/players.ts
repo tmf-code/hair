@@ -49,7 +49,8 @@ export class Players {
       const player = this.getPlayer(playerId);
 
       if (player.hasRoom()) {
-        return this.rooms.tryGetRoomOfPlayer(player.id)!;
+        this.tryRemoveFromRoom(playerId);
+        return this.addPlayer(playerId, room);
       }
 
       if (room === ROOM_UNDEFINED || !this.isValidRoom(room)) {
@@ -96,12 +97,14 @@ export class Players {
     }
   }
 
-  private addToChosenRoom(player: Player, room: string): Room {
+  private addToChosenRoom(player: Player, roomName: string): Room {
     this.throwIfPlayerHasRoom(player);
-    this.throwIfRoomNameIsInvalid(room);
+    this.throwIfRoomNameIsInvalid(roomName);
 
-    this.verbose && console.log(`ADD CHOSEN: Player ${player.id} to room ${room}`);
-    return this.rooms.addToNamedRoom(room, player);
+    const room = this.rooms.addToNamedRoom(roomName, player);
+    this.verbose && console.log(`ADD CHOSEN: Player ${player.id} to room ${roomName}`);
+
+    return room;
   }
 
   private throwIfRoomNameIsInvalid(room: string) {
