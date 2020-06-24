@@ -27,7 +27,10 @@ export class Rooms {
   }
 
   private makeRoom(name: string, player: Player, roomCapacity: number): Room {
-    const room = Room.withPlayer({ io: this.io, name, capacity: roomCapacity }, player);
+    const room = Room.withPlayer(
+      { io: this.io, name, capacity: roomCapacity, upgradedCapacity: roomCapacity * 4 },
+      player,
+    );
     return room;
   }
 

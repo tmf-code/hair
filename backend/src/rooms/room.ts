@@ -6,6 +6,7 @@ interface RoomOptions {
   io: ServerIoOverload;
   name: string;
   capacity: number;
+  upgradedCapacity: number;
 }
 
 export class Room {
@@ -13,6 +14,8 @@ export class Room {
   name: string;
   players: Player[] = [];
   capacity: number;
+  normalCapacity: number;
+  upgradedCapacity: number;
 
   static withPlayer(options: RoomOptions, firstPlayer: Player): Room {
     const room = new Room(options);
@@ -21,10 +24,27 @@ export class Room {
     return room;
   }
 
-  constructor({ io, name, capacity }: RoomOptions) {
+  constructor({ io, name, capacity, upgradedCapacity }: RoomOptions) {
     this.name = name;
     this.capacity = capacity;
+    this.normalCapacity = this.capacity;
+    this.upgradedCapacity = upgradedCapacity;
     this.io = io;
+  }
+
+  upgrade(): void {
+    this.capacity = this.upgradedCapacity;
+  }
+
+  private downgrade(): void {
+    if (this.getSize() > this.normalCapacity) {
+      throw new Error(
+        `Could not downgrade room ${
+          this.name
+        }. Room had too player players. Got ${this.getSize()}, expected ${this.normalCapacity}`,
+      );
+    }
+    this.capacity = this.normalCapacity;
   }
 
   addPlayer(player: Player): this {
@@ -56,6 +76,11 @@ export class Room {
     this.players = this.players.filter(({ id }) => id !== player?.id);
     player?.leave(this.name);
     player?.destroy();
+
+    const shouldDowngrade = this.getSize() <= this.normalCapacity && this.isUpgraded();
+    if (shouldDowngrade) {
+      this.downgrade();
+    }
   }
 
   private throwIfUnknown(playerId: string) {
@@ -86,6 +111,7 @@ export class Room {
     this.players.find((currentPlayer) => id === currentPlayer.id) !== undefined;
   isAvailable = (): boolean => !this.isFull() && !this.isEmpty();
   isFull = (): boolean => this.players.length >= this.capacity;
+  isUpgraded = (): boolean => this.capacity === this.upgradedCapacity;
   isEmpty = (): boolean => this.players.length === 0;
   getSize = (): number => this.players.length;
   getName = (): string => this.name;

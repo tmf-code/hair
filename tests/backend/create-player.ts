@@ -17,3 +17,11 @@ export const createPlayer = (id: string): Player => {
 
   return player;
 };
+
+export const generatePlayers = function* (): Generator<Player, never, unknown> {
+  let playerIndex = 0;
+  while (true) {
+    playerIndex++;
+    yield createPlayer(playerIndex.toString());
+  }
+};
