@@ -28,29 +28,46 @@ export class Room {
   }
 
   addPlayer(player: Player): this {
-    if (this.isFull())
-      throw new Error(`Cannot add player ${player.id} to room ${this.name}. Room is full`);
-
+    this.throwIfFull(player);
+    this.throwIfDuplicate(player);
     this.players.push(player);
     player.join(this.name);
 
     return this;
   }
 
-  removePlayer(playerId: string): void {
-    const maybePlayerIndex = this.players.findIndex(
-      (currentPlayer) => currentPlayer.id === playerId,
-    );
+  private throwIfFull(player: Player) {
+    if (this.isFull())
+      throw new Error(`Cannot add player ${player.id} to room ${this.name}. Room is full`);
+  }
 
-    const playerNotInRoom = maybePlayerIndex === -1;
-    if (playerNotInRoom)
+  private throwIfDuplicate(player: Player) {
+    if (this.hasPlayer(player.id)) {
+      throw new Error(
+        `Cannot add player ${player.id} to room ${this.name}. Player already in room`,
+      );
+    }
+  }
+
+  removePlayer(playerId: string): void {
+    this.throwIfUnknown(playerId);
+
+    const player = this.getPlayer(playerId);
+    this.players = this.players.filter(({ id }) => id !== player?.id);
+    player?.leave(this.name);
+    player?.destroy();
+  }
+
+  private throwIfUnknown(playerId: string) {
+    if (!this.hasPlayer(playerId)) {
       throw new Error(
         `Cannot remove player ${playerId} from room ${this.name}. Room does not contain player.`,
       );
+    }
+  }
 
-    const [player] = this.players.splice(maybePlayerIndex, 1);
-    player.leave(this.name);
-    player.destroy();
+  private getPlayer(playerId: string) {
+    return this.players.find(({ id }) => id === playerId);
   }
 
   emitPlayerData(): void {
