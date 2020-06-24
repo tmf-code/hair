@@ -1,8 +1,8 @@
-import { SocketPlayer } from './../rooms/socket-player';
+import { Player } from '../rooms/player';
 import { ServerIoOverload } from './../../../@types/socketio-overloads.d';
 import { RoomNames } from './../rooms/room-names';
 import { ServerSocketOverload } from '../../../@types/socketio-overloads';
-import { SocketRooms } from './../rooms/socket-rooms';
+import { Rooms } from '../rooms/rooms';
 import { PLAYER_CAPACITY, ROOM_CAPACITY } from './../constants';
 
 export class Players {
@@ -14,7 +14,7 @@ export class Players {
   };
   private receiveCuts: (cuts: boolean[]) => void = (cuts) => null;
 
-  private rooms: SocketRooms;
+  private rooms: Rooms;
 
   constructor(
     io: ServerIoOverload,
@@ -23,10 +23,11 @@ export class Players {
     this.io = io;
     this.getMapState = getMapState;
 
-    this.rooms = new SocketRooms(this.io, {
+    this.rooms = new Rooms(this.io, {
       playerCapacity: PLAYER_CAPACITY,
       roomCapacity: ROOM_CAPACITY,
       roomNames: RoomNames.createFromStandardNames(),
+      verbose: true,
     });
   }
 
@@ -45,7 +46,7 @@ export class Players {
     rotations: number[],
     lengths: number[],
   ) {
-    const player = new SocketPlayer({
+    const player = new Player({
       socket,
       receiveCuts: this.receiveCuts,
       positions,
@@ -68,7 +69,7 @@ export class Players {
     try {
       const guestsRoom = this.rooms.getRoomNameOfPlayer(playerId);
       this.rooms.removePlayer(playerId);
-      console.log(`Guest disconnected from room ${guestsRoom} with id:${socket.id}`);
+      console.log(`REMOVE: Player ${socket.id} disconnected from room ${guestsRoom}`);
     } catch (error) {
       console.log(error);
       console.error(`Player ${playerId} connection was not in room. Could not delete.`);
@@ -85,7 +86,7 @@ export class Players {
 
       this.removePlayer(socket);
       const { positions, rotations, lengths } = this.getMapState();
-      const player = new SocketPlayer({
+      const player = new Player({
         socket,
         receiveCuts: this.receiveCuts,
         positions,
@@ -95,9 +96,8 @@ export class Players {
       const room = this.rooms.addToNamedRoom(name, player);
       console.log(`ADD CHOSEN: ${socket.id} to room ${room.getName()}`);
     } catch (error) {
-      console.log(error);
       console.error(`Unable to add Player ${socket.id} to custom room ${name}.`);
-      console.log(` Adding player ${socket.id} to random room`);
+      console.log(`Adding player ${socket.id} to random room`);
       this.addPlayer(socket);
     }
   }

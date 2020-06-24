@@ -1,8 +1,8 @@
-import { ServerSocketOverload } from './../../../@types/socketio-overloads.d';
+import { ServerSocketOverload } from '../../../@types/socketio-overloads';
 import { BufferedPlayerData } from '../../../@types/messages';
 import { IPlayerData } from '../players/i-player-data';
 
-interface SocketPlayerOptions {
+interface PlayerOptions {
   socket: ServerSocketOverload;
   receiveCuts: (cuts: boolean[]) => void;
   positions: [number, number][];
@@ -10,14 +10,14 @@ interface SocketPlayerOptions {
   lengths: number[];
 }
 
-export class SocketPlayer {
+export class Player {
   private readonly socket: ServerSocketOverload;
   private readonly receiveCuts: (cuts: boolean[]) => void;
   readonly id: string;
 
   private bufferedPlayerData: BufferedPlayerData = [];
 
-  constructor({ socket, receiveCuts, positions, rotations, lengths }: SocketPlayerOptions) {
+  constructor({ socket, receiveCuts, positions, rotations, lengths }: PlayerOptions) {
     this.socket = socket;
     this.id = socket.id;
 
