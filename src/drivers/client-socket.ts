@@ -33,7 +33,6 @@ export class ClientSocket {
   }
 
   private requestRoom(event: HashChangeEvent) {
-    if (window.location.hash === '') return;
     if (event.oldURL === event.newURL) return;
 
     const requestedRoom = window.location.hash.replace('#', '');
@@ -73,7 +72,8 @@ export class ClientSocket {
     );
 
     this.socket.on('updateClientRoom', (room: string) => {
-      window.location.replace(`#${room}`);
+      if (`#${room}` === window.location.hash) return;
+      window.location.hash = `#${room}`;
     });
 
     this.socket.on('updatePlayersData', (playerData: PlayersDataMessage) => {
