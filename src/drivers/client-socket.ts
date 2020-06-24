@@ -23,8 +23,8 @@ export class ClientSocket {
       this.socket = this.connectSocket(io, mode);
       this.attachSocketHandlers();
       this.createSocketEmitters();
-      this.maybeRequestRoom();
-      window.addEventListener('hashchange', (event) => this.maybeRequestRoom(event));
+      this.enterFirstRoom();
+      window.addEventListener('hashchange', (event) => this.requestRoom(event));
     } else {
       throw new Error(`Mode should be either 'production' or 'development', got ${mode}`);
     }
@@ -32,10 +32,17 @@ export class ClientSocket {
     this.socketCallbacks = socketCallbacks;
   }
 
-  private maybeRequestRoom(event?: HashChangeEvent) {
+  private requestRoom(event: HashChangeEvent) {
     if (window.location.hash === '') return;
-    if (event?.oldURL === event?.newURL) return;
+    if (event.oldURL === event.newURL) return;
 
+    const requestedRoom = window.location.hash.replace('#', '');
+    this.socket.emit('requestRoom', requestedRoom);
+  }
+
+  private enterFirstRoom() {
+    const userWantsRoom = window.location.hash !== '';
+    if (!userWantsRoom) return;
     const requestedRoom = window.location.hash.replace('#', '');
     this.socket.emit('requestRoom', requestedRoom);
   }
