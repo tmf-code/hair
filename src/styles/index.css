@@ -61,12 +61,20 @@ p {
   margin-top: 0em;
   margin-bottom: 24px;
 }
+@media (max-width: 700px) {
+  p {
+    margin-bottom: 19px;
+  }
+}
 
 .colofon-text {
   position: absolute;
   display: block;
   z-index: 2;
   background-color: #80d993ec;
+  font-size: 26px;
+  letter-spacing: 0.02em;
+  line-height: 1.2em;
   text-shadow: 0 0 black;
   right: 0px;
   top: 0px;
@@ -84,20 +92,16 @@ p {
   -webkit-user-select: none; /* Safari */
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* IE10+/Edge */
-  font-size: 26px;
-  letter-spacing: 0.02em;
-  line-height: 1.2em;
 }
 @media (max-width: 700px) {
   .colofon-text {
+    font-size: 21px;
+    width: 100%;
     padding-right: 15px;
     padding-left: 15px;
-    /* word-break: break-all; */
     -webkit-box-sizing: border-box;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
-    width: 100%;
-    font-size: 21px;
   }
 }
 
@@ -168,32 +172,23 @@ button:focus {
   border: 1px solid;
   border-radius: 50px;
   box-shadow: -1px 1px black;
-  width: 262px;
+  width: 266px;
 }
 .copyLinkButton:active {
-  box-shadow: 0 0 #666;
+  box-shadow: 0 0 black;
   -ms-transform: translate(calc(-50% - 45px - 1px), 1px);
   transform: translate(calc(-50% - 45px - 1px), 1px);
-}
-.copyLinkTooltip {
-  position: relative;
-  height: 0;
-  top: calc(-1em - 2px - 1px);
-  letter-spacing: 0.05em;
 }
 @media (max-width: 700px) {
   .copyLinkButton {
     -ms-transform: translate(-50%, 0);
     transform: translate(-50%, 0);
-    width: 218px;
+    width: 222px;
   }
   .copyLinkButton:active {
     -ms-transform: translate(calc(-50% - 1px), 1px);
     transform: translate(calc(-50% - 1px), 1px);
   }
-  /* .copyLinkTooltip {
-    top: -21px;
-  } */
 }
 
 .linkButtonContainer {
@@ -209,10 +204,13 @@ a {
   text-decoration: none;
   color: black;
   border-bottom: 1px solid currentColor;
-  /* box-shadow: 0 0.1em 0 -0.25em black; */
 }
 a:hover {
-  color: orangered;
+  /* color: orangered; */
+  /* color: #746d75ff; */
+  /* color: #61b4d8ff;  */
+  color: rgb(46, 171, 224);
+  /* color: rgb(49, 149, 193); */
 }
 
 .logo-image {
