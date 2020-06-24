@@ -10,12 +10,12 @@ const ColofonText = ({ roomName, url }: ColofonTextProps): React.ReactElement =>
   return (
     <div className="colofon-text">
       <h1>Come Shave With Me</h1>
-      <p>Shave close with up to 5 friends.</p>
+      <p>Shave close with up to 20 friends.</p>
       <p>Share this {roomName}:</p>
       {<ColofonLinkButton defaultButtonText={'Copy link to share'} copyLink={url} />}
       <p>
         Come Shave With Me is a project by{' '}
-        <a href={'https://www.tmf.design/about'}>Alexandra Barancová & Jae Perris</a> in
+        <a href={'https://www.tmf.design/about'}>Alexandra Barancová &amp; Jae Perris</a> in
         collaboration with <a href={'https://studiomoniker.com/about'}>Moniker</a>.
       </p>
       <p>
@@ -39,7 +39,7 @@ const ColofonText = ({ roomName, url }: ColofonTextProps): React.ReactElement =>
         enjoyed from bodily grooming could be recreated and shared in virtual spaces.
       </p>
       <p>
-        This work is an outcome of Figurable, an artistic research project funded by the Creative
+        This work is an outcome of Figureable, an artistic research project funded by the Creative
         Industries Fund NL. Figureable explores our relationships to and with our bodies through
         embodiment in games.
       </p>
