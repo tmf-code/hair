@@ -35,13 +35,18 @@ const CurrentPlayerRazor = ({ updateFrame }: CurrentPlayerRazorProps): React.Rea
 const installUseEffects = (
   setMouseUp: React.Dispatch<React.SetStateAction<boolean>>,
 ): React.EffectCallback => () => {
-  const down = () => setMouseUp(false);
+  const down = (event: MouseEvent | TouchEvent) => {
+    const shouldClick = event.target && isCanvasClicked(event.target as HTMLElement);
+    if (shouldClick) {
+      setMouseUp(false);
+    }
+  };
   const up = () => setMouseUp(true);
   let touchCount = 0;
   const handleTouchStart = (touchEvent: TouchEvent) => {
     touchCount = touchEvent.touches.length;
     if (touchCount === 1) {
-      down();
+      down(touchEvent);
     } else {
       up();
     }
@@ -49,10 +54,14 @@ const installUseEffects = (
   const handleTouchEnd = (touchEvent: TouchEvent) => {
     touchCount = touchEvent.touches.length;
     if (touchCount === 1) {
-      down();
+      down(touchEvent);
     } else {
       up();
     }
+  };
+
+  const isCanvasClicked = (target: HTMLElement) => {
+    return target.tagName === 'CANVAS';
   };
 
   document.addEventListener('mousedown', down);
