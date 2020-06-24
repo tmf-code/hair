@@ -22,7 +22,7 @@ export class CurrentPlayer extends Player {
     const data: PlayerData = {
       rotation: this.getRotation(),
       position: this.getPointerPosition(),
-      state: this.isCutting() ? 'CUTTING' : 'NOT_CUTTING',
+      state: this.isCutting() && Mouse.getTarget() === 'CANVAS' ? 'CUTTING' : 'NOT_CUTTING',
     };
 
     this.addPlayerData(data);
