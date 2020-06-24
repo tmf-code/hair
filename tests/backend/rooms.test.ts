@@ -6,7 +6,8 @@ import { createPlayer } from './fixtures/create-player';
 const roomNames = RoomNames.createFromStandardNames();
 const playerRoomOptions: SocketRoomsOptions = {
   playerCapacity: 10,
-  roomCapacity: 10,
+  lowRoomCapacity: 10,
+  highRoomCapacity: 20,
   roomNames: roomNames,
 };
 
@@ -25,7 +26,7 @@ describe('Rooms tests', () => {
 
   test('Can add player to next room', () => {
     const player = createPlayer('1');
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity: 1 });
+    const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity: 1 });
 
     rooms.addToNextRoom(player);
 
@@ -46,10 +47,10 @@ describe('Rooms tests', () => {
   });
 
   test('Exceeding room capacity adds another room', () => {
-    const roomCapacity = 1;
+    const lowRoomCapacity = 1;
     const player1 = createPlayer('1');
     const player2 = createPlayer('2');
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity });
+    const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity });
 
     rooms.addToNextRoom(player1);
     rooms.addToNextRoom(player2);
@@ -60,11 +61,11 @@ describe('Rooms tests', () => {
 
   test('Can add many players to next room', () => {
     const playerCount = 10;
-    const roomCapacity = 4;
+    const lowRoomCapacity = 4;
     const players = createAmount(10, (index) => createPlayer(index.toString()));
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity });
+    const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity });
 
-    const expectedRoomCount = Math.ceil(playerCount / roomCapacity);
+    const expectedRoomCount = Math.ceil(playerCount / lowRoomCapacity);
     players.forEach((player) => rooms.addToNextRoom(player));
 
     expect(rooms.getRoomCount()).toBe(expectedRoomCount);
@@ -110,7 +111,7 @@ describe('Rooms tests', () => {
 
   test('Can remove player from rooms', () => {
     const player1 = createPlayer('1');
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity: 1 });
+    const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity: 1 });
 
     rooms.addToNextRoom(player1);
     rooms.removePlayer(player1.id);
@@ -121,7 +122,7 @@ describe('Rooms tests', () => {
     const player1 = createPlayer('1');
     const player2 = createPlayer('2');
     const player3 = createPlayer('3');
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity: 2 });
+    const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity: 2 });
     rooms.addToNextRoom(player1);
     rooms.addToNextRoom(player2);
     rooms.addToNextRoom(player3);
@@ -143,7 +144,7 @@ describe('Rooms tests', () => {
   });
 
   test('Removing a non exiting player throws', () => {
-    const rooms = new Rooms(io, { ...playerRoomOptions, roomCapacity: 2 });
+    const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity: 2 });
     const player1 = createPlayer('1');
     expect(() => rooms.removePlayer(player1.id)).toThrow();
   });

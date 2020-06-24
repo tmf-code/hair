@@ -5,7 +5,8 @@ import { RoomNames } from './room-names';
 
 export interface SocketRoomsOptions {
   playerCapacity: number;
-  roomCapacity: number;
+  lowRoomCapacity: number;
+  highRoomCapacity: number;
   roomNames: RoomNames;
   verbose?: boolean;
 }
@@ -14,28 +15,36 @@ export class Rooms {
   protected rooms: readonly Room[] = [];
   private readonly io: ServerIoOverload;
   private readonly playerCapacity: number;
-  private readonly roomCapacity: number;
   private readonly roomNames: RoomNames;
   private readonly verbose: boolean;
+  private readonly lowRoomCapacity: number;
+  private readonly highRoomCapacity: number;
 
   constructor(
     io: ServerIoOverload,
-    { playerCapacity, roomCapacity, roomNames, verbose = false }: SocketRoomsOptions,
+    {
+      playerCapacity,
+      lowRoomCapacity,
+      highRoomCapacity,
+      roomNames,
+      verbose = false,
+    }: SocketRoomsOptions,
   ) {
     this.playerCapacity = playerCapacity;
-    this.roomCapacity = roomCapacity;
+    this.lowRoomCapacity = lowRoomCapacity;
+    this.highRoomCapacity = highRoomCapacity;
     this.roomNames = roomNames;
     this.io = io;
     this.verbose = verbose;
   }
 
-  private makeRoom(name: string, player: Player, roomCapacity: number): Room {
+  private makeRoom(name: string, player: Player): Room {
     const room = Room.withPlayer(
       {
         io: this.io,
         name,
-        capacity: roomCapacity,
-        upgradedCapacity: roomCapacity * 4,
+        lowCapacity: this.lowRoomCapacity,
+        highCapacity: this.highRoomCapacity,
         verbose: this.verbose,
       },
       player,
@@ -45,11 +54,11 @@ export class Rooms {
 
   addToNextRoom(player: Player): Room {
     this.throwIfFull(player);
-    const [maybeChosenRoom] = this.findAvailableRooms();
+    const [maybeChosenRoom] = this.findLowAvailableRooms();
 
     const roomCanFitPlayer = maybeChosenRoom !== undefined;
     if (roomCanFitPlayer) {
-      this.addToRoom(maybeChosenRoom, player);
+      this.addToLowRoom(maybeChosenRoom, player);
       return maybeChosenRoom;
     }
 
@@ -71,7 +80,7 @@ export class Rooms {
 
     if (maybeRoom?.isAvailable()) {
       maybeRoom.upgrade();
-      this.addToRoom(maybeRoom, player);
+      this.addToLowRoom(maybeRoom, player);
       return maybeRoom;
     }
 
@@ -109,17 +118,16 @@ export class Rooms {
       throw new Error(`Cannot get room of player ${playerId}. Player is not in rooms`);
   }
 
-  private findAvailableRooms = () => this.rooms.filter((room) => room.isAvailable());
+  private findLowAvailableRooms = () => this.rooms.filter((room) => !room.isLowFull());
   findRoomByName = (name: string): Room | undefined =>
     this.rooms.find((room) => room.getName() === name);
 
-  private addToRoom(room: Room, player: Player): Room {
-    try {
-      room.addPlayer(player);
-    } catch (error) {
-      console.error(error);
-      this.createRandomRoom(player);
+  private addToLowRoom(room: Room, player: Player): Room {
+    if (room.isLowFull()) {
+      return this.createRandomRoom(player);
     }
+
+    room.addPlayer(player);
 
     return room;
   }
@@ -137,7 +145,7 @@ export class Rooms {
       );
 
     this.roomNames.checkOutRoom(name);
-    const room = this.makeRoom(name, player, this.roomCapacity);
+    const room = this.makeRoom(name, player);
     this.rooms = [...this.rooms, room];
 
     return room;

@@ -3,7 +3,12 @@ import { ServerIoOverload } from './../../../@types/socketio-overloads.d';
 import { RoomNames } from './../rooms/room-names';
 import { ServerSocketOverload } from '../../../@types/socketio-overloads';
 import { Rooms } from '../rooms/rooms';
-import { PLAYER_CAPACITY, ROOM_CAPACITY, ROOM_UNDEFINED } from './../constants';
+import {
+  PLAYER_CAPACITY,
+  ROOM_UNDEFINED,
+  HIGH_ROOM_CAPACITY,
+  LOW_ROOM_CAPACITY,
+} from './../constants';
 import { Room } from '../rooms/room';
 
 interface PlayersOptions {
@@ -38,7 +43,8 @@ export class Players {
     this.verbose = verbose;
     this.rooms = new Rooms(this.io, {
       playerCapacity: PLAYER_CAPACITY,
-      roomCapacity: ROOM_CAPACITY,
+      lowRoomCapacity: LOW_ROOM_CAPACITY,
+      highRoomCapacity: HIGH_ROOM_CAPACITY,
       roomNames: roomNames,
       verbose: this.verbose,
     });

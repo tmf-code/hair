@@ -5,15 +5,15 @@ import { Player } from '../../backend/src/rooms/player';
 
 const createRoom = ({
   name = 'roomOne',
-  capacity = 5,
-  upgradedCapacity = 20,
+  lowCapacity = 5,
+  highCapacity = 20,
 }: {
   name?: string;
-  capacity?: number;
-  upgradedCapacity?: number;
+  lowCapacity?: number;
+  highCapacity?: number;
 } = {}) => {
   const io = createIo();
-  return new Room({ io, name, capacity, upgradedCapacity });
+  return new Room({ io, name, lowCapacity, highCapacity });
 };
 
 describe('Room tests', () => {
@@ -36,7 +36,7 @@ describe('Room tests', () => {
 
   test('Room can be full', () => {
     const player = createPlayer('1');
-    const room = createRoom({ capacity: 1 });
+    const room = createRoom({ lowCapacity: 1 });
 
     room.addPlayer(player);
     expect(room.hasPlayer(player.id)).toBeTruthy();
@@ -64,7 +64,7 @@ describe('Room tests', () => {
     const player1 = createPlayer('1');
     const player2 = createPlayer('2');
 
-    const room = createRoom({ capacity: 1 });
+    const room = createRoom({ lowCapacity: 1 });
     room.addPlayer(player1);
 
     const addPlayer = () => room.addPlayer(player2);
@@ -82,9 +82,9 @@ describe('Room tests', () => {
     const firstNumberPlayers = 10;
     const secondNumberPlayers = 5;
     const lowCapacity = 5;
-    const upgradedCapacity = 10;
+    const highCapacity = 10;
     const playerGenerator = generatePlayers();
-    const room = createRoom({ capacity: lowCapacity, upgradedCapacity });
+    const room = createRoom({ lowCapacity, highCapacity });
 
     const addFirstPlayers = () => {
       const players = [...new Array(firstNumberPlayers)].map(() => playerGenerator.next().value);
@@ -106,15 +106,15 @@ describe('Room tests', () => {
     expect(addSecondPlayers).not.toThrow();
 
     expect(room.isFull()).toBeTruthy();
-    expect(room.getSize()).toBe(upgradedCapacity);
+    expect(room.getSize()).toBe(highCapacity);
   });
 
   test('Room downgrades if size goes below low capacity', () => {
     const firstNumberPlayers = 10;
     const lowCapacity = 5;
-    const upgradedCapacity = 10;
+    const highCapacity = 10;
     const playerGenerator = generatePlayers();
-    const room = createRoom({ capacity: lowCapacity, upgradedCapacity });
+    const room = createRoom({ lowCapacity, highCapacity });
     room.upgrade();
 
     const players = [...new Array(firstNumberPlayers)].map(() => playerGenerator.next().value);
@@ -133,9 +133,9 @@ describe('Room tests', () => {
   test('Can simulating players entering and exiting', () => {
     const simulationTimes = 1000;
     const lowCapacity = 5;
-    const upgradedCapacity = 10;
+    const highCapacity = 10;
     const playerGenerator = generatePlayers();
-    const room = createRoom({ capacity: lowCapacity, upgradedCapacity });
+    const room = createRoom({ lowCapacity, highCapacity });
 
     let addedPlayers: Player[] = [];
     const selectRandom = <T>(list: T[]): T => list[Math.floor(Math.random() * list.length)];

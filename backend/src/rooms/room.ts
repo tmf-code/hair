@@ -5,8 +5,8 @@ import { ServerIoOverload } from '../../../@types/socketio-overloads';
 interface RoomOptions {
   io: ServerIoOverload;
   name: string;
-  capacity: number;
-  upgradedCapacity: number;
+  lowCapacity: number;
+  highCapacity: number;
   verbose?: boolean;
 }
 
@@ -15,8 +15,8 @@ export class Room {
   name: string;
   players: Player[] = [];
   capacity: number;
-  normalCapacity: number;
-  upgradedCapacity: number;
+  lowCapacity: number;
+  highCapacity: number;
   verbose: boolean;
 
   static withPlayer(options: RoomOptions, firstPlayer: Player): Room {
@@ -26,11 +26,11 @@ export class Room {
     return room;
   }
 
-  constructor({ io, name, capacity, upgradedCapacity, verbose = false }: RoomOptions) {
+  constructor({ io, name, lowCapacity, highCapacity, verbose = false }: RoomOptions) {
     this.name = name;
-    this.capacity = capacity;
-    this.normalCapacity = this.capacity;
-    this.upgradedCapacity = upgradedCapacity;
+    this.capacity = lowCapacity;
+    this.lowCapacity = this.capacity;
+    this.highCapacity = highCapacity;
     this.io = io;
     this.verbose = verbose;
 
@@ -38,19 +38,19 @@ export class Room {
   }
 
   upgrade(): void {
-    this.capacity = this.upgradedCapacity;
+    this.capacity = this.highCapacity;
     this.verbose && console.log(`UPGRADED: ${this.name}`);
   }
 
   private downgrade(): void {
-    if (this.getSize() > this.normalCapacity) {
+    if (this.getSize() > this.lowCapacity) {
       throw new Error(
         `Could not downgrade room ${
           this.name
-        }. Room had too player players. Got ${this.getSize()}, expected ${this.normalCapacity}`,
+        }. Room had too player players. Got ${this.getSize()}, expected ${this.lowCapacity}`,
       );
     }
-    this.capacity = this.normalCapacity;
+    this.capacity = this.lowCapacity;
     this.verbose && console.log(`DOWNGRADED: ${this.name}`);
   }
 
@@ -84,7 +84,7 @@ export class Room {
     player?.leave(this.name);
     player?.destroy();
 
-    const shouldDowngrade = this.getSize() <= this.normalCapacity && this.isUpgraded();
+    const shouldDowngrade = this.getSize() <= this.lowCapacity && this.isUpgraded();
     if (shouldDowngrade) {
       this.downgrade();
     }
@@ -118,7 +118,9 @@ export class Room {
     this.players.find((currentPlayer) => id === currentPlayer.id) !== undefined;
   isAvailable = (): boolean => !this.isFull() && !this.isEmpty();
   isFull = (): boolean => this.players.length >= this.capacity;
-  isUpgraded = (): boolean => this.capacity === this.upgradedCapacity;
+  isLowFull = (): boolean => this.players.length >= this.lowCapacity;
+  isHighFull = (): boolean => this.players.length >= this.highCapacity;
+  isUpgraded = (): boolean => this.capacity === this.highCapacity;
   isEmpty = (): boolean => this.players.length === 0;
   getSize = (): number => this.players.length;
   getName = (): string => this.name;
