@@ -153,29 +153,6 @@ export class Players {
     } catch {}
   }
 
-  private placePlayerInNextRoom(
-    socket: ServerSocketOverload,
-    positions: [number, number][],
-    rotations: number[],
-    lengths: number[],
-  ) {
-    const player = new Player({
-      socket,
-      receiveCuts: this.receiveCuts,
-      positions,
-      rotations,
-      lengths,
-    });
-    try {
-      const room = this.rooms.addToNextRoom(player);
-      console.log(`ADD RANDOM: Player ${socket.id} to room ${room.getName()}`);
-    } catch (error) {
-      console.log(error);
-      console.log('Something went wrong, muting player');
-      player.destroy();
-    }
-  }
-
   removePlayer(socket: ServerSocketOverload): void {
     const { id: playerId } = socket;
 
