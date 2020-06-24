@@ -204,13 +204,13 @@ export class Rooms {
   isPlayerInRooms = (playerId: string): boolean =>
     this.rooms.some((room) => room.hasPlayer(playerId));
 
-  isRoomAvailable = (name: string): boolean => {
+  isRoomHighAvailable = (name: string): boolean => {
     if (!this.isValidRoomName(name)) return false;
 
     const maybeRoom = this.findRoomByName(name);
     if (!maybeRoom) return true;
 
-    return maybeRoom.isLowAvailable();
+    return maybeRoom.isHighAvailable();
   };
 
   private isValidRoomName = (name: string) => this.roomNames.isValidRoomName(name);

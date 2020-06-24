@@ -63,11 +63,7 @@ export class Players {
         return this.addToRandomRoom(player);
       }
 
-      if (this.rooms.isRoomAvailable(room)) {
-        return this.addToChosenRoom(player, room);
-      }
-
-      return this.addToRandomRoom(player);
+      return this.addToChosenRoom(player, room);
     } catch (error) {
       console.error(error);
       console.log('Did not add player to rooms');
@@ -108,7 +104,11 @@ export class Players {
     this.throwIfRoomNameIsInvalid(roomName);
 
     const room = this.rooms.addToNamedRoom(roomName, player);
-    this.verbose && console.log(`ADD CHOSEN: Player ${player.id} to room ${roomName}`);
+    if (room.name !== roomName) {
+      this.verbose && console.log(`ADD CHOSEN: Player ${player.id} to room ${roomName}`);
+    } else {
+      this.verbose && console.log(`ADD CHOSEN: Player ${player.id} to room ${roomName}`);
+    }
 
     return room;
   }
