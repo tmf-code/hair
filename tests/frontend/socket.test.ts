@@ -31,9 +31,11 @@ jest.mock('socket.io-client');
 const io = require('socket.io-client');
 
 const socketOnMock = jest.fn();
+const socketEmitMock = jest.fn();
 io.mockImplementation(() => {
   return {
     on: socketOnMock,
+    emit: socketEmitMock,
   };
 });
 
