@@ -28,7 +28,7 @@ describe('Rooms tests', () => {
     const player = createPlayer('1');
     const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity: 1 });
 
-    rooms.addToNextRoom(player);
+    rooms.addToRandomRoom(player);
 
     expect(rooms.getRoomCount()).toBe(1);
     expect(rooms.getPlayerCount()).toBe(1);
@@ -39,8 +39,8 @@ describe('Rooms tests', () => {
     const player2 = createPlayer('2');
     const rooms = new Rooms(io, playerRoomOptions);
 
-    rooms.addToNextRoom(player1);
-    rooms.addToNextRoom(player2);
+    rooms.addToRandomRoom(player1);
+    rooms.addToRandomRoom(player2);
 
     expect(rooms.getRoomCount()).toBe(1);
     expect(rooms.getPlayerCount()).toBe(2);
@@ -52,8 +52,8 @@ describe('Rooms tests', () => {
     const player2 = createPlayer('2');
     const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity });
 
-    rooms.addToNextRoom(player1);
-    rooms.addToNextRoom(player2);
+    rooms.addToRandomRoom(player1);
+    rooms.addToRandomRoom(player2);
 
     expect(rooms.getRoomCount()).toBe(2);
     expect(rooms.getPlayerCount()).toBe(2);
@@ -66,7 +66,7 @@ describe('Rooms tests', () => {
     const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity });
 
     const expectedRoomCount = Math.ceil(playerCount / lowRoomCapacity);
-    players.forEach((player) => rooms.addToNextRoom(player));
+    players.forEach((player) => rooms.addToRandomRoom(player));
 
     expect(rooms.getRoomCount()).toBe(expectedRoomCount);
     expect(rooms.getPlayerCount()).toBe(playerCount);
@@ -99,7 +99,7 @@ describe('Rooms tests', () => {
     const player2 = createPlayer('2');
     const rooms = new Rooms(io, playerRoomOptions);
 
-    rooms.addToNextRoom(player1);
+    rooms.addToRandomRoom(player1);
     const roomName = rooms.getRoomNameOfPlayer(player1.id);
 
     rooms.addToNamedRoom(roomName, player2);
@@ -113,7 +113,7 @@ describe('Rooms tests', () => {
     const player1 = createPlayer('1');
     const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity: 1 });
 
-    rooms.addToNextRoom(player1);
+    rooms.addToRandomRoom(player1);
     rooms.removePlayer(player1.id);
     expect(rooms.getPlayerCount()).toBe(0);
   });
@@ -123,9 +123,9 @@ describe('Rooms tests', () => {
     const player2 = createPlayer('2');
     const player3 = createPlayer('3');
     const rooms = new Rooms(io, { ...playerRoomOptions, lowRoomCapacity: 2 });
-    rooms.addToNextRoom(player1);
-    rooms.addToNextRoom(player2);
-    rooms.addToNextRoom(player3);
+    rooms.addToRandomRoom(player1);
+    rooms.addToRandomRoom(player2);
+    rooms.addToRandomRoom(player3);
 
     expect(rooms.getRoomCount()).toBe(2);
     expect(rooms.getPlayerCount()).toBe(3);

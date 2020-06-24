@@ -52,7 +52,7 @@ export class Rooms {
     return room;
   }
 
-  addToNextRoom(player: Player): Room {
+  addToRandomRoom(player: Player): Room {
     this.throwIfFull(player);
     const [maybeChosenRoom] = this.findLowAvailableRooms();
 
@@ -80,7 +80,7 @@ export class Rooms {
 
     if (maybeRoom?.isAvailable()) {
       maybeRoom.upgrade();
-      this.addToLowRoom(maybeRoom, player);
+      this.addToHighRoom(maybeRoom, player);
       return maybeRoom;
     }
 
@@ -129,6 +129,15 @@ export class Rooms {
 
     room.addPlayer(player);
 
+    return room;
+  }
+
+  private addToHighRoom(room: Room, player: Player): Room {
+    if (room.isHighFull()) {
+      return this.createRandomRoom(player);
+    }
+
+    room.addPlayer(player);
     return room;
   }
 

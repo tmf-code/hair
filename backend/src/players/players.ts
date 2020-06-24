@@ -92,7 +92,7 @@ export class Players {
 
   private addToRandomRoom(player: Player): Room | undefined {
     this.throwIfPlayerHasRoom(player);
-    const room = this.rooms.addToNextRoom(player);
+    const room = this.rooms.addToRandomRoom(player);
     this.verbose && console.log(`ADD RANDOM: Player ${player.id} to room ${room.getName()}`);
     return room;
   }
