@@ -1,44 +1,31 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+https://www.comeshave.com/
 
-## Available Scripts
+## Introduction
+Come Shave With Me is a project by Alexandra Barancová & Jae Perris in
+collaboration with Moniker.
 
-In the project directory, you can run:
+The project proposes an outlet for social grooming in a time of distancing; Come Shave With
+Me is a virtual skin that people can groom together, online.
 
-### `npm start`
+Sheared silky smooth, maintained mildly prickly or kept rough and bushy… There are countless
+ways you might like it. You won’t know until you try.
 
-Runs the app in the development mode.<br />
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+With public events and gatherings cut down around the world, bodily self-care is – let’s be
+honest – not necessarily a top-most priority. Your arms, armpits, chest, back, genitals, or
+legs are (usually) tucked away during video chats and conferences after all. What part of it
+is just for others’ eyes to see and skins to feel? What do we make of our physical bodies in
+isolation?
 
-The page will reload if you make edits.<br />
-You will also see any lint errors in the console.
+The virtual world often has neither the patience, nor the infrastructure to accommodate the
+wants and needs of our bodies. Come Shave With Me speculates whether the satisfactions
+enjoyed from bodily grooming could be recreated and shared in virtual spaces.
 
-### `npm test`
-
-Launches the test runner in the interactive watch mode.<br />
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.<br />
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.<br />
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+This work is an outcome of Figureable, an artistic research project funded by the Creative
+Industries Fund NL. Figureable explores our relationships to and with our bodies through
+embodiment in games.
+   
+## Run locally
+```command
+npm i
+npm run start:dev
+```
