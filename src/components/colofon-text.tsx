@@ -41,7 +41,7 @@ const ColofonText = ({ roomName, url }: ColofonTextProps): React.ReactElement =>
       <p>
         This work is an outcome of Figureable, an artistic research project funded by the Creative
         Industries Fund NL. Figureable explores our relationships to and with our bodies through
-        embodiment in games. Below is a talk giving an overview of our findings.
+        embodiment in games.
       </p>
       <div className="video">
         <iframe
@@ -54,6 +54,8 @@ const ColofonText = ({ roomName, url }: ColofonTextProps): React.ReactElement =>
           allowFullScreen
         />
       </div>
+      <p></p>
+      <p>This talk presents some of the research and findings from Figureable.</p>
       <img
         className="logo-image"
         src={'/fund-logo-1.png'}
